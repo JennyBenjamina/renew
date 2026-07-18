@@ -1,0 +1,18 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* When the compliance gate is up, blur and lock the page behind it. */
+.app--gated {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+main {
+  flex: 1;
+}

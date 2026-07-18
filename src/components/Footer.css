@@ -1,0 +1,72 @@
+.footer {
+  background: var(--color-bg-inverse);
+  color: var(--color-text-inverse);
+  padding: var(--space-8) 0 var(--space-5);
+  margin-top: var(--space-9);
+}
+
+.footer .logo__word {
+  color: var(--color-text-inverse);
+}
+
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-6);
+  padding-bottom: var(--space-7);
+}
+
+.footer__brand p {
+  color: color-mix(in srgb, var(--color-text-inverse) 72%, transparent);
+  max-width: 320px;
+  margin-top: var(--space-4);
+  font-size: 0.92rem;
+}
+
+.footer__ro {
+  font-weight: 600;
+  color: var(--color-accent) !important;
+}
+
+.footer__col h4 {
+  color: var(--color-text-inverse);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
+}
+
+.footer__col a {
+  display: block;
+  color: color-mix(in srgb, var(--color-text-inverse) 72%, transparent);
+  font-size: 0.92rem;
+  padding: var(--space-2) 0;
+  transition: color var(--transition);
+}
+
+.footer__col a:hover {
+  color: var(--color-text-inverse);
+}
+
+.footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding-top: var(--space-5);
+  border-top: 1px solid color-mix(in srgb, var(--color-text-inverse) 16%, transparent);
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--color-text-inverse) 60%, transparent);
+}
+
+@media (max-width: 780px) {
+  .footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer__grid {
+    grid-template-columns: 1fr;
+  }
+}

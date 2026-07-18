@@ -1,0 +1,137 @@
+/* ============================================================================
+   RENEW — THEME TOKENS
+   ----------------------------------------------------------------------------
+   THIS IS THE ONLY FILE YOU NEED TO EDIT TO CHANGE THE COLOR SCHEME.
+
+   Every color, gradient, shadow, radius and font in the app references one of
+   the CSS custom properties defined below. Change a value here and it updates
+   everywhere automatically. Nothing else in the codebase hardcodes a color.
+
+   To rebrand:
+     1. Replace the raw palette values under "1. RAW PALETTE".
+     2. (Optional) Remap the semantic tokens under "2. SEMANTIC TOKENS" if you
+        want a different token to point at a different palette color.
+     3. That's it. Save and reload.
+
+   A ready-made dark theme is included at the bottom — see "4. DARK THEME".
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     1. RAW PALETTE  — the actual brand colors. Edit these.
+     ------------------------------------------------------------------------ */
+  --palette-green-900: #1f3c2c;
+  --palette-green-700: #2f5540;
+  --palette-green-600: #3f6f52;
+  --palette-green-500: #5a8a6c; /* primary accent */
+  --palette-green-300: #9dbfa9;
+  --palette-green-100: #e7efe9;
+
+  --palette-ink-900: #14181a; /* near-black text */
+  --palette-ink-700: #33403a;
+  --palette-ink-500: #6b7772; /* muted text */
+  --palette-ink-300: #a9b2ad;
+
+  --palette-paper: #ffffff;
+  --palette-paper-2: #f6f8f6; /* subtle section background */
+  --palette-paper-3: #eef2ee;
+  --palette-line: #e2e7e3; /* borders */
+
+  --palette-gold: #c8a24a; /* "BEST" / sale accents */
+  --palette-red: #c0492f; /* sale / out of stock */
+  --palette-green-ok: #3f7d4f; /* in stock */
+
+  /* ------------------------------------------------------------------------
+     2. SEMANTIC TOKENS — what the components actually reference.
+        Point these at any palette color above.
+     ------------------------------------------------------------------------ */
+
+  /* Brand & actions */
+  --color-primary: var(--palette-green-600);
+  --color-primary-hover: var(--palette-green-700);
+  --color-primary-contrast: var(--palette-paper);
+  --color-accent: var(--palette-green-500);
+
+  /* Surfaces */
+  --color-bg: var(--palette-paper);
+  --color-bg-subtle: var(--palette-paper-2);
+  --color-bg-raised: var(--palette-paper);
+  --color-bg-inverse: var(--palette-green-900);
+  --color-overlay: rgba(20, 24, 26, 0.55);
+
+  /* Text */
+  --color-text: var(--palette-ink-900);
+  --color-text-muted: var(--palette-ink-500);
+  --color-text-inverse: var(--palette-paper);
+  --color-text-on-primary: var(--palette-paper);
+
+  /* Lines & focus */
+  --color-border: var(--palette-line);
+  --color-border-strong: var(--palette-ink-300);
+  --color-focus: var(--palette-green-500);
+
+  /* Status / badges */
+  --color-sale: var(--palette-red);
+  --color-new: var(--palette-green-600);
+  --color-instock: var(--palette-green-ok);
+  --color-outstock: var(--palette-ink-500);
+  --color-best: var(--palette-gold);
+
+  /* ------------------------------------------------------------------------
+     3. NON-COLOR DESIGN TOKENS — spacing scale, radii, shadows, type.
+     ------------------------------------------------------------------------ */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-display: 'Poppins', var(--font-sans);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 24, 26, 0.06),
+    0 1px 3px rgba(20, 24, 26, 0.04);
+  --shadow-md: 0 6px 20px rgba(20, 24, 26, 0.08);
+  --shadow-lg: 0 20px 50px rgba(20, 24, 26, 0.14);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --container: 1200px;
+  --header-h: 68px;
+
+  --transition: 160ms ease;
+}
+
+/* ==========================================================================
+   4. DARK THEME (optional)
+   Add   data-theme="dark"   to the <html> element to activate.
+   Only the color tokens are overridden — layout tokens stay the same.
+   ========================================================================== */
+[data-theme='dark'] {
+  --color-primary: var(--palette-green-500);
+  --color-primary-hover: var(--palette-green-300);
+  --color-primary-contrast: var(--palette-ink-900);
+  --color-accent: var(--palette-green-300);
+
+  --color-bg: #0f1512;
+  --color-bg-subtle: #141c17;
+  --color-bg-raised: #18211b;
+  --color-bg-inverse: #060a08;
+  --color-overlay: rgba(0, 0, 0, 0.65);
+
+  --color-text: #eef2ee;
+  --color-text-muted: #9fb0a6;
+  --color-text-inverse: #0f1512;
+  --color-text-on-primary: #0f1512;
+
+  --color-border: #24312a;
+  --color-border-strong: #3a4a41;
+}
