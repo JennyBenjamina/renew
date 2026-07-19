@@ -14,9 +14,13 @@ create table if not exists public.products (
   badges            text[] default '{}',
   in_stock          boolean not null default true,
   featured          boolean not null default false,
-  image_hue         int default 150,   -- used for the placeholder product art
+  image_hue         int default 150,   -- fallback placeholder art color
+  image_url         text,              -- hosted product photo (Supabase Storage)
   created_at        timestamptz not null default now()
 );
+
+-- If the table already existed before image_url was introduced, add it.
+alter table public.products add column if not exists image_url text;
 
 -- Public storefront: anyone may read the catalog, no one may write via the
 -- anon key. Manage inventory through the Supabase dashboard or a service role.

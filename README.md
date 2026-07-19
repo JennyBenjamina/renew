@@ -78,13 +78,21 @@ only works with Supabase connected.
 **One-time setup in Supabase:**
 
 1. Run `supabase/schema.sql` (it now includes admin write policies for
-   signed-in users). If you ran an earlier version, just run it again — it's
-   safe to re-run.
-2. **Create an admin user:** Authentication → Users → **Add user** → enter an
+   signed-in users and the `image_url` column). If you ran an earlier version,
+   just run it again — it's safe to re-run.
+2. Run `supabase/storage.sql` to create the `product-images` storage bucket and
+   its access policies (public read, admin upload). This enables image uploads.
+3. **Create an admin user:** Authentication → Users → **Add user** → enter an
    email + password. This is the login you'll use.
-3. **Turn off public sign-ups** so nobody can self-register as an admin:
+4. **Turn off public sign-ups** so nobody can self-register as an admin:
    Authentication → Providers → Email → set **"Allow new users to sign up"** to
-   **off**. (You'll still add admins manually via step 2.)
+   **off**. (You'll still add admins manually via step 3.)
+
+**Product images:** in the add/edit form, click **Upload image**. Requirements
+are shown right in the form — a **square** image, **JPG / PNG / WebP**, at least
+**800×800px** (1000×1000 recommended), under **3 MB**. Uploads go to Supabase
+Storage and the product shows the real photo on the storefront; products without
+an image fall back to the generated placeholder art.
 
 **Using it:**
 

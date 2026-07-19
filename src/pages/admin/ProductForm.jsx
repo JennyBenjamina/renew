@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { categories } from '../../data/products.js'
+import { uploadProductImage, IMAGE_RULES } from '../../lib/products.js'
 
 const CATEGORY_OPTIONS = categories.filter((c) => c !== 'All')
 
@@ -20,6 +21,7 @@ const empty = {
   compare_at_price: '',
   purity: '',
   image_hue: 150,
+  image_url: null,
   in_stock: true,
   featured: false,
   badges: [],
@@ -31,6 +33,25 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
   const [form, setForm] = useState({ ...empty, ...product })
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  const onPickImage = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-selecting the same file later
+    if (!file) return
+    setError('')
+    setUploading(true)
+    try {
+      const slug =
+        (form.slug && slugify(form.slug)) || slugify(form.name) || 'item'
+      const url = await uploadProductImage(file, slug)
+      setForm((f) => ({ ...f, image_url: url }))
+    } catch (err) {
+      setError(err.message || 'Image upload failed.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const set = (field) => (e) => {
     const value =
@@ -73,6 +94,7 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
         form.compare_at_price === '' ? null : Number(form.compare_at_price),
       purity: form.purity.trim() || null,
       image_hue: Number(form.image_hue) || 150,
+      image_url: form.image_url || null,
       in_stock: Boolean(form.in_stock),
       featured: Boolean(form.featured),
       badges: form.badges || [],
@@ -168,7 +190,7 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
             />
           </label>
           <label>
-            Art hue (0–360)
+            Fallback art hue (0–360)
             <input
               type="number"
               min="0"
@@ -177,6 +199,46 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
               onChange={set('image_hue')}
             />
           </label>
+
+          <div className="pform__full pform__image">
+            <span className="pform__label-text">Product image</span>
+            <div className="pform__image-row">
+              <div className="pform__image-preview">
+                {form.image_url ? (
+                  <img src={form.image_url} alt="Product preview" />
+                ) : (
+                  <span className="pform__image-empty">No image</span>
+                )}
+              </div>
+              <div className="pform__image-controls">
+                <label className="btn btn--outline pform__upload">
+                  {uploading ? 'Uploading…' : form.image_url ? 'Replace image' : 'Upload image'}
+                  <input
+                    type="file"
+                    accept={IMAGE_RULES.acceptAttr}
+                    onChange={onPickImage}
+                    disabled={uploading}
+                    hidden
+                  />
+                </label>
+                {form.image_url && (
+                  <button
+                    type="button"
+                    className="admin__link admin__link--danger"
+                    onClick={() => setForm((f) => ({ ...f, image_url: null }))}
+                  >
+                    Remove
+                  </button>
+                )}
+                <p className="pform__hint">
+                  Square image ({IMAGE_RULES.extensions}), at least{' '}
+                  {IMAGE_RULES.minSize}×{IMAGE_RULES.minSize}px — {IMAGE_RULES.recommended}{' '}
+                  recommended. Max {IMAGE_RULES.maxLabel}. If no image is set,
+                  the fallback art hue above is used.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div className="pform__checks pform__full">
             <label className="pform__check">
@@ -218,7 +280,11 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
           <button type="button" className="btn btn--ghost" onClick={onClose}>
             Cancel
           </button>
-          <button type="submit" className="btn btn--primary" disabled={saving}>
+          <button
+            type="submit"
+            className="btn btn--primary"
+            disabled={saving || uploading}
+          >
             {saving ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}
           </button>
         </footer>

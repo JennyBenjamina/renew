@@ -44,7 +44,16 @@ export default function ProductCard({ product }) {
         >
           {product.in_stock ? 'In Stock' : 'Out of Stock'}
         </span>
-        <VialArt hue={product.image_hue} />
+        {product.image_url ? (
+          <img
+            className="pcard__photo"
+            src={product.image_url}
+            alt={product.name}
+            loading="lazy"
+          />
+        ) : (
+          <VialArt hue={product.image_hue} />
+        )}
       </div>
 
       <div className="pcard__body">
