@@ -59,6 +59,16 @@
   color: color-mix(in srgb, var(--color-text-inverse) 60%, transparent);
 }
 
+.footer__admin {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer__admin:hover {
+  color: var(--color-text-inverse);
+}
+
 @media (max-width: 780px) {
   .footer__grid {
     grid-template-columns: 1fr 1fr;

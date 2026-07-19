@@ -39,30 +39,23 @@ export default function Hero() {
           </ul>
         </div>
 
-        <div className="hero__art" aria-hidden="true">
-          <div className="hero__glow" />
-          <svg viewBox="0 0 320 340" className="hero__vial">
-            <defs>
-              <linearGradient id="hv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="var(--color-bg-raised)" />
-                <stop offset="1" stopColor="var(--color-bg-subtle)" />
-              </linearGradient>
-            </defs>
-            <rect x="30" y="30" width="260" height="280" rx="24"
-              fill="url(#hv)" stroke="var(--color-border)" />
-            <rect x="140" y="70" width="40" height="16" rx="4"
-              fill="var(--color-primary)" />
-            <rect x="146" y="86" width="28" height="10"
-              fill="var(--color-accent)" />
-            <path d="M140 96h40v120a20 20 0 0 1-20 20 20 20 0 0 1-20-20V96z"
-              fill="var(--color-bg-raised)" stroke="var(--color-primary)"
-              strokeWidth="3" />
-            <rect x="140" y="170" width="40" height="46"
-              fill="var(--color-accent)" opacity="0.35" />
-            <text x="160" y="270" textAnchor="middle"
-              fontFamily="var(--font-display)" fontSize="15"
-              fill="var(--color-text-muted)">RENEW · Lot ____</text>
-          </svg>
+        <div className="hero__art">
+          <div className="hero__glow" aria-hidden="true" />
+          <figure className="hero__frame">
+            <img
+              className="hero__img"
+              src="/hero-vial.png"
+              alt="Renew Labs GLP-3 RETA research-grade compound vial"
+              width="640"
+              height="640"
+              loading="eager"
+              onError={(e) => {
+                // Until public/hero-vial.png is added, hide the broken image and
+                // let the framed gradient stand in.
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          </figure>
         </div>
       </div>
     </section>

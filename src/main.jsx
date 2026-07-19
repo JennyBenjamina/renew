@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { CartProvider } from './context/CartContext.jsx'
 import { ComplianceProvider } from './context/ComplianceContext.jsx'
+import { AuthProvider } from './context/AuthContext.jsx'
 import { applyTheme, getSavedTheme } from './lib/theme.js'
 import './styles/theme.css'
 import './styles/global.css'
@@ -14,11 +15,13 @@ applyTheme(getSavedTheme())
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ComplianceProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </ComplianceProvider>
+      <AuthProvider>
+        <ComplianceProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </ComplianceProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 )

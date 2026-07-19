@@ -28,6 +28,32 @@ create policy "Public can read products"
   for select
   using (true);
 
+-- Admin writes: any signed-in (authenticated) user may add, edit, and delete
+-- products. Only create accounts for people you trust as admins, and disable
+-- public sign-ups in Supabase (Authentication -> Providers -> Email ->
+-- "Allow new users to sign up" = OFF) so no one can self-register an admin.
+drop policy if exists "Authenticated can insert products" on public.products;
+create policy "Authenticated can insert products"
+  on public.products
+  for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "Authenticated can update products" on public.products;
+create policy "Authenticated can update products"
+  on public.products
+  for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "Authenticated can delete products" on public.products;
+create policy "Authenticated can delete products"
+  on public.products
+  for delete
+  to authenticated
+  using (true);
+
 
 -- ---------------------------------------------------------------------------
 -- Compliance acceptance log

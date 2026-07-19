@@ -68,6 +68,35 @@ The data layer (`src/lib/products.js`) automatically falls back to the local
 catalog if the env vars are missing or a query fails, so the UI never breaks.
 Row-level security is enabled with public read-only access to the catalog.
 
+## Admin portal (`/admin`)
+
+A protected admin area lets authorized staff manage the catalog — add, edit,
+delete products, and toggle in-stock / featured. It uses **Supabase Auth**
+(real email + password) and is enforced by database row-level security, so it
+only works with Supabase connected.
+
+**One-time setup in Supabase:**
+
+1. Run `supabase/schema.sql` (it now includes admin write policies for
+   signed-in users). If you ran an earlier version, just run it again — it's
+   safe to re-run.
+2. **Create an admin user:** Authentication → Users → **Add user** → enter an
+   email + password. This is the login you'll use.
+3. **Turn off public sign-ups** so nobody can self-register as an admin:
+   Authentication → Providers → Email → set **"Allow new users to sign up"** to
+   **off**. (You'll still add admins manually via step 2.)
+
+**Using it:**
+
+- Go to `/admin` (or click the small "Admin" link in the site footer). You'll be
+  sent to `/admin/login`.
+- Sign in with the admin account. You'll land on the product dashboard.
+- Edits write straight to Supabase and appear on the storefront immediately.
+
+Security notes: any signed-in user counts as an admin (fine when you only create
+trusted accounts). Never put the Supabase `service_role` key in this app — the
+admin uses the public anon key plus the logged-in session, which is correct.
+
 ## Project structure
 
 ```
@@ -83,13 +112,15 @@ src/
     products.js      ← local fallback catalog (mirrors seed.sql)
   context/
     ComplianceContext.jsx  ← age/compliance gate state (14-day remember)
-    CartContext.jsx        ← cart state
+    CartContext.jsx        ← cart state (persisted to localStorage)
+    AuthContext.jsx        ← Supabase Auth session for the admin area
   components/        ← Navbar, Footer, Hero, ProductCard, ProductGrid,
-                       ComplianceGate, CartDrawer, MissionSection,
-                       AffiliateSection, Logo, ScrollToTop
+                       ComplianceGate, CartDrawer, ThemeSwitcher, Logo,
+                       StorefrontLayout, admin/ProtectedRoute, ...
   pages/             ← Home, Catalog, LocalPickup, About
+    admin/           ← AdminLogin, AdminDashboard, ProductForm, admin.css
 supabase/
-  schema.sql         ← products table + RLS policy
+  schema.sql         ← products + acceptance_log tables, RLS policies
   seed.sql           ← sample products
 ```
 

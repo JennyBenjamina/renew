@@ -26,3 +26,55 @@ export async function fetchFeaturedProducts() {
   const all = await fetchProducts()
   return all.filter((p) => p.featured)
 }
+
+/* ---------------------------------------------------------------------------
+ * Admin write operations. These require Supabase + a signed-in admin; row-level
+ * security enforces that on the server. They throw on error so the admin UI can
+ * surface it (no silent local fallback here).
+ * ------------------------------------------------------------------------- */
+
+function requireSupabase() {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Add your keys to .env.')
+  }
+}
+
+/** Admin catalog listing — always from Supabase, newest first. */
+export async function adminListProducts() {
+  requireSupabase()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createProduct(product) {
+  requireSupabase()
+  const { data, error } = await supabase
+    .from('products')
+    .insert(product)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateProduct(id, patch) {
+  requireSupabase()
+  const { data, error } = await supabase
+    .from('products')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteProduct(id) {
+  requireSupabase()
+  const { error } = await supabase.from('products').delete().eq('id', id)
+  if (error) throw error
+}
