@@ -1,6 +1,30 @@
-import { createContext, useContext, useMemo, useReducer } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+} from 'react'
 
 const CartContext = createContext(null)
+
+const STORAGE_KEY = 'renew.cart'
+const CART_TTL = 14 * 24 * 60 * 60 * 1000 // 14 days, matching the compliance gate
+
+/** Load a previously saved cart from localStorage, ignoring expired or
+ *  malformed data. Runs once when the provider mounts. */
+function loadCart() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const saved = JSON.parse(raw)
+    if (!saved || !Array.isArray(saved.items)) return []
+    if (saved.savedAt && Date.now() - saved.savedAt > CART_TTL) return []
+    return saved.items
+  } catch {
+    return []
+  }
+}
 
 function reducer(state, action) {
   switch (action.type) {
@@ -36,7 +60,24 @@ function reducer(state, action) {
 }
 
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, { items: [], open: false })
+  // Lazily initialize from localStorage so a returning visitor keeps their cart.
+  const [state, dispatch] = useReducer(reducer, undefined, () => ({
+    items: loadCart(),
+    open: false,
+  }))
+
+  // Persist the cart (items only — not the open/closed drawer state) whenever
+  // it changes, so it survives refreshes and closing the tab.
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ items: state.items, savedAt: Date.now() })
+      )
+    } catch {
+      /* localStorage unavailable — cart simply won't persist */
+    }
+  }, [state.items])
 
   const value = useMemo(() => {
     const count = state.items.reduce((n, i) => n + i.qty, 0)

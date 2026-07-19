@@ -27,25 +27,29 @@ npm run preview  # preview the production build
 No configuration is required to run it — the app ships with a local product
 catalog and will use it automatically until Supabase is connected.
 
-## Changing the color scheme (this was a core requirement)
+## Switching color schemes
 
-**You only ever edit one file:** `src/styles/theme.css`.
+Two complete color schemes ship in the app:
 
-Every color, radius, shadow, and font in the entire app references a CSS custom
-property defined there. No component hardcodes a color. To rebrand:
+- **Option 1 · Sky / Slate** (default) — `#FFFFFF #F1F5F9 #CBD5E1 #38BDF8 #0F172A`
+- **Option 2 · Mint / Teal** — `#F7FFFD #D9F5EF #A7E3D4 #5BB9A6 #2F5D57`
 
-1. Open `src/styles/theme.css`.
-2. Edit the values under **`1. RAW PALETTE`** (the actual brand colors).
-3. Optionally remap the **`2. SEMANTIC TOKENS`** (e.g. point `--color-primary`
-   at a different palette color).
-4. Save. Everything updates instantly.
+**To switch live (e.g. an investor demo):** run the site and click the floating
+**Theme** button in the bottom-right corner, then pick a scheme. Your choice is
+remembered across refreshes. That's the easiest way to show both.
 
-The file is organized into: raw palette → semantic tokens (what components use)
-→ non-color tokens (spacing, radii, shadows, type). A ready-made **dark theme**
-is included at the bottom — activate it by adding `data-theme="dark"` to the
-`<html>` element.
+**To set the default in code:** the active scheme is the `data-theme` attribute
+on `<html>` (`option1` or `option2`). Change `DEFAULT_THEME` in
+`src/lib/theme.js` if you want a different starting scheme.
 
-When you send me your color scheme, dropping it in is a one-file change.
+**To edit a scheme or add a third:** everything lives in `src/styles/theme.css`.
+Each scheme is a named token set (`[data-theme='option1']`, `[data-theme='option2']`).
+No component hardcodes a color — they all reference `--color-*` tokens — so
+tweaking a palette or adding a new one only touches that one file (plus a new
+entry in the `THEMES` list in `src/lib/theme.js` so it appears in the switcher).
+
+**To remove the switcher for production:** delete `<ThemeSwitcher />` in
+`src/App.jsx`. The chosen default scheme still applies.
 
 ## Connecting Supabase
 

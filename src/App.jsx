@@ -4,6 +4,7 @@ import ComplianceGate from './components/ComplianceGate.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import CartDrawer from './components/CartDrawer.jsx'
+import ThemeSwitcher from './components/ThemeSwitcher.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import Home from './pages/Home.jsx'
 import Catalog from './pages/Catalog.jsx'
@@ -30,6 +31,7 @@ export default function App() {
         </main>
         <Footer />
         <CartDrawer />
+        <ThemeSwitcher />
       </div>
     </>
   )

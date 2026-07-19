@@ -27,3 +27,29 @@ create policy "Public can read products"
   on public.products
   for select
   using (true);
+
+
+-- ---------------------------------------------------------------------------
+-- Compliance acceptance log
+-- Records each time a visitor accepts the compliance/age gate.
+-- Intentionally minimal: terms version + timestamp only (no IP, no PII), so it
+-- carries no privacy-policy baggage. Insert-only for the anon key: visitors can
+-- write an acceptance but cannot read the log back. Review it from the Supabase
+-- dashboard or with a service role.
+-- ---------------------------------------------------------------------------
+create table if not exists public.acceptance_log (
+  id            uuid primary key default gen_random_uuid(),
+  terms_version text not null,
+  remembered    boolean not null default false,
+  accepted_at   timestamptz not null default now()
+);
+
+alter table public.acceptance_log enable row level security;
+
+-- Allow anonymous inserts only. No select policy => the anon key cannot read
+-- the log, so acceptances can be written but not enumerated by the public.
+drop policy if exists "Anyone can log acceptance" on public.acceptance_log;
+create policy "Anyone can log acceptance"
+  on public.acceptance_log
+  for insert
+  with check (true);

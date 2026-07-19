@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { recordAcceptance } from '../lib/compliance.js'
 
 const ComplianceContext = createContext(null)
 const STORAGE_KEY = 'renew.compliance.acceptedUntil'
@@ -25,6 +26,8 @@ export function ComplianceProvider({ children }) {
         /* ignore */
       }
     }
+    // Log the acceptance server-side (fire-and-forget; no-op without Supabase).
+    recordAcceptance({ remembered: Boolean(remember) })
     setAccepted(true)
   }
 
