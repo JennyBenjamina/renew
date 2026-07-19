@@ -12,7 +12,7 @@ const stats = [
 export default function About() {
   return (
     <div className="about">
-      <header className="about__hero">
+      <header className="about__hero deco-band">
         <div className="container">
           <span className="eyebrow">About Renew</span>
           <h1>Uncompromising transparency and scientific rigor.</h1>

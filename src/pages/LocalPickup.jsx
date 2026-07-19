@@ -24,7 +24,7 @@ export default function LocalPickup() {
 
   return (
     <div className="pickup">
-      <header className="pickup__hero">
+      <header className="pickup__hero deco-band">
         <div className="container">
           <span className="eyebrow">Local pickup</span>
           <h1>Collect your order in person.</h1>

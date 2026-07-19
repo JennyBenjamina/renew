@@ -3,7 +3,7 @@ import './Hero.css'
 
 export default function Hero() {
   return (
-    <section className="hero">
+    <section className="hero deco-band">
       <div className="container hero__inner">
         <div className="hero__copy">
           <span className="eyebrow">Third-party tested purity</span>
@@ -39,9 +39,15 @@ export default function Hero() {
           </ul>
         </div>
 
-        <div className="hero__art">
-          <div className="hero__glow" aria-hidden="true" />
-          <figure className="hero__frame">
+        <div className="hero__art" aria-hidden="true">
+          {/* Blurred color orbs make the product pop off the background. */}
+          <span className="hero__orb hero__orb--1" />
+          <span className="hero__orb hero__orb--2" />
+          {/* Geometric accents around the image. */}
+          <span className="hero__ring" />
+          <span className="hero__ring hero__ring--sm" />
+          <span className="hero__dots" />
+          <figure className="hero__stage">
             <img
               className="hero__img"
               src="/hero-vial.png"
@@ -50,9 +56,8 @@ export default function Hero() {
               height="640"
               loading="eager"
               onError={(e) => {
-                // Until public/hero-vial.png is added, hide the broken image and
-                // let the framed gradient stand in.
-                e.currentTarget.style.display = 'none'
+                // Until public/hero-vial.png is added, hide the broken image.
+                e.currentTarget.closest('.hero__art').classList.add('is-empty')
               }}
             />
           </figure>

@@ -36,7 +36,7 @@ export default function Catalog() {
 
   return (
     <div className="catalog">
-      <header className="catalog__hero">
+      <header className="catalog__hero deco-band">
         <div className="container">
           <span className="eyebrow">Full catalog</span>
           <h1>Research compounds &amp; peptides</h1>

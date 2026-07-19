@@ -120,3 +120,96 @@
   --color-outstock: #5c7c75;
   --color-best: #c8a24a;
 }
+
+/* ==========================================================================
+   EARTHY PALETTE — three schemes rotating the same warm colors.
+   Palette: rose #d9a6a0 · cream #eee4d8 · white #ffffff · grey #8b8d87 ·
+            olive #828d6c   (dark text/footer shades derived for legibility)
+   ========================================================================== */
+
+/* OPTION 3 — ROSE (rose primary, olive accent) */
+[data-theme='option3'] {
+  --color-primary: #d9a6a0;
+  --color-primary-hover: #c98c85;
+  --color-primary-contrast: #3a322f;
+  --color-accent: #626b4c; /* deep olive — readable on light */
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #eee4d8; /* cream */
+  --color-bg-raised: #ffffff;
+  --color-bg-inverse: #383d2e; /* deep olive footer */
+  --color-overlay: rgba(56, 61, 46, 0.5);
+
+  --color-text: #33362e;
+  --color-text-muted: #7e807a; /* grey family */
+  --color-text-inverse: #f4efe7;
+  --color-text-on-primary: #3a322f;
+
+  --color-border: #e7ddce;
+  --color-border-strong: #d6c8b6;
+  --color-focus: #d9a6a0;
+
+  --color-sale: #c0564a;
+  --color-new: #828d6c;
+  --color-instock: #6f7d53;
+  --color-outstock: #8b8d87;
+  --color-best: #c8a24a;
+}
+
+/* OPTION 4 — OLIVE (olive primary, rose accent) */
+[data-theme='option4'] {
+  --color-primary: #828d6c;
+  --color-primary-hover: #6c7657;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #a15b52; /* deep dusty rose — readable on light */
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #eee4d8;
+  --color-bg-raised: #ffffff;
+  --color-bg-inverse: #333829; /* deep olive footer */
+  --color-overlay: rgba(51, 56, 41, 0.5);
+
+  --color-text: #30342a;
+  --color-text-muted: #7e807a;
+  --color-text-inverse: #f4efe7;
+  --color-text-on-primary: #ffffff;
+
+  --color-border: #e7ddce;
+  --color-border-strong: #d6c8b6;
+  --color-focus: #828d6c;
+
+  --color-sale: #c0564a;
+  --color-new: #d9a6a0;
+  --color-instock: #6f7d53;
+  --color-outstock: #8b8d87;
+  --color-best: #c8a24a;
+}
+
+/* OPTION 5 — STONE (grey primary, warm sand surfaces, rose accent) */
+[data-theme='option5'] {
+  --color-primary: #8b8d87;
+  --color-primary-hover: #74766f;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #a4605a; /* deep dusty rose */
+
+  --color-bg: #ffffff;
+  --color-bg-subtle: #eee4d8;
+  --color-bg-raised: #ffffff;
+  --color-bg-inverse: #3a3a36; /* warm charcoal footer */
+  --color-overlay: rgba(58, 58, 54, 0.5);
+
+  --color-text: #333330;
+  --color-text-muted: #7c7d77;
+  --color-text-inverse: #f4efe7;
+  --color-text-on-primary: #ffffff;
+
+  --color-border: #e7ddce;
+  --color-border-strong: #d6c8b6;
+  --color-focus: #8b8d87;
+
+  --color-sale: #c0564a;
+  --color-new: #828d6c;
+  --color-instock: #6f7d53;
+  --color-outstock: #8b8d87;
+  --color-best: #c8a24a;
+}

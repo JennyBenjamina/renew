@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer__grid">
         <div className="footer__brand">
-          <Logo />
+          <Logo light />
           <p>
             Research compounds synthesized for precision. Third-party tested for
             verified purity.
