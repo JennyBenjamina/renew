@@ -1,0 +1,13 @@
+# Netlify configuration for the Renew SPA.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Serve index.html for any path so client-side routing works on direct hits
+# and refreshes (e.g. /admin/login, /catalog). Without this, Netlify returns
+# its own 404 for those URLs.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
