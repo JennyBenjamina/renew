@@ -15,6 +15,7 @@
 
 .checkout__grid {
   display: grid;
+  margin-top: var(--space-6) !important;
   grid-template-columns: 1.4fr 1fr;
   gap: var(--space-6);
   align-items: start;
@@ -159,7 +160,7 @@
 /* Confirmation / empty */
 .checkout__confirm {
   max-width: 560px;
-  margin: 0 auto;
+  margin: var(--space-6) auto !important;
   padding: var(--space-9) var(--space-5);
   text-align: center;
 }
