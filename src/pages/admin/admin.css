@@ -1,5 +1,217 @@
 /* Admin area styling — uses the same theme tokens as the storefront. */
 
+/* Filter chips (Orders) */
+.admin__cats {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.admin__cats .chip {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  transition: all var(--transition);
+}
+
+.admin__cats .chip:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.admin__cats .chip.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+/* Orders list */
+.orders-admin {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-5);
+}
+
+.ordercard {
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ordercard.is-busy {
+  opacity: 0.6;
+}
+
+.ordercard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ordercard__num {
+  display: block;
+  font-size: 1rem;
+}
+
+.ordercard__date {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.ordercard__badge {
+  text-transform: capitalize;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.status--pending {
+  background: color-mix(in srgb, var(--color-best) 16%, var(--color-bg));
+  color: var(--color-best);
+  border-color: transparent;
+}
+.status--ready {
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-bg));
+  color: var(--color-accent);
+  border-color: transparent;
+}
+.status--delivered {
+  background: color-mix(in srgb, var(--color-instock) 16%, var(--color-bg));
+  color: var(--color-instock);
+  border-color: transparent;
+}
+.status--cancelled {
+  background: color-mix(in srgb, var(--color-sale) 14%, var(--color-bg));
+  color: var(--color-sale);
+  border-color: transparent;
+}
+
+.ordercard__body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+.ordercard__customer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ordercard__customer > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ordercard__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.ordercard__customer a {
+  color: var(--color-accent);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.ordercard__note span:last-child {
+  font-size: 0.9rem;
+}
+
+.ordercard__items {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+.ordercard__items ul {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ordercard__items li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.9rem;
+}
+
+.ordercard__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.ordercard__total strong {
+  font-size: 1.1rem;
+}
+
+.ordercard__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.ordercard__status-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ordercard__status-label select {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.ordercard__deliver {
+  padding: 9px 16px;
+  font-size: 0.85rem;
+}
+
 .admin-loading,
 .admin__empty {
   padding: var(--space-8);
@@ -146,6 +358,37 @@
   gap: var(--space-4);
 }
 
+.admin__brand {
+  display: inline-flex;
+}
+
+.admin__tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: var(--space-4);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+}
+
+.admin__tab {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: var(--space-2) 0;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.admin__tab:hover {
+  color: var(--color-text);
+}
+
+.admin__tab.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
 .admin__user {
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -154,6 +397,14 @@
 .admin__signout {
   padding: 8px 16px;
   font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .admin__tabs {
+    margin-left: var(--space-2);
+    padding-left: var(--space-2);
+    gap: var(--space-3);
+  }
 }
 
 .admin__main {

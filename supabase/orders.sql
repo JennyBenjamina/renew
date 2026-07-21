@@ -15,7 +15,7 @@ create table if not exists public.orders (
   note            text,
   fulfillment     text not null default 'local_pickup',
   status          text not null default 'pending'
-                    check (status in ('pending','ready','completed','cancelled')),
+                    check (status in ('pending','ready','delivered','cancelled')),
   total           numeric(10, 2) not null default 0,
   items           jsonb not null default '[]',   -- [{id,name,qty,price}, ...]
   created_at      timestamptz not null default now()
@@ -35,9 +35,23 @@ create unique index if not exists orders_number_idx on public.orders (order_numb
 
 alter table public.orders enable row level security;
 
--- Customers read only their own orders; admins read all. (No insert/update
--- policy: writes happen through the service-role key in the Netlify function.)
+-- Allow the 'delivered' status on tables created before it was added.
+alter table public.orders drop constraint if exists orders_status_check;
+alter table public.orders
+  add constraint orders_status_check
+  check (status in ('pending','ready','delivered','cancelled'));
+
+-- Customers read only their own orders; admins read all. New orders are created
+-- server-side (service role), so there is no public insert policy.
 drop policy if exists "read own orders" on public.orders;
 create policy "read own orders"
   on public.orders for select
   using (auth.uid() = user_id or public.is_admin());
+
+-- Admins can update orders (e.g. change status pending → delivered).
+drop policy if exists "admins update orders" on public.orders;
+create policy "admins update orders"
+  on public.orders for update
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());

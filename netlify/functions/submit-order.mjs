@@ -77,7 +77,13 @@ export async function handler(event) {
   }
 
   // 1. Record the order in Supabase (service role bypasses RLS).
-  if (SUPABASE_URL && SERVICE_KEY) {
+  // We capture the outcome and return it so it can be inspected from the
+  // browser Network tab without digging into Netlify logs.
+  let recorded = false
+  let dbError = null
+  if (!SUPABASE_URL) dbError = 'SUPABASE_URL / VITE_SUPABASE_URL not set'
+  else if (!SERVICE_KEY) dbError = 'SUPABASE_SERVICE_ROLE_KEY not set'
+  else {
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
         method: 'POST',
@@ -89,15 +95,16 @@ export async function handler(event) {
         },
         body: JSON.stringify(orderRow),
       })
-      if (!res.ok) {
-        const t = await res.text()
-        console.error('Supabase insert failed:', res.status, t)
+      if (res.ok) {
+        recorded = true
+      } else {
+        dbError = `insert ${res.status}: ${(await res.text()).slice(0, 300)}`
+        console.error('Supabase insert failed:', dbError)
       }
     } catch (err) {
+      dbError = 'fetch error: ' + (err?.message || String(err))
       console.error('Supabase insert error:', err)
     }
-  } else {
-    console.warn('Supabase env not set — order not recorded to database.')
   }
 
   // 2. Emails via Resend — branded shell with the Renew logo.
@@ -203,5 +210,11 @@ export async function handler(event) {
     ),
   ])
 
-  return json(200, { ok: true, order_number: orderNumber, total })
+  return json(200, {
+    ok: true,
+    order_number: orderNumber,
+    total,
+    recorded, // true if written to the Supabase orders table
+    db_error: dbError, // null on success, otherwise why the DB write failed
+  })
 }

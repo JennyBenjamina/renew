@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext.jsx'
 import {
   adminListProducts,
   createProduct,
@@ -8,12 +6,10 @@ import {
   deleteProduct,
 } from '../../lib/products.js'
 import { money } from '../../lib/format.js'
-import Logo from '../../components/Logo.jsx'
 import ProductForm from './ProductForm.jsx'
 import './admin.css'
 
 export default function AdminDashboard() {
-  const { user, signOut } = useAuth()
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -73,25 +69,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="admin">
-      <header className="admin__bar">
-        <div className="admin__bar-left">
-          <Logo />
-          <span className="adminlogin__tag">Admin</span>
-        </div>
-        <div className="admin__bar-right">
-          <Link to="/" className="admin__link">
-            View store ↗
-          </Link>
-          <span className="admin__user">{user?.email}</span>
-          <button className="btn btn--outline admin__signout" onClick={signOut}>
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <main className="admin__main">
-        <div className="admin__head">
+    <>
+      <div className="admin__head">
           <div>
             <h1>Products</h1>
             <p>{products.length} item{products.length === 1 ? '' : 's'} in your products.</p>
@@ -181,7 +160,6 @@ export default function AdminDashboard() {
             </table>
           </div>
         )}
-      </main>
 
       {editing !== null && (
         <ProductForm
@@ -191,6 +169,6 @@ export default function AdminDashboard() {
           onClose={() => setEditing(null)}
         />
       )}
-    </div>
+    </>
   )
 }

@@ -7,7 +7,9 @@ import Catalog from './pages/Catalog.jsx'
 import LocalPickup from './pages/LocalPickup.jsx'
 import About from './pages/About.jsx'
 import AdminLogin from './pages/admin/AdminLogin.jsx'
+import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
+import AdminOrders from './pages/admin/AdminOrders.jsx'
 import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
 import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
 import PrivacyPolicy from './pages/legal/PrivacyPolicy.jsx'
@@ -71,10 +73,13 @@ export default function App() {
           path="/admin"
           element={
             <ProtectedRoute requireAdmin>
-              <AdminDashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="orders" element={<AdminOrders />} />
+        </Route>
       </Routes>
     </>
   )
