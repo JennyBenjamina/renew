@@ -31,7 +31,7 @@ export default function CartDrawer() {
         {items.length === 0 ? (
           <div className="drawer__empty">
             <p>Your cart is empty.</p>
-            <span>Add research compounds from the catalog to get started.</span>
+            <span>Add research compounds from the products page to get started.</span>
           </div>
         ) : (
           <>

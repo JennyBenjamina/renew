@@ -17,7 +17,7 @@ export default function Footer() {
 
         <div className="footer__col">
           <h4>Shop</h4>
-          <Link to="/products">Full Catalog</Link>
+          <Link to="/products">All Products</Link>
           <Link to="/products">Featured</Link>
           <Link to="/local-pickup">Local Pickup</Link>
         </div>

@@ -76,7 +76,7 @@ export default function OrderHistory() {
             <h2>No orders yet</h2>
             <p>When you place an order, it will show up here.</p>
             <Link to="/products" className="btn btn--primary">
-              Browse the catalog
+              Browse the products
             </Link>
           </div>
         ) : (

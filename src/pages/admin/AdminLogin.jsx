@@ -38,7 +38,7 @@ export default function AdminLogin() {
         </div>
         <h1>Sign in</h1>
         <p className="adminlogin__sub">
-          Manage the Renew product catalog. Authorized admins only.
+          Manage the Renew products. Authorized admins only.
         </p>
 
         {!isSupabaseConfigured && (

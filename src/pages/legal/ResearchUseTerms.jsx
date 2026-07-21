@@ -130,7 +130,7 @@ export default function ResearchUseTerms() {
       <div className="legal__cta">
         <h3>Ready to proceed with your research?</h3>
         <Link to="/products" className="btn btn--primary">
-          View Catalog
+          View Products
         </Link>
       </div>
     </LegalLayout>

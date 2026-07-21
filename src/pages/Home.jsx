@@ -40,14 +40,14 @@ export default function Home() {
           </div>
 
           {loading ? (
-            <p className="grid__empty">Loading catalog…</p>
+            <p className="grid__empty">Loading products…</p>
           ) : (
             <ProductGrid products={featured} />
           )}
 
           <div style={{ textAlign: 'center', marginTop: 'var(--space-7)' }}>
             <Link to="/products" className="btn btn--outline">
-              View Full Catalog
+              View All Products
             </Link>
           </div>
         </div>

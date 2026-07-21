@@ -16,7 +16,7 @@ export default function Hero() {
           </p>
           <div className="hero__actions">
             <Link to="/products" className="btn btn--primary">
-              Shop Catalog
+              Shop Products
             </Link>
             <Link to="/partner" className="btn btn--outline">
               Our Quality Standards

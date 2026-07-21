@@ -94,7 +94,7 @@ export default function AdminDashboard() {
         <div className="admin__head">
           <div>
             <h1>Products</h1>
-            <p>{products.length} item{products.length === 1 ? '' : 's'} in the catalog.</p>
+            <p>{products.length} item{products.length === 1 ? '' : 's'} in your products.</p>
           </div>
           <div className="admin__head-actions">
             <button className="btn btn--outline" onClick={load} disabled={loading}>

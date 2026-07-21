@@ -34,7 +34,7 @@ export default function CertificatesOfAnalysis() {
         <h2>Requesting a COA</h2>
         <p>
           A Certificate of Analysis is available for every compound in our
-          catalog. To request the report for a specific product or batch, email{' '}
+          product lineup. To request the report for a specific product or batch, email{' '}
           <a href="mailto:compliance@renewpeptides.com">
             compliance@renewpeptides.com
           </a>{' '}
@@ -59,7 +59,7 @@ export default function CertificatesOfAnalysis() {
         <div className="legal__cta">
           <h3>Have a batch to verify?</h3>
           <Link to="/products" className="btn btn--primary">
-            View Catalog
+            View Products
           </Link>
         </div>
       </div>

@@ -48,7 +48,7 @@ export default function Catalog() {
     <div className="catalog">
       <header className="catalog__hero deco-band">
         <div className="container">
-          <span className="eyebrow">Full catalog</span>
+          <span className="eyebrow">All products</span>
           <h1>Research compounds &amp; peptides</h1>
           <p>
             Every compound is third-party tested for verified purity. For
@@ -90,7 +90,7 @@ export default function Catalog() {
         </div>
 
         {loading ? (
-          <p className="grid__empty">Loading catalog…</p>
+          <p className="grid__empty">Loading products…</p>
         ) : (
           <ProductGrid products={visible} />
         )}
