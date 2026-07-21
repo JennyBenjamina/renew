@@ -28,13 +28,22 @@ export default function Signup() {
 
   const set = (f) => (e) => setForm((s) => ({ ...s, [f]: e.target.value }))
 
+  // Live, per-field validation (only shown once the user has typed something).
+  const passwordError =
+    form.password.length > 0 && form.password.length < 8
+      ? 'Password must be at least 8 characters.'
+      : ''
+  const confirmError =
+    form.confirm.length > 0 && form.confirm !== form.password
+      ? 'Passwords do not match.'
+      : ''
+  const canSubmit =
+    form.password.length >= 8 && form.password === form.confirm
+
   const onSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (form.password.length < 8)
-      return setError('Password must be at least 8 characters.')
-    if (form.password !== form.confirm)
-      return setError('Passwords do not match.')
+    if (!canSubmit) return // inline messages already explain what's wrong
 
     setBusy(true)
     try {
@@ -139,12 +148,22 @@ export default function Signup() {
             <label>
               Password
               <input type="password" value={form.password} onChange={set('password')}
+                className={passwordError ? 'is-invalid' : ''}
+                aria-invalid={Boolean(passwordError)}
                 placeholder="At least 8 characters" autoComplete="new-password" required />
+              {passwordError && (
+                <span className="auth__field-error">{passwordError}</span>
+              )}
             </label>
             <label>
               Confirm Password
               <input type="password" value={form.confirm} onChange={set('confirm')}
+                className={confirmError ? 'is-invalid' : ''}
+                aria-invalid={Boolean(confirmError)}
                 placeholder="Re-enter your password" autoComplete="new-password" required />
+              {confirmError && (
+                <span className="auth__field-error">{confirmError}</span>
+              )}
             </label>
           </div>
         </section>
@@ -205,7 +224,7 @@ export default function Signup() {
         <button
           type="submit"
           className="btn btn--primary btn--block auth__submit"
-          disabled={busy || !isSupabaseConfigured}
+          disabled={busy || !isSupabaseConfigured || !canSubmit}
         >
           {busy ? 'Creating account…' : 'Create Account'}
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none"

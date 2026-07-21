@@ -92,8 +92,13 @@ security definer
 set search_path = public
 as $$
 begin
-  if new.role is distinct from old.role and not public.is_admin() then
-    new.role := old.role;  -- silently ignore role changes from non-admins
+  -- Block role changes only for signed-in non-admins. When auth.uid() is null
+  -- (Supabase SQL editor / service role / dashboard) the change is allowed, so
+  -- you can promote accounts from the dashboard.
+  if new.role is distinct from old.role
+     and auth.uid() is not null
+     and not public.is_admin() then
+    new.role := old.role;
   end if;
   return new;
 end;

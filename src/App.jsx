@@ -14,6 +14,7 @@ import PrivacyPolicy from './pages/legal/PrivacyPolicy.jsx'
 import Login from './pages/account/Login.jsx'
 import Signup from './pages/account/Signup.jsx'
 import Account from './pages/account/Account.jsx'
+import OrderHistory from './pages/account/OrderHistory.jsx'
 
 export default function App() {
   return (
@@ -41,6 +42,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/orders"
+            element={
+              <ProtectedRoute>
+                <OrderHistory />
               </ProtectedRoute>
             }
           />

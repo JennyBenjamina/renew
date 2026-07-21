@@ -27,7 +27,10 @@ function VialArt({ hue = 150 }) {
 
 export default function ProductCard({ product }) {
   const { add } = useCart()
-  const onSale = product.compare_at_price && product.compare_at_price > product.price
+  // Boolean() so a falsy 0 never leaks into the JSX as a rendered "0".
+  const onSale = Boolean(
+    product.compare_at_price && product.compare_at_price > product.price
+  )
 
   const descRef = useRef(null)
   const [expanded, setExpanded] = useState(false)

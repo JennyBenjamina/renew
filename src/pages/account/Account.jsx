@@ -60,6 +60,9 @@ export default function Account() {
             <p>{profile?.full_name || user?.email}</p>
           </div>
           <div className="account__head-actions">
+            <Link to="/account/orders" className="btn btn--outline">
+              Order history
+            </Link>
             {isAdmin && (
               <Link to="/admin" className="btn btn--outline">
                 Admin dashboard
