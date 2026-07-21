@@ -8,6 +8,9 @@ import LocalPickup from './pages/LocalPickup.jsx'
 import About from './pages/About.jsx'
 import AdminLogin from './pages/admin/AdminLogin.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
+import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
+import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
+import PrivacyPolicy from './pages/legal/PrivacyPolicy.jsx'
 
 export default function App() {
   return (
@@ -20,6 +23,12 @@ export default function App() {
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/local-pickup" element={<LocalPickup />} />
           <Route path="/about" element={<About />} />
+          <Route path="/research-use-terms" element={<ResearchUseTerms />} />
+          <Route
+            path="/certificates-of-analysis"
+            element={<CertificatesOfAnalysis />}
+          />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Route>
 
         {/* Admin */}

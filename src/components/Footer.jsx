@@ -31,9 +31,9 @@ export default function Footer() {
 
         <div className="footer__col">
           <h4>Compliance</h4>
-          <a href="#terms">Research Use Only Terms</a>
-          <a href="#coa">Certificates of Analysis</a>
-          <a href="#privacy">Privacy Policy</a>
+          <Link to="/research-use-terms">Research Use Only Terms</Link>
+          <Link to="/certificates-of-analysis">Certificates of Analysis</Link>
+          <Link to="/privacy-policy">Privacy Policy</Link>
         </div>
       </div>
 
