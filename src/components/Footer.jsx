@@ -17,16 +17,16 @@ export default function Footer() {
 
         <div className="footer__col">
           <h4>Shop</h4>
-          <Link to="/catalog">Full Catalog</Link>
-          <Link to="/catalog">Featured</Link>
+          <Link to="/products">Full Catalog</Link>
+          <Link to="/products">Featured</Link>
           <Link to="/local-pickup">Local Pickup</Link>
         </div>
 
         <div className="footer__col">
           <h4>Company</h4>
-          <Link to="/about">About</Link>
-          <Link to="/about">Quality &amp; Testing</Link>
-          <Link to="/about">Affiliate Program</Link>
+          <Link to="/partner">Partner</Link>
+          <Link to="/partner">Quality &amp; Testing</Link>
+          <Link to="/partner">Affiliate Program</Link>
         </div>
 
         <div className="footer__col">

@@ -15,10 +15,10 @@ export default function Hero() {
             manufactured under strict, verified quality controls.
           </p>
           <div className="hero__actions">
-            <Link to="/catalog" className="btn btn--primary">
+            <Link to="/products" className="btn btn--primary">
               Shop Catalog
             </Link>
-            <Link to="/about" className="btn btn--outline">
+            <Link to="/partner" className="btn btn--outline">
               Our Quality Standards
             </Link>
           </div>

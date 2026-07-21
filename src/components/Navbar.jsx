@@ -7,9 +7,9 @@ import './Navbar.css'
 
 const links = [
   { to: '/', label: 'Home', end: true },
-  { to: '/catalog', label: 'Catalog' },
+  { to: '/products', label: 'Products' },
   { to: '/local-pickup', label: 'Local Pickup' },
-  { to: '/about', label: 'About' },
+  { to: '/partner', label: 'Partner' },
 ]
 
 export default function Navbar() {
@@ -57,7 +57,7 @@ export default function Navbar() {
 
           <AccountMenu onNavigate={() => setMenuOpen(false)} />
 
-          <Link to="/catalog" className="btn btn--primary nav__shop">
+          <Link to="/products" className="btn btn--primary nav__shop">
             Shop
           </Link>
 

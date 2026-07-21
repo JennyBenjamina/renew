@@ -46,7 +46,7 @@ export default function Home() {
           )}
 
           <div style={{ textAlign: 'center', marginTop: 'var(--space-7)' }}>
-            <Link to="/catalog" className="btn btn--outline">
+            <Link to="/products" className="btn btn--outline">
               View Full Catalog
             </Link>
           </div>
@@ -60,7 +60,7 @@ export default function Home() {
         title="One trusted lineup, synthesized for precision"
         body="From GLP-3 RETA and MOTS-c to BPC-157, TB-500, and NAD+, every Renew compound is produced under strict, verified quality controls and third-party tested for purity — labeled for research use only."
         ctaLabel="Shop the collection"
-        ctaTo="/catalog"
+        ctaTo="/products"
         subtle
       />
 

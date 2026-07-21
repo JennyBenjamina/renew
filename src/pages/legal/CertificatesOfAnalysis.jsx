@@ -58,7 +58,7 @@ export default function CertificatesOfAnalysis() {
 
         <div className="legal__cta">
           <h3>Have a batch to verify?</h3>
-          <Link to="/catalog" className="btn btn--primary">
+          <Link to="/products" className="btn btn--primary">
             View Catalog
           </Link>
         </div>

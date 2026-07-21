@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import ScrollToTop from './components/ScrollToTop.jsx'
 import StorefrontLayout from './components/StorefrontLayout.jsx'
 import ProtectedRoute from './components/admin/ProtectedRoute.jsx'
@@ -26,9 +26,13 @@ export default function App() {
         {/* Storefront (public) */}
         <Route element={<StorefrontLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/products" element={<Catalog />} />
+          {/* Old slug → redirect so existing /catalog links still work */}
+          <Route path="/catalog" element={<Navigate to="/products" replace />} />
           <Route path="/local-pickup" element={<LocalPickup />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/partner" element={<About />} />
+          {/* Old slug → redirect so existing /about links still work */}
+          <Route path="/about" element={<Navigate to="/partner" replace />} />
           <Route path="/research-use-terms" element={<ResearchUseTerms />} />
           <Route
             path="/certificates-of-analysis"
