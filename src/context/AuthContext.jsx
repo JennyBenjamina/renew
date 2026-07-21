@@ -102,6 +102,8 @@ export function AuthProvider({ children }) {
         signIn,
         signUp,
         signOut,
+        resetPassword,
+        updatePassword,
         refreshProfile,
         isSupabaseConfigured,
       }}
