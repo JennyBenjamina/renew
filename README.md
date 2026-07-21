@@ -128,6 +128,38 @@ To make someone an admin later, run in Supabase:
 Never put the Supabase `service_role` key in this app — auth uses the public
 anon key plus the logged-in session, which is correct.
 
+## Checkout & orders (local pickup, no payment)
+
+Customers add items to the cart and check out at `/checkout`. No payment is
+taken online — they submit the order and pay in person at pickup. On submit, a
+**Netlify Function** (`netlify/functions/submit-order.mjs`) records the order in
+Supabase and emails the store owners (via Resend) with the customer's name,
+email, phone, note, and item list.
+
+**One-time Supabase setup:** run `supabase/orders.sql` (creates the `orders`
+table; guest-friendly with customer contact fields; writes happen server-side
+only). Safe to re-run.
+
+**Netlify environment variables** (Site settings → Environment variables — these
+are server-side, do NOT prefix with `VITE_`):
+
+| Variable | Value |
+| --- | --- |
+| `SUPABASE_URL` | `https://rylmdmgzvwkrfxptxylq.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API → **service_role** key (SECRET) |
+| `RESEND_API_KEY` | Your Resend API key (`re_…`) |
+| `ORDER_FROM_EMAIL` (optional) | `Renew Orders <orders@renewlabslv.com>` (must be on your Resend-verified domain) |
+| `ORDER_NOTIFY_EMAILS` (optional) | defaults to `abrahamleencoln@gmail.com,jennylee1989@gmail.com` |
+
+The `service_role` key is powerful — it only lives in Netlify's function
+environment, never in the frontend or the repo.
+
+Pickup contact phone `(424) 877-5528` is shown on the Local Pickup page and at
+checkout. Logged-in customers' orders also appear in their order history.
+
+Local note: the checkout submit calls `/.netlify/functions/submit-order`, which
+only runs on Netlify (or via `netlify dev`), not plain `npm run dev`.
+
 ## Project structure
 
 ```

@@ -17,6 +17,7 @@ import Account from './pages/account/Account.jsx'
 import OrderHistory from './pages/account/OrderHistory.jsx'
 import ForgotPassword from './pages/account/ForgotPassword.jsx'
 import ResetPassword from './pages/account/ResetPassword.jsx'
+import Checkout from './pages/checkout/Checkout.jsx'
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
             element={<CertificatesOfAnalysis />}
           />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/checkout" element={<Checkout />} />
 
           {/* Customer accounts */}
           <Route path="/login" element={<Login />} />

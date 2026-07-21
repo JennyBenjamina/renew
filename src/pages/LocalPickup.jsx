@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PICKUP_PHONE, PICKUP_PHONE_HREF } from '../lib/orders.js'
 import './LocalPickup.css'
 
 const steps = [
@@ -75,10 +76,19 @@ export default function LocalPickup() {
                 <dt>Hold period</dt>
                 <dd>Orders are held for 7 days after confirmation.</dd>
               </div>
+              <div>
+                <dt>Contact</dt>
+                <dd>
+                  <a href={PICKUP_PHONE_HREF} className="pickup__phone">
+                    {PICKUP_PHONE}
+                  </a>
+                </dd>
+              </div>
             </dl>
             <p className="pickup__note">
               Address details are shared in your pickup confirmation email for
-              verified orders only.
+              verified orders only. Questions? Call us at{' '}
+              <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
             </p>
           </div>
 

@@ -1,29 +1,43 @@
--- Renew — orders table (for the customer order-history page)
--- Run in the Supabase SQL editor after auth_roles.sql.
--- Orders are read-only from the storefront; they'll be created by your
--- checkout/payment flow later (server-side). Until then the table is simply
--- empty and the account order-history page shows an empty state.
+-- Renew — orders table (local-pickup checkout, no payment)
+-- Run in the Supabase SQL editor after auth_roles.sql. Safe to re-run.
+--
+-- Orders are created server-side by the Netlify function (submit-order) using
+-- the service-role key, so there is no public insert policy. Logged-in
+-- customers can read their own orders; admins can read all.
 
 create table if not exists public.orders (
-  id            uuid primary key default gen_random_uuid(),
-  user_id       uuid not null references auth.users(id) on delete cascade,
-  order_number  text,
-  status        text not null default 'pending'
-                  check (status in ('pending','paid','shipped','delivered','cancelled')),
-  total         numeric(10, 2) not null default 0,
-  items         jsonb not null default '[]',   -- [{name, qty, price}, ...]
-  created_at    timestamptz not null default now()
+  id              uuid primary key default gen_random_uuid(),
+  order_number    text unique,
+  user_id         uuid references auth.users(id) on delete set null, -- null for guests
+  customer_name   text,
+  customer_email  text,
+  customer_phone  text,
+  note            text,
+  fulfillment     text not null default 'local_pickup',
+  status          text not null default 'pending'
+                    check (status in ('pending','ready','completed','cancelled')),
+  total           numeric(10, 2) not null default 0,
+  items           jsonb not null default '[]',   -- [{id,name,qty,price}, ...]
+  created_at      timestamptz not null default now()
 );
 
+-- If an older version of this table already exists, add the new columns.
+alter table public.orders alter column user_id drop not null;
+alter table public.orders add column if not exists order_number   text;
+alter table public.orders add column if not exists customer_name  text;
+alter table public.orders add column if not exists customer_email text;
+alter table public.orders add column if not exists customer_phone text;
+alter table public.orders add column if not exists note           text;
+alter table public.orders add column if not exists fulfillment    text default 'local_pickup';
+
 create index if not exists orders_user_idx on public.orders (user_id, created_at desc);
+create unique index if not exists orders_number_idx on public.orders (order_number);
 
 alter table public.orders enable row level security;
 
--- Customers can read only their own orders; admins can read all.
+-- Customers read only their own orders; admins read all. (No insert/update
+-- policy: writes happen through the service-role key in the Netlify function.)
 drop policy if exists "read own orders" on public.orders;
 create policy "read own orders"
   on public.orders for select
   using (auth.uid() = user_id or public.is_admin());
-
--- No public insert/update policy: orders are written by trusted server code
--- (service role) once checkout exists.

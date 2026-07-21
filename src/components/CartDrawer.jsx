@@ -1,9 +1,16 @@
+import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { money } from '../lib/format.js'
 import './CartDrawer.css'
 
 export default function CartDrawer() {
   const { items, open, closeCart, remove, setQty, subtotal, count } = useCart()
+  const navigate = useNavigate()
+
+  const goToCheckout = () => {
+    closeCart()
+    navigate('/checkout')
+  }
 
   return (
     <>
@@ -69,16 +76,12 @@ export default function CartDrawer() {
               </div>
               <button
                 className="btn btn--primary btn--block"
-                onClick={() =>
-                  alert(
-                    'Checkout is not wired up in this MVP. Connect a payment provider (e.g. Stripe) to complete the flow.'
-                  )
-                }
+                onClick={goToCheckout}
               >
                 Checkout
               </button>
               <p className="drawer__note">
-                For research purposes only. Not for human consumption.
+                Local pickup — no online payment. For research use only.
               </p>
             </footer>
           </>
