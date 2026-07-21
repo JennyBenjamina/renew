@@ -52,13 +52,7 @@ export default function Footer() {
       </div>
 
       <div className="container footer__bottom">
-        <span>
-          © {new Date().getFullYear()} Renew. All rights reserved.
-          {' · '}
-          <Link to="/admin" className="footer__admin">
-            Admin
-          </Link>
-        </span>
+        <span>© {new Date().getFullYear()} Renew. All rights reserved.</span>
         <span>
           Products are intended for laboratory research use only and are not for
           human consumption.

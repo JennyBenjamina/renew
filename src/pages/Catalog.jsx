@@ -13,12 +13,17 @@ export default function Catalog() {
 
   useEffect(() => {
     let active = true
-    fetchProducts().then((data) => {
-      if (active) {
-        setProducts(data)
-        setLoading(false)
-      }
-    })
+    fetchProducts()
+      .then((data) => {
+        if (active) setProducts(Array.isArray(data) ? data : [])
+      })
+      .catch((err) => {
+        console.warn('Could not load products:', err)
+        if (active) setProducts([])
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
     return () => {
       active = false
     }

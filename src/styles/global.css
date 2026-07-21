@@ -188,6 +188,24 @@ button {
   border: 0;
 }
 
+/* Error-boundary fallback */
+.errbox {
+  max-width: 520px;
+  margin: var(--space-9) auto;
+  padding: var(--space-7) var(--space-5);
+  text-align: center;
+}
+
+.errbox h2 {
+  font-size: 1.4rem;
+  margin-bottom: var(--space-3);
+}
+
+.errbox p {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+}
+
 /* ---------------------------------------------------------------------------
    Decorative section background — reusable "deco-band" treatment.
    Soft brand-colored glows over a vertical gradient, plus a faded dot-grid

@@ -13,12 +13,17 @@ export default function Home() {
 
   useEffect(() => {
     let active = true
-    fetchFeaturedProducts().then((data) => {
-      if (active) {
-        setFeatured(data)
-        setLoading(false)
-      }
-    })
+    fetchFeaturedProducts()
+      .then((data) => {
+        if (active) setFeatured(Array.isArray(data) ? data : [])
+      })
+      .catch((err) => {
+        console.warn('Could not load featured products:', err)
+        if (active) setFeatured([])
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
     return () => {
       active = false
     }

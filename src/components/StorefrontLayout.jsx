@@ -1,9 +1,10 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useCompliance } from '../context/ComplianceContext.jsx'
 import ComplianceGate from './ComplianceGate.jsx'
 import Navbar from './Navbar.jsx'
 import Footer from './Footer.jsx'
 import CartDrawer from './CartDrawer.jsx'
+import ErrorBoundary from './ErrorBoundary.jsx'
 import '../App.css'
 
 /** Public storefront shell: compliance gate, nav, footer, cart.
@@ -13,6 +14,7 @@ import '../App.css'
  *  the Stone scheme. To re-enable it for a demo, restore <ThemeSwitcher />.) */
 export default function StorefrontLayout() {
   const { accepted } = useCompliance()
+  const { pathname } = useLocation()
 
   return (
     <>
@@ -20,7 +22,11 @@ export default function StorefrontLayout() {
       <div className={accepted ? 'app' : 'app app--gated'} aria-hidden={!accepted}>
         <Navbar />
         <main>
-          <Outlet />
+          {/* Keyed by route so a page error clears when navigating away,
+              and nav/footer stay usable instead of a blank screen. */}
+          <ErrorBoundary resetKey={pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
         <Footer />
         <CartDrawer />
