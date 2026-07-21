@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/Hero.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
+import ImageBand from '../components/ImageBand.jsx'
 import MissionSection from '../components/MissionSection.jsx'
 import AffiliateSection from '../components/AffiliateSection.jsx'
 import { fetchFeaturedProducts } from '../lib/products.js'
@@ -52,7 +53,30 @@ export default function Home() {
         </div>
       </section>
 
+      <ImageBand
+        image="/renew-collection.jpg"
+        alt="The full range of Renew Labs research compound vials in a laboratory setting"
+        eyebrow="The full range"
+        title="One trusted lineup, synthesized for precision"
+        body="From GLP-3 RETA and MOTS-c to BPC-157, TB-500, and NAD+, every Renew compound is produced under strict, verified quality controls and third-party tested for purity — labeled for research use only."
+        ctaLabel="Shop the collection"
+        ctaTo="/catalog"
+        subtle
+      />
+
       <MissionSection />
+
+      <ImageBand
+        image="/renew-partner.jpg"
+        alt="A content creator reviewing Renew Labs analytics on a laptop dashboard"
+        eyebrow="Partner with Renew"
+        title="Built for researchers and creators"
+        body="Independent researchers, educators, and content creators partner with Renew to share a brand they can stand behind — professional packaging, clean labeling, and compounds backed by verified certificates of analysis."
+        ctaLabel="Create an account"
+        ctaTo="/signup"
+        reverse
+      />
+
       <AffiliateSection />
     </>
   )

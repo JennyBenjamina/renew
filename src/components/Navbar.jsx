@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import Logo from './Logo.jsx'
 import './Navbar.css'
 
@@ -13,6 +14,7 @@ const links = [
 
 export default function Navbar() {
   const { count, openCart } = useCart()
+  const { user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -53,6 +55,20 @@ export default function Navbar() {
             </svg>
             {count > 0 && <span className="nav__badge">{count}</span>}
           </button>
+
+          <Link
+            to={user ? '/account' : '/login'}
+            className="nav__icon"
+            aria-label={user ? 'My account' : 'Log in'}
+            onClick={() => setMenuOpen(false)}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+              stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+              strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </Link>
 
           <Link to="/catalog" className="btn btn--primary nav__shop">
             Shop

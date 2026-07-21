@@ -82,11 +82,15 @@ only works with Supabase connected.
    just run it again — it's safe to re-run.
 2. Run `supabase/storage.sql` to create the `product-images` storage bucket and
    its access policies (public read, admin upload). This enables image uploads.
-3. **Create an admin user:** Authentication → Users → **Add user** → enter an
-   email + password. This is the login you'll use.
-4. **Turn off public sign-ups** so nobody can self-register as an admin:
-   Authentication → Providers → Email → set **"Allow new users to sign up"** to
-   **off**. (You'll still add admins manually via step 3.)
+3. Run `supabase/auth_roles.sql` to add customer accounts + **admin/customer
+   role separation** (see "Accounts & roles" below). This changes product writes
+   to require the admin role, so it's required now.
+4. **Create your admin user:** Authentication → Users → **Add user** → enter an
+   email + password, then run the last line of `auth_roles.sql` with that email
+   to set its role to `admin`.
+5. **Turn public sign-ups back ON** so customers can register: Authentication →
+   Providers → Email → **"Allow new users to sign up"** = **on**. (This is now
+   safe — new users are always `customer` and cannot edit the catalog.)
 
 **Product images:** in the add/edit form, click **Upload image**. Requirements
 are shown right in the form — a **square** image, **JPG / PNG / WebP**, at least
@@ -101,9 +105,28 @@ an image fall back to the generated placeholder art.
 - Sign in with the admin account. You'll land on the product dashboard.
 - Edits write straight to Supabase and appear on the storefront immediately.
 
-Security notes: any signed-in user counts as an admin (fine when you only create
-trusted accounts). Never put the Supabase `service_role` key in this app — the
-admin uses the public anon key plus the logged-in session, which is correct.
+## Accounts & roles
+
+Customers can register and sign in:
+
+- `/signup` — customer registration (contact + shipping details)
+- `/login` — customer login (also linked from the account icon in the navbar)
+- `/account` — signed-in customer profile (edit contact/shipping, sign out)
+
+Roles are stored in the `profiles` table (`auth_roles.sql`):
+
+- Every new signup is a **`customer`** and can only manage their own profile.
+- Only a **`admin`** profile can create/edit/delete products or upload images —
+  enforced in the database via the `is_admin()` check in the RLS policies, and a
+  trigger prevents anyone from promoting themselves.
+- `/admin` requires the admin role; a signed-in customer who visits it is sent
+  back to the storefront.
+
+To make someone an admin later, run in Supabase:
+`update public.profiles set role='admin' where email='them@example.com';`
+
+Never put the Supabase `service_role` key in this app — auth uses the public
+anon key plus the logged-in session, which is correct.
 
 ## Project structure
 

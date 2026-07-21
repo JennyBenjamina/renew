@@ -3,25 +3,41 @@ import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 
 const AuthContext = createContext(null)
 
-/* Wraps Supabase Auth so the admin area can read the current session and
- * sign in / out. Storefront pages don't use this — only /admin. */
+/* Wraps Supabase Auth. Tracks the session, loads the user's profile (which
+ * holds their role), and exposes sign in / sign up / sign out. */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  async function loadProfile(sessionUser) {
+    if (!sessionUser) {
+      setProfile(null)
+      return
+    }
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', sessionUser.id)
+      .maybeSingle()
+    setProfile(data ?? null)
+  }
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
       setLoading(false)
       return
     }
-    // Restore any existing session on load…
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null)
+    supabase.auth.getSession().then(async ({ data }) => {
+      const u = data.session?.user ?? null
+      setUser(u)
+      await loadProfile(u)
       setLoading(false)
     })
-    // …and keep in sync with future sign-in / sign-out events.
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_e, session) => {
+      const u = session?.user ?? null
+      setUser(u)
+      await loadProfile(u)
     })
     return () => sub.subscription.unsubscribe()
   }, [])
@@ -34,13 +50,41 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  /** Register a customer. Profile fields are passed as auth metadata; a DB
+   *  trigger creates the profiles row (role 'customer') from them. Returns
+   *  { needsConfirmation } so the UI can prompt for email confirmation. */
+  const signUp = async ({ email, password, ...meta }) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Add your keys to .env.')
+    }
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: meta },
+    })
+    if (error) throw error
+    return { needsConfirmation: !data.session }
+  }
+
   const signOut = async () => {
     if (isSupabaseConfigured) await supabase.auth.signOut()
   }
 
+  const refreshProfile = () => loadProfile(user)
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, signIn, signOut, isSupabaseConfigured }}
+      value={{
+        user,
+        profile,
+        isAdmin: profile?.role === 'admin',
+        loading,
+        signIn,
+        signUp,
+        signOut,
+        refreshProfile,
+        isSupabaseConfigured,
+      }}
     >
       {children}
     </AuthContext.Provider>

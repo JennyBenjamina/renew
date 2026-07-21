@@ -11,6 +11,9 @@ import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
 import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
 import PrivacyPolicy from './pages/legal/PrivacyPolicy.jsx'
+import Login from './pages/account/Login.jsx'
+import Signup from './pages/account/Signup.jsx'
+import Account from './pages/account/Account.jsx'
 
 export default function App() {
   return (
@@ -29,6 +32,18 @@ export default function App() {
             element={<CertificatesOfAnalysis />}
           />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
+          {/* Customer accounts */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Admin */}
@@ -36,7 +51,7 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireAdmin>
               <AdminDashboard />
             </ProtectedRoute>
           }

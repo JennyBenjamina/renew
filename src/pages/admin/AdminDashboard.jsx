@@ -161,17 +161,19 @@ export default function AdminDashboard() {
                         {p.featured ? 'Featured' : 'No'}
                       </button>
                     </td>
-                    <td className="admin__row-actions">
-                      <button className="admin__link" onClick={() => setEditing(p)}>
-                        Edit
-                      </button>
-                      <button
-                        className="admin__link admin__link--danger"
-                        onClick={() => onDelete(p)}
-                        disabled={busyId === p.id}
-                      >
-                        Delete
-                      </button>
+                    <td>
+                      <div className="admin__row-actions">
+                        <button className="admin__link" onClick={() => setEditing(p)}>
+                          Edit
+                        </button>
+                        <button
+                          className="admin__link admin__link--danger"
+                          onClick={() => onDelete(p)}
+                          disabled={busyId === p.id}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
