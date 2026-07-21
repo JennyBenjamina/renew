@@ -1,0 +1,82 @@
+<!--
+  Renew — "Confirm signup" email template.
+  Paste into Supabase → Authentication → Email Templates → "Confirm signup".
+  Suggested subject: Confirm your Renew account
+  Uses the Supabase variable {{ .ConfirmationURL }}.
+  Email-safe: table layout + inline styles, absolute image URL.
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+  style="background-color:#f4efe7;margin:0;padding:32px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+        style="max-width:520px;background-color:#ffffff;border:1px solid #e7ddce;border-radius:16px;overflow:hidden;">
+        <!-- Logo -->
+        <tr>
+          <td align="center" style="padding:36px 40px 8px 40px;">
+            <img src="https://renewlabslv.com/logo-mark.png" alt="Renew"
+              width="180" style="display:block;width:180px;max-width:60%;height:auto;" />
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:16px 40px 8px 40px;font-family:Helvetica,Arial,sans-serif;">
+            <h1 style="margin:0 0 12px 0;font-size:22px;line-height:1.25;color:#333330;font-weight:600;text-align:center;">
+              Confirm your email address
+            </h1>
+            <p style="margin:0 0 8px 0;font-size:15px;line-height:1.6;color:#5c5f58;text-align:center;">
+              Welcome to Renew. Confirm your email to activate your account and
+              start exploring our research-grade compounds.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Button -->
+        <tr>
+          <td align="center" style="padding:20px 40px 8px 40px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" bgcolor="#5f6a4c" style="border-radius:999px;">
+                  <a href="{{ .ConfirmationURL }}"
+                    style="display:inline-block;padding:14px 34px;font-family:Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:999px;">
+                    Confirm email address
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Fallback link -->
+        <tr>
+          <td style="padding:12px 40px 28px 40px;font-family:Helvetica,Arial,sans-serif;">
+            <p style="margin:0;font-size:12px;line-height:1.6;color:#8b8d87;text-align:center;">
+              If the button doesn’t work, copy and paste this link into your browser:
+              <br />
+              <a href="{{ .ConfirmationURL }}" style="color:#a4605a;word-break:break-all;">{{ .ConfirmationURL }}</a>
+            </p>
+          </td>
+        </tr>
+
+        <!-- Divider + footer -->
+        <tr>
+          <td style="padding:0 40px;">
+            <div style="border-top:1px solid #eee4d8;"></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 40px 32px 40px;font-family:Helvetica,Arial,sans-serif;">
+            <p style="margin:0 0 6px 0;font-size:11px;line-height:1.6;color:#a0a29c;text-align:center;">
+              If you didn’t create a Renew account, you can safely ignore this email.
+            </p>
+            <p style="margin:0;font-size:11px;line-height:1.6;color:#a0a29c;text-align:center;">
+              Renew — research compounds synthesized for precision.
+              <br />For laboratory research use only. Not for human consumption.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

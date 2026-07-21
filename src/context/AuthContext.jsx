@@ -70,6 +70,26 @@ export function AuthProvider({ children }) {
     if (isSupabaseConfigured) await supabase.auth.signOut()
   }
 
+  /** Send a password-reset email. The link lands on /reset-password. */
+  const resetPassword = async (email) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Add your keys to .env.')
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (error) throw error
+  }
+
+  /** Set a new password for the currently-authenticated (recovery) session. */
+  const updatePassword = async (password) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Add your keys to .env.')
+    }
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) throw error
+  }
+
   const refreshProfile = () => loadProfile(user)
 
   return (

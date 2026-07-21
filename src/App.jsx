@@ -15,6 +15,8 @@ import Login from './pages/account/Login.jsx'
 import Signup from './pages/account/Signup.jsx'
 import Account from './pages/account/Account.jsx'
 import OrderHistory from './pages/account/OrderHistory.jsx'
+import ForgotPassword from './pages/account/ForgotPassword.jsx'
+import ResetPassword from './pages/account/ResetPassword.jsx'
 
 export default function App() {
   return (
@@ -37,6 +39,8 @@ export default function App() {
           {/* Customer accounts */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/account"
             element={

@@ -189,6 +189,22 @@
   margin-top: var(--space-2);
 }
 
+.auth__row-end {
+  display: flex;
+  justify-content: flex-end;
+  margin: calc(var(--space-2) * -1) 0 var(--space-4);
+}
+
+.auth__link-sm {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.auth__link-sm:hover {
+  text-decoration: underline;
+}
+
 .auth__foot {
   text-align: center;
   margin: var(--space-5) 0 0;

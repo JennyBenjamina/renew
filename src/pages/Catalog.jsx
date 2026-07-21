@@ -28,9 +28,19 @@ export default function Catalog() {
     let list = [...products]
     if (category !== 'All') list = list.filter((p) => p.category === category)
     if (inStockOnly) list = list.filter((p) => p.in_stock)
-    if (sort === 'price-asc') list.sort((a, b) => a.price - b.price)
-    if (sort === 'price-desc') list.sort((a, b) => b.price - a.price)
-    if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
+
+    const within = {
+      'price-asc': (a, b) => a.price - b.price,
+      'price-desc': (a, b) => b.price - a.price,
+      name: (a, b) => a.name.localeCompare(b.name),
+      featured: (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0),
+    }[sort]
+
+    list.sort((a, b) => {
+      // In-stock products always come first, then apply the chosen sort.
+      if (a.in_stock !== b.in_stock) return a.in_stock ? -1 : 1
+      return within ? within(a, b) : 0
+    })
     return list
   }, [products, category, sort, inStockOnly])
 
@@ -71,7 +81,7 @@ export default function Catalog() {
               In stock only
             </label>
             <select value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="featured">Sort: Featured</option>
+              <option value="featured">Sort: In stock first</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
               <option value="name">Name: A–Z</option>
