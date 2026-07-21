@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useCart } from '../context/CartContext.jsx'
 import { money } from '../lib/format.js'
 import './ProductCard.css'
@@ -27,6 +28,16 @@ function VialArt({ hue = 150 }) {
 export default function ProductCard({ product }) {
   const { add } = useCart()
   const onSale = product.compare_at_price && product.compare_at_price > product.price
+
+  const descRef = useRef(null)
+  const [expanded, setExpanded] = useState(false)
+  const [clamped, setClamped] = useState(false)
+
+  // Only show "Read more" if the description actually overflows the clamp.
+  useEffect(() => {
+    const el = descRef.current
+    if (el) setClamped(el.scrollHeight > el.clientHeight + 1)
+  }, [product.description])
 
   return (
     <article className="pcard">
@@ -59,7 +70,22 @@ export default function ProductCard({ product }) {
       <div className="pcard__body">
         <span className="badge badge--research">Research Only</span>
         <h3 className="pcard__name">{product.name}</h3>
-        <p className="pcard__desc">{product.description}</p>
+        <p
+          ref={descRef}
+          className={`pcard__desc ${expanded ? 'is-expanded' : ''}`}
+        >
+          {product.description}
+        </p>
+        {(clamped || expanded) && (
+          <button
+            type="button"
+            className="pcard__readmore"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Read less' : 'Read more'}
+          </button>
+        )}
 
         <div className="pcard__meta">
           {product.purity && (

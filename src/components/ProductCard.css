@@ -17,11 +17,16 @@
 
 .pcard__media {
   position: relative;
-  padding: var(--space-5);
-  background: var(--color-bg-subtle);
+  padding: var(--space-4);
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-subtle) 0%,
+    color-mix(in srgb, var(--color-bg-subtle) 55%, var(--color-bg-raised)) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 240px;
 }
 
 .pcard__art {
@@ -29,11 +34,13 @@
   height: 150px;
 }
 
+/* Product photos are tall transparent vials — show the whole vial. */
 .pcard__photo {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: var(--radius-md);
+  width: auto;
+  max-width: 100%;
+  height: 260px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 22px rgba(15, 23, 42, 0.14));
 }
 
 .pcard__flags {
@@ -71,6 +78,27 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.pcard__desc.is-expanded {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.pcard__readmore {
+  align-self: flex-start;
+  margin-top: calc(var(--space-2) * -1);
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pcard__readmore:hover {
+  text-decoration: underline;
 }
 
 .pcard__meta {
