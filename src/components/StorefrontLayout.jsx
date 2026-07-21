@@ -4,12 +4,13 @@ import ComplianceGate from './ComplianceGate.jsx'
 import Navbar from './Navbar.jsx'
 import Footer from './Footer.jsx'
 import CartDrawer from './CartDrawer.jsx'
-import ThemeSwitcher from './ThemeSwitcher.jsx'
 import '../App.css'
 
-/** Public storefront shell: compliance gate, nav, footer, cart, theme switcher.
+/** Public storefront shell: compliance gate, nav, footer, cart.
  *  Storefront pages render into <Outlet />. The /admin area does NOT use this
- *  layout, so the gate and cart never appear there. */
+ *  layout, so the gate and cart never appear there.
+ *  (The theme switcher is intentionally not rendered — the site is locked to
+ *  the Stone scheme. To re-enable it for a demo, restore <ThemeSwitcher />.) */
 export default function StorefrontLayout() {
   const { accepted } = useCompliance()
 
@@ -23,7 +24,6 @@ export default function StorefrontLayout() {
         </main>
         <Footer />
         <CartDrawer />
-        <ThemeSwitcher />
       </div>
     </>
   )

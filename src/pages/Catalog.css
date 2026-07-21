@@ -24,6 +24,7 @@
   gap: var(--space-4);
   flex-wrap: wrap;
   margin-bottom: var(--space-6);
+  margin-top: var(--space-6);
 }
 
 .catalog__cats {

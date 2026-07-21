@@ -35,7 +35,7 @@
 /* Numbered policy cards */
 .legal__cards {
   list-style: none;
-  margin: 0;
+  margin: var(--space-4) 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -91,6 +91,10 @@
 }
 
 /* Prose (COA, Privacy) */
+.legal__prose {
+  margin: var(--space-6) 0;
+}
+
 .legal__prose h2 {
   font-size: 1.25rem;
   margin: var(--space-6) 0 var(--space-3);

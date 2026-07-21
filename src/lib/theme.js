@@ -30,7 +30,7 @@ export const THEMES = [
   },
 ]
 
-export const DEFAULT_THEME = 'option1'
+export const DEFAULT_THEME = 'option5'
 const STORAGE_KEY = 'renew.theme'
 
 export function getSavedTheme() {
