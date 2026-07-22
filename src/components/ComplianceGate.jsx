@@ -14,7 +14,8 @@ export default function ComplianceGate() {
   const [checked, setChecked] = useState(TERMS.map(() => false))
   const [remember, setRemember] = useState(false)
 
-  const allChecked = checked.every(Boolean)
+  const checkedCount = checked.filter(Boolean).length
+  const allChecked = checkedCount === TERMS.length
 
   const toggle = (i) =>
     setChecked((c) => c.map((v, idx) => (idx === i ? !v : v)))
@@ -41,7 +42,7 @@ export default function ComplianceGate() {
             <button
               type="button"
               key={i}
-              className={`gate__term ${checked[i] ? 'is-checked' : ''}`}
+              className={`gate__term ${checked[i] ? 'is-checked' : 'is-unchecked'}`}
               onClick={() => toggle(i)}
               aria-pressed={checked[i]}
             >
@@ -75,13 +76,22 @@ export default function ComplianceGate() {
             className="btn btn--primary"
             disabled={!allChecked}
             onClick={() => accept(remember)}
+            title={
+              allChecked
+                ? undefined
+                : `Confirm all ${TERMS.length} statements to continue`
+            }
           >
-            I Agree &amp; Enter Site
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
-              strokeLinejoin="round">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
+            {allChecked
+              ? 'I Agree & Enter Site'
+              : `Confirm all statements (${checkedCount}/${TERMS.length})`}
+            {allChecked && (
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            )}
           </button>
         </footer>
       </div>

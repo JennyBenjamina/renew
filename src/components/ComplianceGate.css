@@ -3,16 +3,21 @@
   inset: 0;
   z-index: 1000;
   display: flex;
-  align-items: center;
+  /* flex-start + margin:auto on the card centers it when it fits, but lets the
+     whole card scroll into view when it's taller than the screen (mobile).
+     `align-items: center` here would clip the top/bottom and trap content. */
+  align-items: flex-start;
   justify-content: center;
   padding: var(--space-5);
   background: var(--color-overlay);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .gate__card {
   width: 100%;
   max-width: 620px;
+  margin: auto;
   background: var(--color-bg-raised);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -131,7 +136,25 @@
 }
 
 @media (max-width: 520px) {
+  .gate {
+    padding: var(--space-3);
+  }
+  .gate__head {
+    padding: var(--space-5) var(--space-4) var(--space-3);
+  }
+  .gate__head h2 {
+    font-size: 1.3rem;
+  }
+  .gate__terms {
+    padding: 0 var(--space-4);
+    gap: var(--space-2);
+  }
+  .gate__term {
+    padding: var(--space-3);
+    font-size: 0.85rem;
+  }
   .gate__foot {
+    padding: var(--space-4);
     flex-direction: column-reverse;
   }
   .gate__foot .btn {
