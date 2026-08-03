@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import PartnerModal from './PartnerModal.jsx'
 import './AffiliateSection.css'
 
 const perks = [
@@ -7,6 +9,8 @@ const perks = [
 ]
 
 export default function AffiliateSection() {
+  const [open, setOpen] = useState(false)
+
   return (
     <section className="section section--subtle affiliate" id="affiliate">
       <div className="container affiliate__inner">
@@ -18,12 +22,7 @@ export default function AffiliateSection() {
             the scientific community? Join our affiliate program and earn by
             recommending research compounds you can trust.
           </p>
-          <button
-            className="btn btn--primary"
-            onClick={() =>
-              alert('Affiliate application form is a placeholder in this MVP.')
-            }
-          >
+          <button className="btn btn--primary" onClick={() => setOpen(true)}>
             Apply for Partnership
           </button>
         </div>
@@ -40,6 +39,8 @@ export default function AffiliateSection() {
           ))}
         </div>
       </div>
+
+      <PartnerModal open={open} onClose={() => setOpen(false)} />
     </section>
   )
 }

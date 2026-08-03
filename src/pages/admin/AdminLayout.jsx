@@ -47,6 +47,12 @@ export default function AdminLayout() {
             >
               Orders
             </NavLink>
+            <NavLink
+              to="/admin/applications"
+              className={({ isActive }) => `admin__tab ${isActive ? 'is-active' : ''}`}
+            >
+              Applications
+            </NavLink>
           </nav>
         </div>
 
@@ -77,6 +83,9 @@ export default function AdminLayout() {
               </NavLink>
               <NavLink to="/admin/orders" className="acct__item" role="menuitem" onClick={() => setOpen(false)}>
                 Orders
+              </NavLink>
+              <NavLink to="/admin/applications" className="acct__item" role="menuitem" onClick={() => setOpen(false)}>
+                Applications
               </NavLink>
               <Link to="/" className="acct__item" role="menuitem" onClick={() => setOpen(false)}>
                 View store ↗
