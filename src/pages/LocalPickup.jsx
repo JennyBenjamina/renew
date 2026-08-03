@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { PICKUP_PHONE, PICKUP_PHONE_HREF } from "../lib/orders.js";
+import {
+  PICKUP_PHONE,
+  PICKUP_PHONE_HREF,
+  submitDeliveryInquiry,
+} from "../lib/orders.js";
 import "./LocalPickup.css";
 
 const steps = [
@@ -22,6 +26,24 @@ const steps = [
 
 export default function LocalPickup() {
   const [sent, setSent] = useState(false);
+  const [email, setEmail] = useState("");
+  const [zip, setZip] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const onCheck = async (e) => {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+    try {
+      await submitDeliveryInquiry({ email: email.trim(), zip: zip.trim() });
+      setSent(true);
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="pickup">
@@ -94,31 +116,41 @@ export default function LocalPickup() {
             </p>
           </div>
 
-          <form
-            className="pickup__form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSent(true);
-            }}
-          >
+          <form className="pickup__form" onSubmit={onCheck}>
             <h3>Check delivery availability</h3>
             {sent ? (
-              <p className="pickup__success">
-                Thanks — we’ll email you whether delivery is available for your
-                area. (This form is a placeholder in the MVP.)
-              </p>
+              <p className="pickup__success">Yes, we deliver in your area.</p>
             ) : (
               <>
+                {error && (
+                  <div className="auth__alert auth__alert--error">{error}</div>
+                )}
                 <label>
                   Email
-                  <input type="email" required placeholder="you@lab.com" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="you@lab.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </label>
                 <label>
                   ZIP / Postal code
-                  <input type="text" required placeholder="00000" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="00000"
+                    value={zip}
+                    onChange={(e) => setZip(e.target.value)}
+                  />
                 </label>
-                <button type="submit" className="btn btn--primary btn--block">
-                  Check availability
+                <button
+                  type="submit"
+                  className="btn btn--primary btn--block"
+                  disabled={busy}
+                >
+                  {busy ? "Checking…" : "Check availability"}
                 </button>
               </>
             )}

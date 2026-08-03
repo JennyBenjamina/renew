@@ -33,6 +33,26 @@ export async function updateOrderStatus(id, status) {
   return data
 }
 
+/** Submit a delivery availability inquiry (email + zip). Records it and
+ *  notifies the owners; does not email the person who inquired. */
+export async function submitDeliveryInquiry({ email, zip }) {
+  const res = await fetch('/.netlify/functions/submit-delivery-inquiry', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, zip }),
+  })
+  let data = null
+  try {
+    data = await res.json()
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) {
+    throw new Error(data?.error || 'Could not submit. Please try again.')
+  }
+  return data
+}
+
 export async function submitOrder({ customer, items, userId }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',
