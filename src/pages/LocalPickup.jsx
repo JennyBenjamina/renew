@@ -1,27 +1,27 @@
-import { useState } from 'react'
-import { PICKUP_PHONE, PICKUP_PHONE_HREF } from '../lib/orders.js'
-import './LocalPickup.css'
+import { useState } from "react";
+import { PICKUP_PHONE, PICKUP_PHONE_HREF } from "../lib/orders.js";
+import "./LocalPickup.css";
 
 const steps = [
   {
-    n: '01',
-    title: 'Place your order online',
-    body: 'Add research compounds to your cart and check out. No online payment — you pay on delivery.',
+    n: "01",
+    title: "Place your order online",
+    body: "Add research compounds to your cart and check out. No online payment — you pay on delivery.",
   },
   {
-    n: '02',
-    title: 'We confirm your order',
-    body: 'A member of our team reaches out within 24 hours to arrange a convenient delivery time.',
+    n: "02",
+    title: "We confirm your order",
+    body: "A member of our team reaches out within 24 hours to arrange a convenient delivery time.",
   },
   {
-    n: '03',
-    title: 'We deliver to you',
-    body: 'We hand-deliver your order and collect payment in person — fast, discreet, and local.',
+    n: "03",
+    title: "We deliver to you",
+    body: "We hand-deliver your order and collect payment in person — fast, discreet, and local.",
   },
-]
+];
 
 export default function LocalPickup() {
-  const [sent, setSent] = useState(false)
+  const [sent, setSent] = useState(false);
 
   return (
     <div className="pickup">
@@ -31,8 +31,8 @@ export default function LocalPickup() {
           <h1>Delivered right to you.</h1>
           <p>
             We bring your research compounds directly to you. Place your order
-            online and we’ll arrange a convenient delivery — available to verified
-            researchers in the local area.
+            online and we’ll arrange a convenient delivery — available to
+            verified researchers in the local area.
           </p>
         </div>
       </header>
@@ -67,7 +67,7 @@ export default function LocalPickup() {
               </div>
               <div>
                 <dt>Hours</dt>
-                <dd>Mon–Fri, 10:00 AM – 5:00 PM</dd>
+                <dd>Mon–Sun, 10:00 AM – 5:00 PM</dd>
               </div>
               <div>
                 <dt>What to have ready</dt>
@@ -80,6 +80,7 @@ export default function LocalPickup() {
               <div>
                 <dt>Contact</dt>
                 <dd>
+                  Abraham at{" "}
                   <a href={PICKUP_PHONE_HREF} className="pickup__phone">
                     {PICKUP_PHONE}
                   </a>
@@ -87,8 +88,8 @@ export default function LocalPickup() {
               </div>
             </dl>
             <p className="pickup__note">
-              Delivery details are confirmed by phone or email for verified orders
-              only. Questions? Call us at{' '}
+              Delivery details are confirmed by phone or email for verified
+              orders only. Questions? Call us at{" "}
               <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
             </p>
           </div>
@@ -96,8 +97,8 @@ export default function LocalPickup() {
           <form
             className="pickup__form"
             onSubmit={(e) => {
-              e.preventDefault()
-              setSent(true)
+              e.preventDefault();
+              setSent(true);
             }}
           >
             <h3>Check delivery availability</h3>
@@ -125,5 +126,5 @@ export default function LocalPickup() {
         </div>
       </section>
     </div>
-  )
+  );
 }
