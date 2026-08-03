@@ -21,7 +21,9 @@ export async function handler(event) {
   const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
   const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
   const RESEND_API_KEY = process.env.RESEND_API_KEY
-  const FROM = process.env.ORDER_FROM_EMAIL || 'Renew <orders@renewlabslv.com>'
+  const FROM =
+    process.env.PARTNER_FROM_EMAIL ||
+    'Renew Partnerships <partner@renewlabslv.com>'
   const NOTIFY = (
     process.env.ORDER_NOTIFY_EMAILS ||
     'abrahamleencoln@gmail.com,jennylee1989@gmail.com'
