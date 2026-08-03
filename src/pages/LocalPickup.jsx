@@ -6,17 +6,17 @@ const steps = [
   {
     n: '01',
     title: 'Place your order online',
-    body: 'Add research compounds to your cart and select “Local Pickup” at checkout. No shipping fees apply.',
+    body: 'Add research compounds to your cart and check out. No online payment — you pay on delivery.',
   },
   {
     n: '02',
-    title: 'Get your confirmation',
-    body: 'You’ll receive a pickup code by email, usually within a few hours, once your order is packed and verified.',
+    title: 'We confirm your order',
+    body: 'A member of our team reaches out within 24 hours to arrange a convenient delivery time.',
   },
   {
     n: '03',
-    title: 'Collect at the lab',
-    body: 'Bring your pickup code and a valid ID to our facility during pickup hours. Orders are held for 7 days.',
+    title: 'We deliver to you',
+    body: 'We hand-deliver your order and collect payment in person — fast, discreet, and local.',
   },
 ]
 
@@ -27,11 +27,12 @@ export default function LocalPickup() {
     <div className="pickup">
       <header className="pickup__hero deco-band">
         <div className="container">
-          <span className="eyebrow">Local pickup</span>
-          <h1>Collect your order in person.</h1>
+          <span className="eyebrow">Delivery</span>
+          <h1>Delivered right to you.</h1>
           <p>
-            Skip shipping and pick up your research compounds directly from our
-            facility. Available to verified researchers in the local area.
+            We bring your research compounds directly to you. Place your order
+            online and we’ll arrange a convenient delivery — available to verified
+            researchers in the local area.
           </p>
         </div>
       </header>
@@ -39,8 +40,8 @@ export default function LocalPickup() {
       <section className="section">
         <div className="container">
           <div className="section__head">
-            <h2>How local pickup works</h2>
-            <p>Three simple steps from order to collection.</p>
+            <h2>How delivery works</h2>
+            <p>Three simple steps from order to your door.</p>
           </div>
 
           <div className="pickup__steps">
@@ -58,23 +59,23 @@ export default function LocalPickup() {
       <section className="section section--subtle">
         <div className="container pickup__lower">
           <div className="pickup__info">
-            <h2>Pickup location &amp; hours</h2>
+            <h2>Delivery details</h2>
             <dl>
               <div>
-                <dt>Facility</dt>
-                <dd>Renew Research Labs — Receiving Bay B</dd>
+                <dt>Delivery area</dt>
+                <dd>Available to verified researchers in the local area.</dd>
               </div>
               <div>
                 <dt>Hours</dt>
                 <dd>Mon–Fri, 10:00 AM – 5:00 PM</dd>
               </div>
               <div>
-                <dt>What to bring</dt>
-                <dd>Your pickup code and a valid government-issued ID.</dd>
+                <dt>What to have ready</dt>
+                <dd>Payment and a valid government-issued ID.</dd>
               </div>
               <div>
-                <dt>Hold period</dt>
-                <dd>Orders are held for 7 days after confirmation.</dd>
+                <dt>Scheduling</dt>
+                <dd>We reach out within 24 hours to arrange your delivery.</dd>
               </div>
               <div>
                 <dt>Contact</dt>
@@ -86,8 +87,8 @@ export default function LocalPickup() {
               </div>
             </dl>
             <p className="pickup__note">
-              Address details are shared in your pickup confirmation email for
-              verified orders only. Questions? Call us at{' '}
+              Delivery details are confirmed by phone or email for verified orders
+              only. Questions? Call us at{' '}
               <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
             </p>
           </div>
@@ -99,11 +100,11 @@ export default function LocalPickup() {
               setSent(true)
             }}
           >
-            <h3>Check pickup eligibility</h3>
+            <h3>Check delivery availability</h3>
             {sent ? (
               <p className="pickup__success">
-                Thanks — we’ll email you whether local pickup is available for
-                your area. (This form is a placeholder in the MVP.)
+                Thanks — we’ll email you whether delivery is available for your
+                area. (This form is a placeholder in the MVP.)
               </p>
             ) : (
               <>

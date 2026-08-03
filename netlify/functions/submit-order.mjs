@@ -1,4 +1,4 @@
-// Renew — order submission (local pickup, no payment).
+// Renew — order submission (delivery, no payment).
 // Records the order in Supabase (service role) and emails the store owners
 // via Resend. Runs server-side on Netlify so secret keys are never exposed.
 //
@@ -65,7 +65,7 @@ export async function handler(event) {
     customer_email: customer.email,
     customer_phone: customer.phone,
     note: customer.note || null,
-    fulfillment: 'local_pickup',
+    fulfillment: 'delivery',
     status: 'pending',
     total,
     items: items.map((i) => ({
@@ -141,8 +141,8 @@ export async function handler(event) {
 
   // Owner notification
   const ownerHtml = shell(`
-    <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New pickup order — ${orderNumber}</h2>
-    <p style="color:#5c5f58;margin:0 0 16px;">A customer submitted an order for local pickup.</p>
+    <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New delivery order — ${orderNumber}</h2>
+    <p style="color:#5c5f58;margin:0 0 16px;">A customer submitted an order for delivery.</p>
     <h3 style="margin:18px 0 6px;font-size:15px;">Customer</h3>
     <table style="width:100%;font-size:14px;">
       <tr><td style="color:#8b8d87;padding:4px 0;">Name</td><td style="text-align:right;">${customer.name}</td></tr>
@@ -152,21 +152,21 @@ export async function handler(event) {
     </table>
     <h3 style="margin:20px 0 6px;font-size:15px;">Items</h3>
     ${itemsTable}
-    <p style="color:#8b8d87;font-size:12px;margin-top:18px;">Payment collected in person at pickup. Reply to this email to reach the customer.</p>
+    <p style="color:#8b8d87;font-size:12px;margin-top:18px;">Payment collected in person on delivery. Reply to this email to reach the customer.</p>
   `)
 
   // Customer confirmation
   const customerHtml = shell(`
     <h2 style="font-weight:600;font-size:20px;margin:0 0 10px;">Thanks for your order, ${firstName}!</h2>
     <p style="color:#5c5f58;line-height:1.6;margin:0 0 14px;">
-      We’ve received your order <strong>${orderNumber}</strong> for local pickup.
+      We’ve received your order <strong>${orderNumber}</strong> for delivery.
       A member of our team will reach out <strong>within 24 hours</strong> to
-      arrange a convenient time to meet in person.
+      arrange a convenient delivery time.
     </p>
     <h3 style="margin:18px 0 6px;font-size:15px;">Your order</h3>
     ${itemsTable}
     <p style="color:#5c5f58;line-height:1.6;margin:16px 0 6px;">
-      No payment was taken online — you’ll pay when you collect your order.
+      No payment was taken online — you’ll pay on delivery.
     </p>
     <p style="color:#5c5f58;line-height:1.6;margin:0;">
       Questions in the meantime? Call or text us at
@@ -198,7 +198,7 @@ export async function handler(event) {
   await Promise.all([
     sendEmail(
       NOTIFY,
-      `New pickup order ${orderNumber} — ${customer.name}`,
+      `New delivery order ${orderNumber} — ${customer.name}`,
       ownerHtml,
       customer.email
     ),

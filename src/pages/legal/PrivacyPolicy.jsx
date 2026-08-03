@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
 
         <h2>How we use your information</h2>
         <ul>
-          <li>To process and fulfill orders, including local pickup</li>
+          <li>To process and fulfill orders, including delivery</li>
           <li>To respond to compliance, documentation, and support requests</li>
           <li>To operate, maintain, and improve the website</li>
           <li>To meet legal, regulatory, and record-keeping obligations</li>

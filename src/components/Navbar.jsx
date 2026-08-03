@@ -8,7 +8,7 @@ import './Navbar.css'
 const links = [
   { to: '/', label: 'Home', end: true },
   { to: '/products', label: 'Products' },
-  { to: '/local-pickup', label: 'Local Pickup' },
+  { to: '/delivery', label: 'Delivery' },
   { to: '/partner', label: 'Partner' },
 ]
 

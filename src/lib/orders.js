@@ -1,6 +1,6 @@
-/* Client helper to submit a local-pickup order.
+/* Client helper to submit a delivery order.
  * Posts to the Netlify function, which records the order in Supabase and
- * emails the store owners. No payment is taken — payment happens at pickup. */
+ * emails the store owners. No payment is taken — payment happens on delivery. */
 
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 

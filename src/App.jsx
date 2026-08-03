@@ -32,7 +32,9 @@ export default function App() {
           <Route path="/products" element={<Catalog />} />
           {/* Old slug → redirect so existing /catalog links still work */}
           <Route path="/catalog" element={<Navigate to="/products" replace />} />
-          <Route path="/local-pickup" element={<LocalPickup />} />
+          <Route path="/delivery" element={<LocalPickup />} />
+          {/* Old slug → redirect so existing /local-pickup links still work */}
+          <Route path="/local-pickup" element={<Navigate to="/delivery" replace />} />
           <Route path="/partner" element={<About />} />
           {/* Old slug → redirect so existing /about links still work */}
           <Route path="/about" element={<Navigate to="/partner" replace />} />

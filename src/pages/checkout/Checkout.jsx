@@ -65,8 +65,8 @@ export default function Checkout() {
           <h1>Order received</h1>
           <p>
             Your order <strong>{done.order_number}</strong> is in. We’ll reach out
-            to arrange your local pickup. No payment is taken online — you’ll pay
-            when you collect your order.
+            to arrange your delivery. No payment is taken online — you’ll pay on
+            delivery.
           </p>
           <p className="checkout__confirm-contact">
             Questions? Call us at{' '}
@@ -99,11 +99,11 @@ export default function Checkout() {
     <div className="checkout">
       <header className="checkout__hero deco-band">
         <div className="container">
-          <span className="eyebrow">Local pickup checkout</span>
+          <span className="eyebrow">Delivery checkout</span>
           <h1>Reserve your order</h1>
           <p>
             No payment is taken online. Submit your order and we’ll contact you to
-            arrange a local pickup — you pay in person when you collect it.
+            arrange a delivery — you pay in person when it arrives.
           </p>
         </div>
       </header>
@@ -133,7 +133,7 @@ export default function Checkout() {
           <label>
             Note <span className="checkout__optional">Optional</span>
             <textarea rows={3} value={form.note} onChange={set('note')}
-              placeholder="Preferred pickup time, questions, etc." />
+              placeholder="Preferred delivery time, address details, questions, etc." />
           </label>
 
           <div className="checkout__contact">
@@ -143,7 +143,7 @@ export default function Checkout() {
               <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z" />
             </svg>
             <span>
-              Questions about pickup? Call{' '}
+              Questions about delivery? Call{' '}
               <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
             </span>
           </div>
@@ -153,7 +153,7 @@ export default function Checkout() {
           </button>
           <p className="checkout__disclaimer">
             For research use only. Not for human consumption. Payment is collected
-            in person at pickup.
+            in person on delivery.
           </p>
         </form>
 
@@ -170,7 +170,7 @@ export default function Checkout() {
             ))}
           </div>
           <div className="checkout__total">
-            <span>Total due at pickup</span>
+            <span>Total due on delivery</span>
             <strong>{money(subtotal)}</strong>
           </div>
           <Link to="/products" className="checkout__back">

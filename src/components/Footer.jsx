@@ -19,7 +19,7 @@ export default function Footer() {
           <h4>Shop</h4>
           <Link to="/products">All Products</Link>
           <Link to="/products">Featured</Link>
-          <Link to="/local-pickup">Local Pickup</Link>
+          <Link to="/delivery">Delivery</Link>
         </div>
 
         <div className="footer__col">

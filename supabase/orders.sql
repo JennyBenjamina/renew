@@ -13,7 +13,7 @@ create table if not exists public.orders (
   customer_email  text,
   customer_phone  text,
   note            text,
-  fulfillment     text not null default 'local_pickup',
+  fulfillment     text not null default 'delivery',
   status          text not null default 'pending'
                     check (status in ('pending','ready','delivered','cancelled')),
   total           numeric(10, 2) not null default 0,
@@ -28,7 +28,7 @@ alter table public.orders add column if not exists customer_name  text;
 alter table public.orders add column if not exists customer_email text;
 alter table public.orders add column if not exists customer_phone text;
 alter table public.orders add column if not exists note           text;
-alter table public.orders add column if not exists fulfillment    text default 'local_pickup';
+alter table public.orders add column if not exists fulfillment    text default 'delivery';
 
 create index if not exists orders_user_idx on public.orders (user_id, created_at desc);
 create unique index if not exists orders_number_idx on public.orders (order_number);
