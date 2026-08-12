@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCart } from '../context/CartContext.jsx'
 import { money } from '../lib/format.js'
+import { trackAddToCart } from '../lib/tracking.js'
 import './ProductCard.css'
 
 /** Placeholder product art — a themed vial illustration keyed off image_hue.
@@ -108,7 +109,10 @@ export default function ProductCard({ product }) {
           <button
             className="btn btn--primary pcard__add"
             disabled={!product.in_stock}
-            onClick={() => add(product)}
+            onClick={() => {
+              add(product)
+              trackAddToCart(product)
+            }}
           >
             {product.in_stock ? 'Add to Cart' : 'Sold Out'}
           </button>

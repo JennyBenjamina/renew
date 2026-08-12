@@ -11,9 +11,14 @@ import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import AdminOrders from './pages/admin/AdminOrders.jsx'
 import AdminApplications from './pages/admin/AdminApplications.jsx'
+import AdminVisitors from './pages/admin/AdminVisitors.jsx'
+import AdminBlog from './pages/admin/AdminBlog.jsx'
+import BlogPostForm from './pages/admin/BlogPostForm.jsx'
 import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
 import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
 import PrivacyPolicy from './pages/legal/PrivacyPolicy.jsx'
+import TermsOfService from './pages/legal/TermsOfService.jsx'
+import RefundPolicy from './pages/legal/RefundPolicy.jsx'
 import Login from './pages/account/Login.jsx'
 import Signup from './pages/account/Signup.jsx'
 import Account from './pages/account/Account.jsx'
@@ -21,6 +26,9 @@ import OrderHistory from './pages/account/OrderHistory.jsx'
 import ForgotPassword from './pages/account/ForgotPassword.jsx'
 import ResetPassword from './pages/account/ResetPassword.jsx'
 import Checkout from './pages/checkout/Checkout.jsx'
+import FAQ from './pages/FAQ.jsx'
+import Blog from './pages/blog/Blog.jsx'
+import BlogPost from './pages/blog/BlogPost.jsx'
 
 export default function App() {
   return (
@@ -45,6 +53,11 @@ export default function App() {
             element={<CertificatesOfAnalysis />}
           />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/checkout" element={<Checkout />} />
 
           {/* Customer accounts */}
@@ -83,6 +96,10 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="applications" element={<AdminApplications />} />
+          <Route path="visitors" element={<AdminVisitors />} />
+          <Route path="blog" element={<AdminBlog />} />
+          <Route path="blog/new" element={<BlogPostForm />} />
+          <Route path="blog/:id" element={<BlogPostForm />} />
         </Route>
       </Routes>
     </>

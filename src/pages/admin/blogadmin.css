@@ -1,0 +1,167 @@
+/* Admin: Research Notes list + editor. Reuses admin.css tokens/classes. */
+
+.blogadmin__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.blogadmin__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.blogadmin__row.is-busy {
+  opacity: 0.5;
+}
+.blogadmin__titleline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.blogadmin__badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.blogadmin__badge.is-pub {
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  color: var(--color-primary);
+}
+.blogadmin__badge.is-draft {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.blogadmin__sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+.blogadmin__actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex: none;
+}
+
+/* Editor */
+.blogform__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+.blogform__full {
+  grid-column: 1 / -1;
+}
+.blogform__grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.blogform__grid input,
+.blogform__grid select,
+.blogform__grid textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 400;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.blogform__grid code {
+  background: var(--color-bg-subtle);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 400;
+}
+.blogform__body {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  line-height: 1.6;
+}
+.blogform__section {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-5);
+  margin-top: var(--space-2);
+}
+.blogform__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.blogform__section h2 {
+  font-size: 1.05rem;
+  margin: 0 0 var(--space-3);
+}
+.blogform__section h2 span {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+.blogform__hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+}
+.blogform__faqrow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-raised);
+  margin-bottom: var(--space-2);
+}
+.blogform__faqrow input,
+.blogform__faqrow textarea {
+  width: 100%;
+}
+.blogform__faqrow button {
+  justify-self: start;
+}
+.blogform__pubtoggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.blogform__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 640px) {
+  .blogform__grid {
+    grid-template-columns: 1fr;
+  }
+  .blogadmin__row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -7,11 +7,15 @@ import { ComplianceProvider } from './context/ComplianceContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { applyTheme, DEFAULT_THEME } from './lib/theme.js'
+import { initTracking } from './lib/tracking.js'
 import './styles/theme.css'
 import './styles/global.css'
 
 // Force the Stone color scheme for all visitors (theme switcher is disabled).
 applyTheme(DEFAULT_THEME)
+
+// Load marketing pixels (no-op unless their IDs are set in env).
+initTracking()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

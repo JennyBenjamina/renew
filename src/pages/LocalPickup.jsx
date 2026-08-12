@@ -119,7 +119,7 @@ export default function LocalPickup() {
           <form className="pickup__form" onSubmit={onCheck}>
             <h3>Check delivery availability</h3>
             {sent ? (
-              <p className="pickup__success">Yes, we deliver in your area.</p>
+              <p className="pickup__success">Yes, we deliver in your area!</p>
             ) : (
               <>
                 {error && (

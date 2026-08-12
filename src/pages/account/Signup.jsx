@@ -217,7 +217,7 @@ export default function Signup() {
           <span>
             By creating an account, you verify that you will use products strictly
             for research purposes and agree to our{' '}
-            <Link to="/research-use-terms">Terms of Service</Link>.
+            <Link to="/terms-of-service">Terms of Service</Link>.
           </span>
         </div>
 

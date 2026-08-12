@@ -35,8 +35,8 @@ export default function CertificatesOfAnalysis() {
         <p>
           A Certificate of Analysis is available for every compound in our
           product lineup. To request the report for a specific product or batch, email{' '}
-          <a href="mailto:compliance@renewpeptides.com">
-            compliance@renewpeptides.com
+          <a href="mailto:compliance@renewlabslv.com">
+            compliance@renewlabslv.com
           </a>{' '}
           with the product name and, if you have it, the lot number printed on
           your vial.

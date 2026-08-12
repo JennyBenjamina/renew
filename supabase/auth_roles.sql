@@ -128,6 +128,13 @@ create policy "update own profile"
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
+-- Admins can read the compliance acceptance log (for the Visitors dashboard).
+-- The public still can only INSERT (from schema.sql); no one but admins reads it.
+drop policy if exists "admins read acceptance log" on public.acceptance_log;
+create policy "admins read acceptance log"
+  on public.acceptance_log for select
+  using (public.is_admin());
+
 -- ---------------------------------------------------------------------------
 -- 6. Restrict product writes to admins only (replaces the old
 --    "any authenticated user" policies from schema.sql)
@@ -135,6 +142,9 @@ create policy "update own profile"
 drop policy if exists "Authenticated can insert products" on public.products;
 drop policy if exists "Authenticated can update products" on public.products;
 drop policy if exists "Authenticated can delete products" on public.products;
+drop policy if exists "Admins can insert products" on public.products;
+drop policy if exists "Admins can update products" on public.products;
+drop policy if exists "Admins can delete products" on public.products;
 
 create policy "Admins can insert products"
   on public.products for insert to authenticated

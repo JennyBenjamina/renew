@@ -79,7 +79,7 @@ const sections = [
         <path d="M4 7l8 6 8-6" />
       </>
     ),
-    body: 'If you have any questions regarding compliance, documentation, or acceptable use of our products, please contact our compliance team directly at compliance@renewpeptides.com prior to placing an order.',
+    body: 'If you have any questions regarding compliance, documentation, or acceptable use of our products, please contact our compliance team directly at compliance@renewlabslv.com prior to placing an order.',
   },
 ]
 

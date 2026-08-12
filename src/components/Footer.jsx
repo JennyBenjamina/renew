@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo.jsx'
+import NewsletterForm from './NewsletterForm.jsx'
 import './Footer.css'
 
 export default function Footer() {
@@ -13,6 +14,10 @@ export default function Footer() {
             verified purity.
           </p>
           <p className="footer__ro">For research purposes only.</p>
+          <div className="footer__news">
+            <span className="footer__news-title">Research updates from Renew</span>
+            <NewsletterForm />
+          </div>
         </div>
 
         <div className="footer__col">
@@ -27,11 +32,15 @@ export default function Footer() {
           <Link to="/partner">Partner</Link>
           <Link to="/partner">Quality &amp; Testing</Link>
           <Link to="/partner">Affiliate Program</Link>
+          <Link to="/blog">Research Notes</Link>
+          <Link to="/faq">FAQ</Link>
         </div>
 
         <div className="footer__col">
-          <h4>Compliance</h4>
+          <h4>Legal</h4>
           <Link to="/research-use-terms">Research Use Only Terms</Link>
+          <Link to="/terms-of-service">Terms of Service</Link>
+          <Link to="/refund-policy">Refund &amp; Returns</Link>
           <Link to="/certificates-of-analysis">Certificates of Analysis</Link>
           <Link to="/privacy-policy">Privacy Policy</Link>
         </div>

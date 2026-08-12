@@ -9,6 +9,13 @@
 // Optional overrides:
 //   ORDER_FROM_EMAIL             default: Renew Orders <orders@renewlabslv.com>
 //   ORDER_NOTIFY_EMAILS          comma-separated; default: the two owner emails
+// Optional Meta Conversions API (server-side Purchase tracking):
+//   META_PIXEL_ID, META_CAPI_TOKEN
+
+import crypto from 'node:crypto'
+
+const sha256 = (v) =>
+  crypto.createHash('sha256').update(String(v).trim().toLowerCase()).digest('hex')
 
 const money = (n) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
@@ -209,6 +216,44 @@ export async function handler(event) {
       NOTIFY[0]
     ),
   ])
+
+  // 3. Meta Conversions API — server-side Purchase (optional, env-gated).
+  const META_PIXEL_ID = process.env.META_PIXEL_ID
+  const META_CAPI_TOKEN = process.env.META_CAPI_TOKEN
+  if (META_PIXEL_ID && META_CAPI_TOKEN) {
+    try {
+      await fetch(
+        `https://graph.facebook.com/v19.0/${META_PIXEL_ID}/events?access_token=${META_CAPI_TOKEN}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data: [
+              {
+                event_name: 'Purchase',
+                event_time: Math.floor(Date.now() / 1000),
+                action_source: 'website',
+                event_id: orderNumber,
+                user_data: {
+                  em: [sha256(customer.email)],
+                  ph: [sha256((customer.phone || '').replace(/\D/g, ''))],
+                },
+                custom_data: {
+                  currency: 'USD',
+                  value: total,
+                  content_ids: orderRow.items.map((i) => i.id),
+                  content_type: 'product',
+                  order_id: orderNumber,
+                },
+              },
+            ],
+          }),
+        }
+      )
+    } catch (err) {
+      console.error('Meta CAPI error:', err)
+    }
+  }
 
   return json(200, {
     ok: true,

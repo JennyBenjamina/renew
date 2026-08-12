@@ -60,13 +60,13 @@ export default function PrivacyPolicy() {
         <p>
           You may request access to, correction of, or deletion of your personal
           information, subject to legal limits. To make a request, contact us at{' '}
-          <a href="mailto:privacy@renewpeptides.com">privacy@renewpeptides.com</a>.
+          <a href="mailto:privacy@renewlabslv.com">privacy@renewlabslv.com</a>.
         </p>
 
         <h2>Contact</h2>
         <p>
           Questions about this policy can be sent to{' '}
-          <a href="mailto:privacy@renewpeptides.com">privacy@renewpeptides.com</a>.
+          <a href="mailto:privacy@renewlabslv.com">privacy@renewlabslv.com</a>.
         </p>
 
         <p className="legal__note">

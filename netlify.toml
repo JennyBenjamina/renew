@@ -8,6 +8,13 @@
 [functions]
   node_bundler = "esbuild"
 
+# Dynamic sitemap (static pages + published blog posts from Supabase).
+# Must come BEFORE the SPA catch-all so it isn't swallowed by it.
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+
 # Serve index.html for any path so client-side routing works on direct hits
 # and refreshes (e.g. /admin/login, /catalog). Without this, Netlify returns
 # its own 404 for those URLs.
