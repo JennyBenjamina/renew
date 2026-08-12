@@ -20,6 +20,7 @@
 }
 
 .blog__filters {
+  margin-top: var(--space-3);
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
@@ -58,7 +59,9 @@
   background: var(--color-bg-raised);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  transition: border-color 0.18s ease, transform 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 .blogcard:hover {
   border-color: var(--color-primary);
@@ -232,14 +235,14 @@
   display: none;
 }
 .post__faq-item summary::after {
-  content: '+';
+  content: "+";
   color: var(--color-primary);
   font-size: 1.3rem;
   line-height: 1;
   flex: none;
 }
 .post__faq-item[open] summary::after {
-  content: '−';
+  content: "−";
 }
 .post__faq-item p {
   margin: 0;
