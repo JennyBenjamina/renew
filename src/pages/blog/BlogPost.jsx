@@ -114,7 +114,7 @@ export default function BlogPost() {
       />
 
       <header className="post__hero deco-band">
-        <div className="container">
+        <div className="post__inner">
           <nav className="post__crumbs" aria-label="Breadcrumb">
             <Link to="/blog">Research Notes</Link>
             <span aria-hidden="true">/</span>
@@ -131,7 +131,7 @@ export default function BlogPost() {
         </div>
       </header>
 
-      <div className="container post__body">
+      <div className="post__body">
         {post.excerpt && <p className="post__lede">{post.excerpt}</p>}
 
         <div className="post__prose">
@@ -169,7 +169,7 @@ export default function BlogPost() {
       </div>
 
       {relatedList.length > 0 && (
-        <aside className="container post__related">
+        <aside className="post__related">
           <h2>More research notes</h2>
           <div className="blog__grid">
             {relatedList.map((p) => (
