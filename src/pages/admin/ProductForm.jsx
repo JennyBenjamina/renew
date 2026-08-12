@@ -231,10 +231,14 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
                   </button>
                 )}
                 <p className="pform__hint">
-                  Square image ({IMAGE_RULES.extensions}), at least{' '}
-                  {IMAGE_RULES.minSize}×{IMAGE_RULES.minSize}px — {IMAGE_RULES.recommended}{' '}
-                  recommended. Max {IMAGE_RULES.maxLabel}. If no image is set,
-                  the fallback art hue above is used.
+                  <strong>Preferred: {IMAGE_RULES.recommended} {IMAGE_RULES.ratioLabel}</strong>{' '}
+                  ({IMAGE_RULES.extensions}). Photos display in a 1:1 square that
+                  scales on both mobile and desktop, so upload a square image with
+                  the vial centered — this keeps the whole vial visible and never
+                  cropped. Minimum {IMAGE_RULES.minSize}×{IMAGE_RULES.minSize}px,
+                  up to {IMAGE_RULES.maxDimension}×{IMAGE_RULES.maxDimension}px, max{' '}
+                  {IMAGE_RULES.maxLabel}. If no image is set, the fallback art hue
+                  above is used.
                 </p>
               </div>
             </div>

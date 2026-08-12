@@ -17,7 +17,9 @@
 
 .pcard__media {
   position: relative;
-  padding: var(--space-4);
+  /* Fixed 1:1 box that scales with the card — uniform on mobile + desktop. */
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
   background: linear-gradient(
     180deg,
     var(--color-bg-subtle) 0%,
@@ -26,21 +28,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 240px;
 }
 
 .pcard__art {
-  width: 150px;
-  height: 150px;
+  width: 55%;
+  height: auto;
 }
 
-/* Product photos are tall transparent vials — show the whole vial. */
+/* Fit the whole product photo inside the square box so nothing is cropped —
+   works for square, portrait, or landscape uploads alike. */
 .pcard__photo {
-  width: auto;
-  max-width: 100%;
-  height: 260px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 12px 22px rgba(15, 23, 42, 0.14));
+  object-position: center;
+  padding: var(--space-4);
+  filter: drop-shadow(0 10px 18px rgba(15, 23, 42, 0.12));
 }
 
 .pcard__flags {
@@ -49,12 +52,20 @@
   left: var(--space-4);
   display: flex;
   gap: var(--space-2);
+  z-index: 2;
 }
 
 .pcard__stock {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
+  z-index: 2;
+}
+
+/* Keep corner badges readable when they sit over a photo. */
+.pcard__flags .badge,
+.pcard__stock {
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
 }
 
 .pcard__body {

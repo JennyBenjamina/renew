@@ -79,13 +79,17 @@ export async function deleteProduct(id) {
   if (error) throw error
 }
 
-/* Image upload requirements, surfaced in the admin UI. */
+/* Image upload requirements, surfaced in the admin UI. Product photos display
+ * inside a 1:1 square that scales on mobile and desktop, so square uploads with
+ * the vial centered look best. */
 export const IMAGE_RULES = {
   accept: ['image/jpeg', 'image/png', 'image/webp'],
   acceptAttr: 'image/jpeg,image/png,image/webp',
   extensions: 'JPG, PNG, or WebP',
+  ratioLabel: '1:1 square',
   minSize: 800, // px, square
-  recommended: '1000 × 1000px',
+  recommended: '1000 × 1000px', // ideal
+  maxDimension: 1400, // px — larger than this is unnecessary
   maxBytes: 3 * 1024 * 1024, // 3 MB
   maxLabel: '3 MB',
 }
