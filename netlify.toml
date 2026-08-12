@@ -8,17 +8,7 @@
 [functions]
   node_bundler = "esbuild"
 
-# Dynamic sitemap (static pages + published blog posts from Supabase).
-# Must come BEFORE the SPA catch-all so it isn't swallowed by it.
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/.netlify/functions/sitemap"
-  status = 200
-
-# Serve index.html for any path so client-side routing works on direct hits
-# and refreshes (e.g. /admin/login, /catalog). Without this, Netlify returns
-# its own 404 for those URLs.
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# NOTE: All redirect rules live in public/_redirects (which Netlify honors as
+# the single source of truth for this site) — including the /sitemap.xml → the
+# sitemap function rule and the SPA catch-all. Keeping them there avoids the
+# precedence conflict that occurs when both files define routing.

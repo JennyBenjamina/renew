@@ -1,1 +1,7 @@
+# Dynamic sitemap (static pages + published blog posts from Supabase).
+# Must come BEFORE the SPA catch-all so it isn't swallowed by it.
+/sitemap.xml   /.netlify/functions/sitemap   200
+
+# SPA fallback: serve index.html for any other path so client-side routing
+# works on direct hits and refreshes.
 /*    /index.html   200
