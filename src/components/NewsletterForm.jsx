@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-/** Footer newsletter signup → Omnisend (via the subscribe function). */
+/** Footer newsletter signup → Supabase `subscribers` (via the subscribe function). */
 export default function NewsletterForm() {
   const [email, setEmail] = useState('')
   const [state, setState] = useState('idle') // idle | busy | done | error

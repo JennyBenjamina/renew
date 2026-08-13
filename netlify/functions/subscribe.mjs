@@ -1,8 +1,11 @@
-// Renew — newsletter subscribe → Omnisend.
-// Adds the email as a subscribed contact in Omnisend. Env-gated: if
-// OMNISEND_API_KEY isn't set, it's a no-op that still returns success.
+// Renew — newsletter subscribe → Supabase.
+// Stores the email in the `subscribers` table (server-side, service role). No
+// third-party email tool: manage and export subscribers from the admin portal,
+// then import the CSV into Resend Audiences when you want to send a campaign.
 //
-//   OMNISEND_API_KEY   Omnisend → Store settings → Integrations & API → API keys
+// Required Netlify environment variables:
+//   SUPABASE_URL                 e.g. https://xxxx.supabase.co
+//   SUPABASE_SERVICE_ROLE_KEY    Supabase → Project Settings → API → service_role (SECRET)
 
 const json = (status, body) => ({
   statusCode: status,
@@ -15,7 +18,7 @@ export async function handler(event) {
 
   let email
   try {
-    email = (JSON.parse(event.body || '{}').email || '').trim()
+    email = (JSON.parse(event.body || '{}').email || '').trim().toLowerCase()
   } catch {
     return json(400, { error: 'Invalid JSON.' })
   }
@@ -23,37 +26,36 @@ export async function handler(event) {
     return json(400, { error: 'Please enter a valid email.' })
   }
 
-  const KEY = process.env.OMNISEND_API_KEY
-  if (!KEY) {
-    console.warn('OMNISEND_API_KEY not set — subscriber not sent to Omnisend:', email)
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    console.warn('Supabase env not set — subscriber not stored:', email)
+    // Still return success so the visitor isn't shown an error.
     return json(200, { ok: true, stored: false })
   }
 
   try {
-    const res = await fetch('https://api.omnisend.com/v3/contacts', {
-      method: 'POST',
-      headers: { 'X-API-KEY': KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        identifiers: [
-          {
-            type: 'email',
-            id: email,
-            channels: {
-              email: { status: 'subscribed', statusDate: new Date().toISOString() },
-            },
-          },
-        ],
-        tags: ['newsletter', 'renew-site'],
-      }),
-    })
+    // Insert; ignore duplicates so re-subscribing the same email is harmless.
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/subscribers?on_conflict=email`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: SERVICE_KEY,
+          Authorization: `Bearer ${SERVICE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=ignore-duplicates,return=minimal',
+        },
+        body: JSON.stringify({ email, source: 'footer' }),
+      }
+    )
     if (!res.ok) {
-      const t = await res.text()
-      console.error('Omnisend failed:', res.status, t)
-      // 409 = already exists; treat as success for the visitor.
-      if (res.status !== 409) return json(200, { ok: true, stored: false })
+      console.error('Subscriber insert failed:', res.status, await res.text())
+      return json(200, { ok: true, stored: false })
     }
   } catch (err) {
-    console.error('Omnisend error:', err)
+    console.error('Subscriber insert error:', err)
     return json(200, { ok: true, stored: false })
   }
 

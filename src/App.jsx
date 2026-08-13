@@ -14,6 +14,7 @@ import AdminApplications from './pages/admin/AdminApplications.jsx'
 import AdminVisitors from './pages/admin/AdminVisitors.jsx'
 import AdminBlog from './pages/admin/AdminBlog.jsx'
 import BlogPostForm from './pages/admin/BlogPostForm.jsx'
+import AdminSubscribers from './pages/admin/AdminSubscribers.jsx'
 import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
 import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
 import PrivacyPolicy from './pages/legal/PrivacyPolicy.jsx'
@@ -100,6 +101,7 @@ export default function App() {
           <Route path="blog" element={<AdminBlog />} />
           <Route path="blog/new" element={<BlogPostForm />} />
           <Route path="blog/:id" element={<BlogPostForm />} />
+          <Route path="subscribers" element={<AdminSubscribers />} />
         </Route>
       </Routes>
     </>
