@@ -30,6 +30,7 @@ import Checkout from './pages/checkout/Checkout.jsx'
 import FAQ from './pages/FAQ.jsx'
 import Blog from './pages/blog/Blog.jsx'
 import BlogPost from './pages/blog/BlogPost.jsx'
+import COAs from './pages/COAs.jsx'
 
 export default function App() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/coas" element={<COAs />} />
           <Route path="/checkout" element={<Checkout />} />
 
           {/* Customer accounts */}

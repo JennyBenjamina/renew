@@ -41,7 +41,7 @@ export default function Footer() {
           <Link to="/research-use-terms">Research Use Only Terms</Link>
           <Link to="/terms-of-service">Terms of Service</Link>
           <Link to="/refund-policy">Refund &amp; Returns</Link>
-          <Link to="/certificates-of-analysis">Certificates of Analysis</Link>
+          <Link to="/coas">Certificates of Analysis</Link>
           <Link to="/privacy-policy">Privacy Policy</Link>
         </div>
       </div>

@@ -10,6 +10,7 @@ const links = [
   { to: '/products', label: 'Products' },
   { to: '/delivery', label: 'Delivery' },
   { to: '/partner', label: 'Partner' },
+  { to: '/coas', label: 'COA' },
   { to: '/blog', label: 'Research' },
 ]
 
