@@ -20,6 +20,7 @@
 }
 
 .coa__toolbar {
+  margin-top: var(--space-5);
   margin-bottom: var(--space-5);
 }
 .coa__search {
