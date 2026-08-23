@@ -7,12 +7,22 @@ export default function Hero() {
       <div className="container hero__inner">
         <div className="hero__copy">
           <span className="eyebrow">Third-party tested purity</span>
+          <span className="hero__local">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+              strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11z" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
+            Based in Las Vegas, Nevada
+          </span>
           <h1 className="hero__title">
             Research compounds <span>synthesized for precision.</span>
           </h1>
           <p className="hero__lede">
-            Equip your laboratory with premium peptides and compounds
-            manufactured under strict, verified quality controls.
+            A Las Vegas–based lab, run by real people. Equip your research with
+            premium peptides and compounds — hand-checked, third-party tested, and
+            backed by people you can actually reach.
           </p>
           <div className="hero__actions">
             <Link to="/products" className="btn btn--primary">

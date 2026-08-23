@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Hero from '../components/Hero.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
 import ImageBand from '../components/ImageBand.jsx'
+import LocalSection from '../components/LocalSection.jsx'
 import MissionSection from '../components/MissionSection.jsx'
 import AffiliateSection from '../components/AffiliateSection.jsx'
 import { fetchFeaturedProducts } from '../lib/products.js'
@@ -32,6 +33,8 @@ export default function Home() {
   return (
     <>
       <Hero />
+
+      <LocalSection />
 
       <section className="section" id="featured">
         <div className="container">
