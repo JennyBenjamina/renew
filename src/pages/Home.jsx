@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Hero from '../components/Hero.jsx'
 import ProductGrid from '../components/ProductGrid.jsx'
 import ImageBand from '../components/ImageBand.jsx'
 import LocalSection from '../components/LocalSection.jsx'
@@ -32,18 +31,14 @@ export default function Home() {
 
   return (
     <>
-      <Hero />
-
-      <LocalSection />
-
       <section className="section" id="featured">
         <div className="container">
           <div className="section__head">
-            <span className="eyebrow">Featured products</span>
-            <h2>Our most popular research compounds</h2>
+            <span className="eyebrow">Las Vegas · Research compounds</span>
+            <h2>Shop research-grade peptides, ready to order</h2>
             <p>
-              Synthesized for maximum purity and precision, and trusted by
-              laboratories for reproducible results.
+              Third-party tested for purity with a COA on every batch — packed
+              and delivered locally by real people in Las Vegas.
             </p>
           </div>
 
@@ -60,6 +55,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <LocalSection />
 
       <ImageBand
         image="/renew-collection.jpg"
