@@ -156,6 +156,60 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Affiliate order drill-down */
+.affdrill {
+  margin: calc(var(--space-2) * -1) 0 var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+.affdrill__table {
+  display: flex;
+  flex-direction: column;
+}
+.affdrill__row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1.4fr 0.9fr 0.9fr 0.8fr;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.86rem;
+}
+.affdrill__row:last-child {
+  border-bottom: none;
+}
+.affdrill__row--head {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.affdrill__row .ordercard__badge {
+  justify-self: start;
+}
+.affdrill__mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+}
+.affdrill__total {
+  font-weight: 700;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .affdrill__row {
+    grid-template-columns: 1fr auto;
+  }
+  .affdrill__row span:nth-child(2),
+  .affdrill__row span:nth-child(3),
+  .affdrill__row span:nth-child(5) {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .blogform__grid {
     grid-template-columns: 1fr;

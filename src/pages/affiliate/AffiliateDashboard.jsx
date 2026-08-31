@@ -122,7 +122,7 @@ export default function AffiliateDashboard() {
             <div className="aff__row aff__row--head">
               <span>Order</span>
               <span>Date</span>
-              <span>Items</span>
+              <span>Payment</span>
               <span>Status</span>
               <span>Total</span>
             </div>
@@ -130,7 +130,13 @@ export default function AffiliateDashboard() {
               <div className="aff__row" key={o.id}>
                 <span className="aff__mono">{o.order_number}</span>
                 <span>{fmtDate(o.created_at)}</span>
-                <span>{Array.isArray(o.items) ? o.items.reduce((s, i) => s + Number(i.qty || 0), 0) : 0}</span>
+                <span className={`aff__badge aff__pay--${o.payment_status || 'unpaid'}`}>
+                  {o.payment_status === 'paid'
+                    ? 'Paid'
+                    : o.payment_status === 'cancelled'
+                      ? 'Cancelled'
+                      : 'Unpaid'}
+                </span>
                 <span className="aff__badge">{o.status}</span>
                 <span className="aff__total">{money(o.total)}</span>
               </div>

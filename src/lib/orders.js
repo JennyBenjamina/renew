@@ -8,6 +8,7 @@ export const PICKUP_PHONE = '(424) 877-5528'
 export const PICKUP_PHONE_HREF = 'tel:+14248775528'
 
 export const ORDER_STATUSES = ['pending', 'ready', 'delivered', 'cancelled']
+export const PAYMENT_STATUSES = ['unpaid', 'paid', 'cancelled']
 
 /** Admin: list every order, newest first. Requires an admin session (RLS). */
 export async function adminListOrders() {
@@ -26,6 +27,19 @@ export async function updateOrderStatus(id, status) {
   const { data, error } = await supabase
     .from('orders')
     .update({ status })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+/** Admin: change an order's payment status (unpaid → paid, etc.). */
+export async function updateOrderPaymentStatus(id, payment_status) {
+  if (!isSupabaseConfigured) throw new Error('Supabase is not configured.')
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ payment_status })
     .eq('id', id)
     .select()
     .single()

@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { adminListOrders, updateOrderStatus, ORDER_STATUSES } from '../../lib/orders.js'
+import {
+  adminListOrders,
+  updateOrderStatus,
+  updateOrderPaymentStatus,
+  ORDER_STATUSES,
+  PAYMENT_STATUSES,
+} from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import './admin.css'
 
@@ -47,6 +53,18 @@ export default function AdminOrders() {
       setOrders((list) => list.map((o) => (o.id === order.id ? updated : o)))
     } catch (err) {
       alert(err.message || 'Could not update status.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const onPayment = async (order, payment_status) => {
+    setBusyId(order.id)
+    try {
+      const updated = await updateOrderPaymentStatus(order.id, payment_status)
+      setOrders((list) => list.map((o) => (o.id === order.id ? updated : o)))
+    } catch (err) {
+      alert(err.message || 'Could not update payment status.')
     } finally {
       setBusyId(null)
     }
@@ -107,7 +125,16 @@ export default function AdminOrders() {
                   <strong className="ordercard__num">{o.order_number || o.id.slice(0, 8)}</strong>
                   <span className="ordercard__date">{formatDate(o.created_at)}</span>
                 </div>
-                <span className={`ordercard__badge status--${o.status}`}>{o.status}</span>
+                <div className="ordercard__badges">
+                  <span className={`ordercard__badge pay--${o.payment_status || 'unpaid'}`}>
+                    {o.payment_status === 'paid'
+                      ? 'Paid'
+                      : o.payment_status === 'cancelled'
+                        ? 'Payment cancelled'
+                        : 'Unpaid'}
+                  </span>
+                  <span className={`ordercard__badge status--${o.status}`}>{o.status}</span>
+                </div>
               </header>
 
               <div className="ordercard__body">
@@ -151,7 +178,21 @@ export default function AdminOrders() {
 
               <footer className="ordercard__foot">
                 <label className="ordercard__status-label">
-                  Status
+                  Payment
+                  <select
+                    value={o.payment_status || 'unpaid'}
+                    disabled={busyId === o.id}
+                    onChange={(e) => onPayment(o, e.target.value)}
+                  >
+                    {PAYMENT_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="ordercard__status-label">
+                  Delivery
                   <select
                     value={o.status}
                     disabled={busyId === o.id}
@@ -164,13 +205,13 @@ export default function AdminOrders() {
                     ))}
                   </select>
                 </label>
-                {o.status !== 'delivered' && (
+                {(o.payment_status || 'unpaid') === 'unpaid' && (
                   <button
                     className="btn btn--primary ordercard__deliver"
                     disabled={busyId === o.id}
-                    onClick={() => onStatus(o, 'delivered')}
+                    onClick={() => onPayment(o, 'paid')}
                   >
-                    Mark delivered
+                    Mark paid
                   </button>
                 )}
               </footer>

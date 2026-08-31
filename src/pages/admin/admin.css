@@ -103,6 +103,28 @@
   border-color: transparent;
 }
 
+.ordercard__badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.pay--paid {
+  background: color-mix(in srgb, var(--color-instock) 18%, var(--color-bg));
+  color: var(--color-instock);
+  border-color: transparent;
+}
+.pay--unpaid {
+  background: color-mix(in srgb, var(--color-best) 18%, var(--color-bg));
+  color: var(--color-best);
+  border-color: transparent;
+}
+.pay--cancelled {
+  background: color-mix(in srgb, var(--color-sale) 14%, var(--color-bg));
+  color: var(--color-sale);
+  border-color: transparent;
+}
+
 .ordercard__body {
   padding: var(--space-5);
   display: flex;

@@ -13,6 +13,22 @@ import './blogadmin.css'
 
 const emptyForm = { code: '', name: '', email: '', discount_percent: 10 }
 
+function fmtDate(d) {
+  try {
+    return new Date(d).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  } catch {
+    return ''
+  }
+}
+
+function payLabel(ps) {
+  return ps === 'paid' ? 'Paid' : ps === 'cancelled' ? 'Cancelled' : 'Unpaid'
+}
+
 export default function AdminAffiliates() {
   const [reps, setReps] = useState([])
   const [orders, setOrders] = useState([])
@@ -20,6 +36,7 @@ export default function AdminAffiliates() {
   const [error, setError] = useState('')
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [expandedId, setExpandedId] = useState(null)
 
   const load = async () => {
     setLoading(true)
@@ -132,35 +149,76 @@ export default function AdminAffiliates() {
         <div className="blogadmin__list">
           {reps.map((r) => {
             const t = totals[r.id] || { count: 0, sales: 0 }
+            const repOrders = orders.filter((o) => o.affiliate_id === r.id)
+            const isOpen = expandedId === r.id
             return (
-              <article className="blogadmin__row" key={r.id}>
-                <div className="blogadmin__main">
-                  <div className="blogadmin__titleline">
-                    <strong>{r.name || r.code}</strong>
-                    <span className={`blogadmin__badge ${r.active ? 'is-pub' : 'is-draft'}`}>
-                      {r.active ? 'Active' : 'Paused'}
+              <div key={r.id}>
+                <article className="blogadmin__row">
+                  <div className="blogadmin__main">
+                    <div className="blogadmin__titleline">
+                      <strong>{r.name || r.code}</strong>
+                      <span className={`blogadmin__badge ${r.active ? 'is-pub' : 'is-draft'}`}>
+                        {r.active ? 'Active' : 'Paused'}
+                      </span>
+                      <span className={`blogadmin__badge ${r.user_id ? 'is-pub' : 'is-draft'}`}>
+                        {r.user_id ? 'Signed up' : 'Awaiting signup'}
+                      </span>
+                    </div>
+                    <span className="blogadmin__sub">
+                      code <strong>{r.code}</strong> · {r.discount_percent}% off ·{' '}
+                      {t.count} order{t.count === 1 ? '' : 's'} · {money(t.sales)} sales
                     </span>
-                    <span className={`blogadmin__badge ${r.user_id ? 'is-pub' : 'is-draft'}`}>
-                      {r.user_id ? 'Signed up' : 'Awaiting signup'}
+                    <span className="blogadmin__sub" style={{ wordBreak: 'break-all' }}>
+                      {referralLink(r.code)}
                     </span>
                   </div>
-                  <span className="blogadmin__sub">
-                    code <strong>{r.code}</strong> · {r.discount_percent}% off ·{' '}
-                    {t.count} order{t.count === 1 ? '' : 's'} · {money(t.sales)} sales
-                  </span>
-                  <span className="blogadmin__sub" style={{ wordBreak: 'break-all' }}>
-                    {referralLink(r.code)}
-                  </span>
-                </div>
-                <div className="blogadmin__actions">
-                  <button className="admin__link" onClick={() => navigator.clipboard?.writeText(referralLink(r.code))}>
-                    Copy link
-                  </button>
-                  <button className="admin__link" onClick={() => toggleActive(r)}>
-                    {r.active ? 'Pause' : 'Activate'}
-                  </button>
-                </div>
-              </article>
+                  <div className="blogadmin__actions">
+                    <button
+                      className="admin__link"
+                      onClick={() => setExpandedId(isOpen ? null : r.id)}
+                    >
+                      {isOpen ? 'Hide orders' : `View orders (${repOrders.length})`}
+                    </button>
+                    <button className="admin__link" onClick={() => navigator.clipboard?.writeText(referralLink(r.code))}>
+                      Copy link
+                    </button>
+                    <button className="admin__link" onClick={() => toggleActive(r)}>
+                      {r.active ? 'Pause' : 'Activate'}
+                    </button>
+                  </div>
+                </article>
+
+                {isOpen && (
+                  <div className="affdrill">
+                    {repOrders.length === 0 ? (
+                      <p className="admin__empty">No orders attributed to {r.name || r.code} yet.</p>
+                    ) : (
+                      <div className="affdrill__table">
+                        <div className="affdrill__row affdrill__row--head">
+                          <span>Order</span>
+                          <span>Date</span>
+                          <span>Customer</span>
+                          <span>Payment</span>
+                          <span>Delivery</span>
+                          <span>Total</span>
+                        </div>
+                        {repOrders.map((o) => (
+                          <div className="affdrill__row" key={o.id}>
+                            <span className="affdrill__mono">{o.order_number}</span>
+                            <span>{fmtDate(o.created_at)}</span>
+                            <span>{o.customer_name || '—'}</span>
+                            <span className={`ordercard__badge pay--${o.payment_status || 'unpaid'}`}>
+                              {payLabel(o.payment_status)}
+                            </span>
+                            <span className={`ordercard__badge status--${o.status}`}>{o.status}</span>
+                            <span className="affdrill__total">{money(o.total)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )
           })}
         </div>
