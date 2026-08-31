@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import { submitOrder, PICKUP_PHONE, PICKUP_PHONE_HREF } from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
+import { validateReferral } from '../../lib/affiliates.js'
+import { getStoredReferral } from '../../lib/referral.js'
 import './checkout.css'
 
 const STEPS = ['Shipping', 'Review', 'Payment']
@@ -28,6 +30,7 @@ export default function Checkout() {
   })
   const [coupon, setCoupon] = useState('')
   const [couponMsg, setCouponMsg] = useState('')
+  const [discount, setDiscount] = useState(null) // { code, percent, name } | null
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
@@ -66,13 +69,40 @@ export default function Checkout() {
     form.state.trim() &&
     form.zip.trim()
 
-  const applyCoupon = () => {
-    setCouponMsg(
-      coupon.trim()
-        ? 'No active promotions right now.'
-        : 'Enter a code to apply.'
-    )
+  // Validate a code against the affiliate list and apply its discount.
+  const applyCode = async (raw) => {
+    const code = (raw || '').trim()
+    if (!code) {
+      setDiscount(null)
+      setCouponMsg('Enter a code to apply.')
+      return
+    }
+    const r = await validateReferral(code)
+    if (r?.valid) {
+      setDiscount({ code: r.code, percent: r.discount_percent, name: r.name })
+      setCoupon(r.code)
+      setCouponMsg(
+        `Code applied — ${r.discount_percent}% off${r.name ? `, credited to ${r.name}` : ''}.`
+      )
+    } else {
+      setDiscount(null)
+      setCouponMsg('That code isn’t valid.')
+    }
   }
+
+  const applyCoupon = () => applyCode(coupon)
+
+  // Auto-apply a referral code carried in from a rep's link (?ref=CODE).
+  useEffect(() => {
+    const ref = getStoredReferral()
+    if (ref) applyCode(ref)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const discountAmount = discount
+    ? Math.round(subtotal * (discount.percent / 100) * 100) / 100
+    : 0
+  const totalDue = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100)
 
   const placeOrder = async () => {
     setError('')
@@ -94,8 +124,9 @@ export default function Checkout() {
         },
         items,
         userId: user?.id,
+        referralCode: discount?.code || null,
       })
-      trackPurchase({ items, total: subtotal, orderNumber: result.order_number })
+      trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
       setDone({ order_number: result.order_number })
     } catch (err) {
@@ -337,9 +368,21 @@ export default function Checkout() {
               </div>
             ))}
           </div>
+          {discount && (
+            <div className="checkout__summary-line">
+              <span>Subtotal</span>
+              <span>{money(subtotal)}</span>
+            </div>
+          )}
+          {discount && (
+            <div className="checkout__summary-line checkout__summary-line--discount">
+              <span>Discount ({discount.code} · {discount.percent}%)</span>
+              <span>−{money(discountAmount)}</span>
+            </div>
+          )}
           <div className="checkout__total">
             <span>Total due on delivery</span>
-            <strong>{money(subtotal)}</strong>
+            <strong>{money(totalDue)}</strong>
           </div>
           <Link to="/products" className="checkout__back">
             ← Add more items

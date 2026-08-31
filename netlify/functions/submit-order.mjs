@@ -60,7 +60,38 @@ export async function handler(event) {
     return json(400, { error: 'Your cart is empty.' })
   }
 
-  const total = items.reduce((s, i) => s + Number(i.price) * Number(i.qty), 0)
+  const subtotal =
+    Math.round(
+      items.reduce((s, i) => s + Number(i.price) * Number(i.qty), 0) * 100
+    ) / 100
+
+  // Affiliate attribution — resolve the referral/discount code (if any) to a rep
+  // and compute the discount server-side (never trust a client-sent amount).
+  let referralCode = (payload.referral_code || '').trim() || null
+  let affiliateId = null
+  let discount = 0
+  if (referralCode && SUPABASE_URL && SERVICE_KEY) {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/affiliates?select=id,code,discount_percent,active` +
+          `&code=ilike.${encodeURIComponent(referralCode)}&active=eq.true&limit=1`,
+        { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
+      )
+      const a = res.ok ? (await res.json())[0] : null
+      if (a) {
+        affiliateId = a.id
+        referralCode = a.code
+        discount = Math.round(subtotal * (Number(a.discount_percent) / 100) * 100) / 100
+      } else {
+        referralCode = null // unknown code — don't store it
+      }
+    } catch (err) {
+      console.error('Affiliate lookup error:', err)
+      referralCode = null
+    }
+  }
+  const total = Math.max(0, Math.round((subtotal - discount) * 100) / 100)
+
   const orderNumber =
     'RN-' + Date.now().toString(36).toUpperCase().slice(-6) +
     Math.floor(Math.random() * 90 + 10)
@@ -74,6 +105,10 @@ export async function handler(event) {
     note: customer.note || null,
     fulfillment: 'delivery',
     status: 'pending',
+    subtotal,
+    discount,
+    referral_code: referralCode,
+    affiliate_id: affiliateId,
     total,
     items: items.map((i) => ({
       id: i.id,
@@ -144,7 +179,13 @@ export async function handler(event) {
 
   const itemsTable = `
     <table style="width:100%;font-size:14px;border-collapse:collapse;">${itemRows}</table>
-    <p style="text-align:right;font-size:16px;font-weight:600;margin:12px 0 0;">Total: ${money(total)}</p>`
+    ${
+      discount > 0
+        ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:10px 0 0;">Subtotal: ${money(subtotal)}</p>
+           <p style="text-align:right;font-size:13px;color:#6f7d53;margin:2px 0 0;">Discount${referralCode ? ` (${referralCode})` : ''}: −${money(discount)}</p>`
+        : ''
+    }
+    <p style="text-align:right;font-size:16px;font-weight:600;margin:8px 0 0;">Total: ${money(total)}</p>`
 
   // Owner notification
   const ownerHtml = shell(`
@@ -159,6 +200,7 @@ export async function handler(event) {
     </table>
     <h3 style="margin:20px 0 6px;font-size:15px;">Items</h3>
     ${itemsTable}
+    ${referralCode ? `<p style="color:#6f7d53;font-size:13px;margin:12px 0 0;">Referred by code: <strong>${referralCode}</strong></p>` : ''}
     <p style="color:#8b8d87;font-size:12px;margin-top:18px;">Payment collected in person on delivery. Reply to this email to reach the customer.</p>
   `)
 
@@ -258,7 +300,10 @@ export async function handler(event) {
   return json(200, {
     ok: true,
     order_number: orderNumber,
+    subtotal,
+    discount,
     total,
+    referral_code: referralCode,
     recorded, // true if written to the Supabase orders table
     db_error: dbError, // null on success, otherwise why the DB write failed
   })

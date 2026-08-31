@@ -5,8 +5,12 @@ import { useAuth } from '../../context/AuthContext.jsx'
  *  - requireAdmin: also requires the user's profile role to be 'admin'.
  *  Non-admins hitting an admin route are sent to the storefront; logged-out
  *  users are sent to the appropriate login page. */
-export default function ProtectedRoute({ children, requireAdmin = false }) {
-  const { user, isAdmin, loading } = useAuth()
+export default function ProtectedRoute({
+  children,
+  requireAdmin = false,
+  requireAffiliate = false,
+}) {
+  const { user, isAdmin, isAffiliate, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -19,6 +23,10 @@ export default function ProtectedRoute({ children, requireAdmin = false }) {
   if (requireAdmin && !isAdmin) {
     // Signed in but not an admin — no access to the dashboard.
     return <Navigate to="/" replace />
+  }
+  if (requireAffiliate && !isAffiliate && !isAdmin) {
+    // Signed in but not a sales rep — no access to the affiliate dashboard.
+    return <Navigate to="/account" replace />
   }
   return children
 }

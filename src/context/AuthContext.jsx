@@ -98,6 +98,7 @@ export function AuthProvider({ children }) {
         user,
         profile,
         isAdmin: profile?.role === 'admin',
+        isAffiliate: profile?.role === 'affiliate',
         loading,
         signIn,
         signUp,

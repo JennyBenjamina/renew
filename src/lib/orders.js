@@ -53,7 +53,7 @@ export async function submitDeliveryInquiry({ email, zip }) {
   return data
 }
 
-export async function submitOrder({ customer, items, userId }) {
+export async function submitOrder({ customer, items, userId, referralCode }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -66,6 +66,7 @@ export async function submitOrder({ customer, items, userId }) {
         price: i.price,
       })),
       user_id: userId || null,
+      referral_code: referralCode || null,
     }),
   })
 

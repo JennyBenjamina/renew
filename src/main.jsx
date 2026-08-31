@@ -8,11 +8,15 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { applyTheme, DEFAULT_THEME } from './lib/theme.js'
 import { initTracking } from './lib/tracking.js'
+import { captureReferralFromUrl } from './lib/referral.js'
 import './styles/theme.css'
 import './styles/global.css'
 
 // Force the Stone color scheme for all visitors (theme switcher is disabled).
 applyTheme(DEFAULT_THEME)
+
+// Remember a sales-rep referral code from ?ref= so the rep gets credit at checkout.
+captureReferralFromUrl()
 
 // Load marketing pixels (no-op unless their IDs are set in env).
 initTracking()

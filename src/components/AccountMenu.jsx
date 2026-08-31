@@ -13,7 +13,7 @@ function initials(name, email) {
 /** Navbar account control. Logged out → "Log in". Logged in → name + avatar
  *  button that opens a dropdown (Order history, Account settings, Sign out). */
 export default function AccountMenu({ onNavigate }) {
-  const { user, profile, isAdmin, signOut } = useAuth()
+  const { user, profile, isAdmin, isAffiliate, signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -96,6 +96,18 @@ export default function AccountMenu({ onNavigate }) {
                 <rect x="3" y="14" width="7" height="7" rx="1" />
               </svg>
               Admin dashboard
+            </Link>
+          )}
+
+          {isAffiliate && (
+            <Link to="/affiliate/dashboard" className="acct__item" role="menuitem" onClick={go}>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+                strokeLinejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="M7 15l4-4 3 3 5-6" />
+              </svg>
+              Affiliate dashboard
             </Link>
           )}
 
