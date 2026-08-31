@@ -29,10 +29,26 @@
 }
 
 .aff__cards {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
   margin-bottom: var(--space-7);
+}
+.aff__statgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+.aff__stat--earn {
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg-raised));
+}
+.aff__stat--earn .aff__stat-num {
+  color: var(--color-accent);
+}
+.aff__earn {
+  color: var(--color-accent);
+  font-weight: 700;
 }
 
 .aff__card,
@@ -163,18 +179,20 @@
 }
 
 @media (max-width: 720px) {
-  .aff__cards {
+  .aff__statgrid {
     grid-template-columns: 1fr;
   }
   .aff__row {
     grid-template-columns: 1fr auto;
   }
   .aff__row span:nth-child(2),
-  .aff__row span:nth-child(3) {
+  .aff__row span:nth-child(3),
+  .aff__row span:nth-child(4) {
     display: none;
   }
   .aff__row--head span:nth-child(2),
-  .aff__row--head span:nth-child(3) {
+  .aff__row--head span:nth-child(3),
+  .aff__row--head span:nth-child(4) {
     display: none;
   }
 }

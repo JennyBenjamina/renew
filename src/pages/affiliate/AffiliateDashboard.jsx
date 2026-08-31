@@ -8,6 +8,10 @@ import {
 import { money } from '../../lib/format.js'
 import './affiliate.css'
 
+const COMMISSION_RATE = 0.3
+// 30% of the order total, rounded UP to the nearest dollar.
+const commissionFor = (o) => Math.ceil(Number(o.total || 0) * COMMISSION_RATE)
+
 function fmtDate(d) {
   try {
     return new Date(d).toLocaleDateString('en-US', {
@@ -39,7 +43,8 @@ export default function AffiliateDashboard() {
 
   const stats = useMemo(() => {
     const sales = orders.reduce((s, o) => s + Number(o.total || 0), 0)
-    return { count: orders.length, sales }
+    const earned = orders.reduce((s, o) => s + commissionFor(o), 0)
+    return { count: orders.length, sales, earned }
   }, [orders])
 
   const copyLink = async () => {
@@ -104,13 +109,19 @@ export default function AffiliateDashboard() {
             </p>
           </div>
 
-          <div className="aff__stat">
-            <span className="aff__stat-num">{stats.count}</span>
-            <span className="aff__label">Orders</span>
-          </div>
-          <div className="aff__stat">
-            <span className="aff__stat-num">{money(stats.sales)}</span>
-            <span className="aff__label">Total sales</span>
+          <div className="aff__statgrid">
+            <div className="aff__stat">
+              <span className="aff__stat-num">{stats.count}</span>
+              <span className="aff__label">Orders</span>
+            </div>
+            <div className="aff__stat">
+              <span className="aff__stat-num">{money(stats.sales)}</span>
+              <span className="aff__label">Total sales</span>
+            </div>
+            <div className="aff__stat aff__stat--earn">
+              <span className="aff__stat-num">{money(stats.earned)}</span>
+              <span className="aff__label">Commission earned · 30%</span>
+            </div>
           </div>
         </div>
 
@@ -123,8 +134,8 @@ export default function AffiliateDashboard() {
               <span>Order</span>
               <span>Date</span>
               <span>Payment</span>
-              <span>Status</span>
               <span>Total</span>
+              <span className="aff__total">Commission</span>
             </div>
             {orders.map((o) => (
               <div className="aff__row" key={o.id}>
@@ -137,8 +148,8 @@ export default function AffiliateDashboard() {
                       ? 'Cancelled'
                       : 'Unpaid'}
                 </span>
-                <span className="aff__badge">{o.status}</span>
-                <span className="aff__total">{money(o.total)}</span>
+                <span>{money(o.total)}</span>
+                <span className="aff__total aff__earn">{money(commissionFor(o))}</span>
               </div>
             ))}
           </div>

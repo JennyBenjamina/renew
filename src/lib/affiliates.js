@@ -88,3 +88,9 @@ export async function adminUpdateAffiliate(id, patch) {
 export function referralLink(code) {
   return `https://renewlabslv.com/?ref=${encodeURIComponent(code)}`
 }
+
+/** Rep commission: 30% of an order's total, rounded UP to the nearest dollar. */
+export const COMMISSION_RATE = 0.3
+export function commissionForOrder(o) {
+  return Math.ceil(Number(o?.total || 0) * COMMISSION_RATE)
+}

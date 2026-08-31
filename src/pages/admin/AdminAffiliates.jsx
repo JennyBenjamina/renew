@@ -4,6 +4,7 @@ import {
   adminCreateAffiliate,
   adminUpdateAffiliate,
   referralLink,
+  commissionForOrder,
 } from '../../lib/affiliates.js'
 import { adminListOrders } from '../../lib/orders.js'
 import { isSupabaseConfigured } from '../../lib/supabaseClient.js'
@@ -62,9 +63,10 @@ export default function AdminAffiliates() {
     const m = {}
     for (const o of orders) {
       if (!o.affiliate_id) continue
-      const t = (m[o.affiliate_id] ||= { count: 0, sales: 0 })
+      const t = (m[o.affiliate_id] ||= { count: 0, sales: 0, commission: 0 })
       t.count += 1
       t.sales += Number(o.total || 0)
+      t.commission += commissionForOrder(o)
     }
     return m
   }, [orders])
@@ -166,7 +168,10 @@ export default function AdminAffiliates() {
                     </div>
                     <span className="blogadmin__sub">
                       code <strong>{r.code}</strong> · {r.discount_percent}% off ·{' '}
-                      {t.count} order{t.count === 1 ? '' : 's'} · {money(t.sales)} sales
+                      {t.count} order{t.count === 1 ? '' : 's'} · {money(t.sales)} sales ·{' '}
+                      <strong style={{ color: 'var(--color-accent)' }}>
+                        {money(t.commission)} commission
+                      </strong>
                     </span>
                     <span className="blogadmin__sub" style={{ wordBreak: 'break-all' }}>
                       {referralLink(r.code)}
@@ -201,6 +206,7 @@ export default function AdminAffiliates() {
                           <span>Payment</span>
                           <span>Delivery</span>
                           <span>Total</span>
+                          <span className="affdrill__total">Commission</span>
                         </div>
                         {repOrders.map((o) => (
                           <div className="affdrill__row" key={o.id}>
@@ -212,6 +218,7 @@ export default function AdminAffiliates() {
                             </span>
                             <span className={`ordercard__badge status--${o.status}`}>{o.status}</span>
                             <span className="affdrill__total">{money(o.total)}</span>
+                            <span className="affdrill__total affdrill__earn">{money(commissionForOrder(o))}</span>
                           </div>
                         ))}
                       </div>
