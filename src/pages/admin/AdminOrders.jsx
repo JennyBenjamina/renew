@@ -23,12 +23,16 @@ function formatDate(d) {
   }
 }
 
+const payLabel = (ps) =>
+  ps === 'paid' ? 'Paid' : ps === 'cancelled' ? 'Payment cancelled' : 'Unpaid'
+
 export default function AdminOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
   const [busyId, setBusyId] = useState(null)
+  const [openId, setOpenId] = useState(null)
 
   const load = async () => {
     setLoading(true)
@@ -114,109 +118,137 @@ export default function AdminOrders() {
           {orders.length === 0 ? 'No orders yet.' : 'No orders match this filter.'}
         </p>
       ) : (
-        <div className="orders-admin">
-          {visible.map((o) => (
-            <article
-              className={`ordercard ${busyId === o.id ? 'is-busy' : ''}`}
-              key={o.id}
-            >
-              <header className="ordercard__head">
-                <div>
-                  <strong className="ordercard__num">{o.order_number || o.id.slice(0, 8)}</strong>
-                  <span className="ordercard__date">{formatDate(o.created_at)}</span>
-                </div>
-                <div className="ordercard__badges">
-                  <span className={`ordercard__badge pay--${o.payment_status || 'unpaid'}`}>
-                    {o.payment_status === 'paid'
-                      ? 'Paid'
-                      : o.payment_status === 'cancelled'
-                        ? 'Payment cancelled'
-                        : 'Unpaid'}
+        <div className="ordertable">
+          <div className="orderrow orderrow--head">
+            <span>Order</span>
+            <span>Customer</span>
+            <span>Payment</span>
+            <span>Delivery</span>
+            <span className="orderrow__total">Total</span>
+            <span aria-hidden="true" />
+          </div>
+
+          {visible.map((o) => {
+            const open = openId === o.id
+            const ps = o.payment_status || 'unpaid'
+            return (
+              <div
+                className={`orderrow-wrap ${open ? 'is-open' : ''} ${busyId === o.id ? 'is-busy' : ''}`}
+                key={o.id}
+              >
+                <button
+                  className="orderrow orderrow--summary"
+                  onClick={() => setOpenId(open ? null : o.id)}
+                  aria-expanded={open}
+                >
+                  <span className="orderrow__num">
+                    <strong>{o.order_number || o.id.slice(0, 8)}</strong>
+                    <span className="orderrow__date">{formatDate(o.created_at)}</span>
                   </span>
+                  <span className="orderrow__cust">
+                    <span className="orderrow__custname">{o.customer_name || '—'}</span>
+                    {o.referral_code && (
+                      <span className="orderrow__ref">
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="none"
+                          stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+                          strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 3v18h18" />
+                          <path d="M7 14l4-4 3 3 5-6" />
+                        </svg>
+                        Affiliate · {o.referral_code}
+                      </span>
+                    )}
+                  </span>
+                  <span className={`ordercard__badge pay--${ps}`}>{payLabel(ps)}</span>
                   <span className={`ordercard__badge status--${o.status}`}>{o.status}</span>
-                </div>
-              </header>
+                  <span className="orderrow__total">{money(o.total)}</span>
+                  <svg className="orderrow__chev" viewBox="0 0 24 24" width="18" height="18"
+                    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                    strokeLinejoin="round" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
 
-              <div className="ordercard__body">
-                <div className="ordercard__customer">
-                  <div>
-                    <span className="ordercard__label">Customer</span>
-                    <span>{o.customer_name || '—'}</span>
-                  </div>
-                  <div>
-                    <span className="ordercard__label">Email</span>
-                    <a href={`mailto:${o.customer_email}`}>{o.customer_email || '—'}</a>
-                  </div>
-                  <div>
-                    <span className="ordercard__label">Phone</span>
-                    <a href={`tel:${o.customer_phone}`}>{o.customer_phone || '—'}</a>
-                  </div>
-                  {o.note && (
-                    <div className="ordercard__note">
-                      <span className="ordercard__label">Note</span>
-                      <span>{o.note}</span>
+                {open && (
+                  <div className="orderrow__detail">
+                    <div className="orderrow__cols">
+                      <div className="orderrow__customer">
+                        <div>
+                          <span className="ordercard__label">Email</span>
+                          <a href={`mailto:${o.customer_email}`}>{o.customer_email || '—'}</a>
+                        </div>
+                        <div>
+                          <span className="ordercard__label">Phone</span>
+                          <a href={`tel:${o.customer_phone}`}>{o.customer_phone || '—'}</a>
+                        </div>
+                        {o.referral_code && (
+                          <div>
+                            <span className="ordercard__label">Referred by</span>
+                            <span>{o.referral_code}</span>
+                          </div>
+                        )}
+                        {o.note && (
+                          <div className="ordercard__note">
+                            <span className="ordercard__label">Note</span>
+                            <span>{o.note}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="orderrow__items">
+                        <span className="ordercard__label">Items</span>
+                        <ul>
+                          {(Array.isArray(o.items) ? o.items : []).map((i, idx) => (
+                            <li key={idx}>
+                              <span>{i.qty}× {i.name}</span>
+                              <span>{money(i.price * i.qty)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {Number(o.discount) > 0 && (
+                          <div className="orderrow__line">
+                            <span>Discount{o.referral_code ? ` (${o.referral_code})` : ''}</span>
+                            <span>−{money(o.discount)}</span>
+                          </div>
+                        )}
+                        <div className="ordercard__total">
+                          <span>Total</span>
+                          <strong>{money(o.total)}</strong>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
 
-                <div className="ordercard__items">
-                  <span className="ordercard__label">Items</span>
-                  <ul>
-                    {(Array.isArray(o.items) ? o.items : []).map((i, idx) => (
-                      <li key={idx}>
-                        <span>{i.qty}× {i.name}</span>
-                        <span>{money(i.price * i.qty)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="ordercard__total">
-                    <span>Total</span>
-                    <strong>{money(o.total)}</strong>
+                    <div className="orderrow__controls">
+                      <label className="ordercard__status-label">
+                        Payment
+                        <select
+                          value={ps}
+                          disabled={busyId === o.id}
+                          onChange={(e) => onPayment(o, e.target.value)}
+                        >
+                          {PAYMENT_STATUSES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="ordercard__status-label">
+                        Delivery
+                        <select
+                          value={o.status}
+                          disabled={busyId === o.id}
+                          onChange={(e) => onStatus(o, e.target.value)}
+                        >
+                          {ORDER_STATUSES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              <footer className="ordercard__foot">
-                <label className="ordercard__status-label">
-                  Payment
-                  <select
-                    value={o.payment_status || 'unpaid'}
-                    disabled={busyId === o.id}
-                    onChange={(e) => onPayment(o, e.target.value)}
-                  >
-                    {PAYMENT_STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="ordercard__status-label">
-                  Delivery
-                  <select
-                    value={o.status}
-                    disabled={busyId === o.id}
-                    onChange={(e) => onStatus(o, e.target.value)}
-                  >
-                    {ORDER_STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {(o.payment_status || 'unpaid') === 'unpaid' && (
-                  <button
-                    className="btn btn--primary ordercard__deliver"
-                    disabled={busyId === o.id}
-                    onClick={() => onPayment(o, 'paid')}
-                  >
-                    Mark paid
-                  </button>
                 )}
-              </footer>
-            </article>
-          ))}
+              </div>
+            )
+          })}
         </div>
       )}
     </>
