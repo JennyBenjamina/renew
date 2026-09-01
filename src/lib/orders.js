@@ -67,6 +67,30 @@ export async function submitDeliveryInquiry({ email, zip }) {
   return data
 }
 
+/** Charge a card with Square (via the create-square-payment function) and
+ *  record a paid order. `token` is the single-use token from Square's SDK. */
+export async function createSquarePayment({ token, customer, items, userId, referralCode }) {
+  const res = await fetch('/.netlify/functions/create-square-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token,
+      customer,
+      items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+      user_id: userId || null,
+      referral_code: referralCode || null,
+    }),
+  })
+  let data = null
+  try {
+    data = await res.json()
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) throw new Error(data?.error || 'Payment could not be completed.')
+  return data
+}
+
 export async function submitOrder({ customer, items, userId, referralCode }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',

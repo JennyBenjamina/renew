@@ -1,8 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { submitOrder, PICKUP_PHONE, PICKUP_PHONE_HREF } from '../../lib/orders.js'
+import {
+  submitOrder,
+  createSquarePayment,
+  PICKUP_PHONE,
+  PICKUP_PHONE_HREF,
+} from '../../lib/orders.js'
+import { isSquareConfigured, getSquarePayments } from '../../lib/square.js'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
 import { validateReferral } from '../../lib/affiliates.js'
@@ -104,23 +110,63 @@ export default function Checkout() {
     : 0
   const totalDue = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100)
 
+  const squareEnabled = isSquareConfigured()
+  const cardRef = useRef(null)
+  const [cardReady, setCardReady] = useState(false)
+
+  const noteWithAddress = () =>
+    [
+      `Ship to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
+      form.note.trim() && `Note: ${form.note.trim()}`,
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+  // Mount Square's hosted card field when the Payment step is shown.
+  useEffect(() => {
+    if (step !== 2 || !squareEnabled) return
+    let card
+    let cancelled = false
+    ;(async () => {
+      try {
+        const payments = await getSquarePayments()
+        card = await payments.card()
+        await card.attach('#sq-card')
+        if (cancelled) {
+          card.destroy()
+          return
+        }
+        cardRef.current = card
+        setCardReady(true)
+      } catch (e) {
+        setError(e.message || 'Could not load the payment form.')
+      }
+    })()
+    return () => {
+      cancelled = true
+      setCardReady(false)
+      cardRef.current = null
+      if (card) {
+        try {
+          card.destroy()
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }, [step, squareEnabled])
+
+  // Pay-on-delivery path (used when Square isn't configured).
   const placeOrder = async () => {
     setError('')
     setBusy(true)
     try {
-      const noteWithAddress = [
-        `Ship to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
-        form.note.trim() && `Note: ${form.note.trim()}`,
-      ]
-        .filter(Boolean)
-        .join('\n')
-
       const result = await submitOrder({
         customer: {
           name: form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
-          note: noteWithAddress,
+          note: noteWithAddress(),
         },
         items,
         userId: user?.id,
@@ -131,6 +177,38 @@ export default function Checkout() {
       setDone({ order_number: result.order_number })
     } catch (err) {
       setError(err.message || 'Something went wrong.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Card payment path (Square).
+  const payWithSquare = async () => {
+    setError('')
+    if (!cardRef.current) return
+    setBusy(true)
+    try {
+      const result = await cardRef.current.tokenize()
+      if (result.status !== 'OK') {
+        throw new Error(result.errors?.[0]?.message || 'Please check your card details.')
+      }
+      const res = await createSquarePayment({
+        token: result.token,
+        customer: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          note: noteWithAddress(),
+        },
+        items,
+        userId: user?.id,
+        referralCode: discount?.code || null,
+      })
+      trackPurchase({ items, total: totalDue, orderNumber: res.order_number })
+      clear()
+      setDone({ order_number: res.order_number, paid: true })
+    } catch (err) {
+      setError(err.message || 'Payment could not be completed.')
     } finally {
       setBusy(false)
     }
@@ -148,11 +226,12 @@ export default function Checkout() {
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </span>
-          <h1>Order received</h1>
+          <h1>{done.paid ? 'Payment received' : 'Order received'}</h1>
           <p>
-            Your order <strong>{done.order_number}</strong> is in. We’ll reach out
-            to arrange your delivery. No payment is taken online — you’ll pay on
-            delivery.
+            Your order <strong>{done.order_number}</strong> is confirmed.
+            {done.paid
+              ? ' Your card has been charged and a receipt is on its way. We’ll reach out to arrange delivery.'
+              : ' We’ll reach out to arrange your delivery. No payment is taken online — you’ll pay on delivery.'}
           </p>
           <p className="checkout__confirm-contact">
             Questions? Call us at <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
@@ -318,40 +397,62 @@ export default function Checkout() {
           {step === 2 && (
             <div className="checkout__form">
               <h2>Payment</h2>
-              {/* TODO: TagadaPay card payment mounts here once the account is
-                  approved and keys are available. For now, pay on delivery. */}
-              <div className="checkout__pay-notice">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
-                  stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <rect x="2" y="5" width="20" height="14" rx="2" />
-                  <path d="M2 10h20" />
-                </svg>
-                <div>
-                  <strong>Pay on delivery</strong>
-                  <span>
-                    No payment is taken online right now — you’ll pay in person
-                    when your order arrives. Card checkout is coming soon.
-                  </span>
-                </div>
-              </div>
 
-              <div className="checkout__step-actions">
-                <button className="btn btn--ghost" onClick={() => setStep(1)}>
-                  Back
-                </button>
-                <button
-                  className="btn btn--primary"
-                  onClick={placeOrder}
-                  disabled={busy}
-                >
-                  {busy ? 'Placing order…' : 'Place order'}
-                </button>
-              </div>
-              <p className="checkout__disclaimer">
-                For research use only. Not for human consumption. Payment is
-                collected in person on delivery.
-              </p>
+              {squareEnabled ? (
+                <>
+                  <label className="checkout__sqlabel">Card details</label>
+                  <div id="sq-card" className="checkout__sqcard" />
+                  {!cardReady && !error && (
+                    <p className="checkout__coupon-msg">Loading secure card form…</p>
+                  )}
+                  <div className="checkout__step-actions">
+                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                      Back
+                    </button>
+                    <button
+                      className="btn btn--primary"
+                      onClick={payWithSquare}
+                      disabled={busy || !cardReady}
+                    >
+                      {busy ? 'Processing…' : `Pay ${money(totalDue)}`}
+                    </button>
+                  </div>
+                  <p className="checkout__disclaimer">
+                    Payments are securely processed by Square — we never see your
+                    card number. For research use only. Not for human consumption.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="checkout__pay-notice">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                      stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+                      strokeLinejoin="round">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <path d="M2 10h20" />
+                    </svg>
+                    <div>
+                      <strong>Pay on delivery</strong>
+                      <span>
+                        No payment is taken online right now — you’ll pay in person
+                        when your order arrives.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="checkout__step-actions">
+                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                      Back
+                    </button>
+                    <button className="btn btn--primary" onClick={placeOrder} disabled={busy}>
+                      {busy ? 'Placing order…' : 'Place order'}
+                    </button>
+                  </div>
+                  <p className="checkout__disclaimer">
+                    For research use only. Not for human consumption. Payment is
+                    collected in person on delivery.
+                  </p>
+                </>
+              )}
             </div>
           )}
         </div>
