@@ -3,11 +3,17 @@ import {
   adminListOrders,
   updateOrderStatus,
   updateOrderPaymentStatus,
+  notifyShipment,
+  trackingUrl,
   ORDER_STATUSES,
   PAYMENT_STATUSES,
+  CARRIERS,
 } from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import './admin.css'
+
+const carrierKey = (name) =>
+  CARRIERS.find((c) => c.name.toLowerCase() === String(name || '').toLowerCase())?.key || 'usps'
 
 function formatDate(d) {
   try {
@@ -33,6 +39,42 @@ export default function AdminOrders() {
   const [filter, setFilter] = useState('all')
   const [busyId, setBusyId] = useState(null)
   const [openId, setOpenId] = useState(null)
+  const [ship, setShip] = useState({ carrier: 'usps', tracking: '' })
+  const [shipBusy, setShipBusy] = useState(false)
+
+  // Prefill the shipment form from the expanded order.
+  useEffect(() => {
+    const o = orders.find((x) => x.id === openId)
+    setShip({
+      carrier: o ? carrierKey(o.carrier) : 'usps',
+      tracking: o?.tracking_number || '',
+    })
+  }, [openId, orders])
+
+  const onShip = async (order) => {
+    const tracking = ship.tracking.trim()
+    if (!tracking) return
+    setShipBusy(true)
+    try {
+      const r = await notifyShipment({
+        orderId: order.id,
+        carrier: ship.carrier,
+        trackingNumber: tracking,
+      })
+      setOrders((list) =>
+        list.map((o) =>
+          o.id === order.id
+            ? { ...o, carrier: r.carrier, tracking_number: r.tracking_number, status: 'shipped' }
+            : o
+        )
+      )
+      alert('Shipped — tracking email sent to the customer.')
+    } catch (e) {
+      alert(e.message || 'Could not send the tracking email.')
+    } finally {
+      setShipBusy(false)
+    }
+  }
 
   const load = async () => {
     setLoading(true)
@@ -243,6 +285,49 @@ export default function AdminOrders() {
                           ))}
                         </select>
                       </label>
+                    </div>
+
+                    <div className="orderrow__ship">
+                      <span className="ordercard__label">Shipment tracking</span>
+                      {o.tracking_number && (
+                        <p className="orderrow__track">
+                          Shipped via {o.carrier} ·{' '}
+                          <span className="affdrill__mono">{o.tracking_number}</span>
+                          {trackingUrl(o.carrier, o.tracking_number) && (
+                            <>
+                              {' · '}
+                              <a href={trackingUrl(o.carrier, o.tracking_number)}
+                                target="_blank" rel="noreferrer">Track ↗</a>
+                            </>
+                          )}
+                        </p>
+                      )}
+                      <div className="orderrow__shipform">
+                        <select
+                          value={ship.carrier}
+                          onChange={(e) => setShip((s) => ({ ...s, carrier: e.target.value }))}
+                        >
+                          {CARRIERS.map((c) => (
+                            <option key={c.key} value={c.key}>{c.name}</option>
+                          ))}
+                        </select>
+                        <input
+                          value={ship.tracking}
+                          onChange={(e) => setShip((s) => ({ ...s, tracking: e.target.value }))}
+                          placeholder="Tracking number"
+                        />
+                        <button
+                          className="btn btn--primary"
+                          disabled={shipBusy || !ship.tracking.trim()}
+                          onClick={() => onShip(o)}
+                        >
+                          {shipBusy
+                            ? 'Sending…'
+                            : o.tracking_number
+                              ? 'Update & email'
+                              : 'Save & email tracking'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}

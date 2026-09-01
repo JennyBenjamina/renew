@@ -148,7 +148,7 @@ export async function recordOrder(env, orderRow) {
   }
 }
 
-const shell = (inner) => `
+export const emailShell = (inner) => `
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4efe7;margin:0;padding:28px 16px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e7ddce;border-radius:16px;overflow:hidden;font-family:Helvetica,Arial,sans-serif;">
@@ -198,7 +198,7 @@ export async function sendOrderEmails(env, o) {
     ? 'Payment received online — your card has been charged.'
     : 'No payment was taken online — you’ll pay on delivery.'
 
-  const ownerHtml = shell(`
+  const ownerHtml = emailShell(`
     <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New order — ${o.orderNumber}</h2>
     <p style="color:#5c5f58;margin:0 0 16px;">${paid ? 'A customer paid online for delivery.' : 'A customer submitted an order for delivery.'}</p>
     <h3 style="margin:18px 0 6px;font-size:15px;">Customer</h3>
@@ -214,7 +214,7 @@ export async function sendOrderEmails(env, o) {
     ${o.referralCode ? `<p style="color:#6f7d53;font-size:13px;margin:6px 0 0;">Referred by code: <strong>${o.referralCode}</strong></p>` : ''}
   `)
 
-  const customerHtml = shell(`
+  const customerHtml = emailShell(`
     <h2 style="font-weight:600;font-size:20px;margin:0 0 10px;">Thanks for your order, ${firstName}!</h2>
     <p style="color:#5c5f58;line-height:1.6;margin:0 0 14px;">
       We’ve received your order <strong>${o.orderNumber}</strong> for delivery.

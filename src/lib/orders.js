@@ -7,8 +7,54 @@ import { supabase, isSupabaseConfigured } from './supabaseClient'
 export const PICKUP_PHONE = '(424) 877-5528'
 export const PICKUP_PHONE_HREF = 'tel:+14248775528'
 
-export const ORDER_STATUSES = ['pending', 'ready', 'delivered', 'cancelled']
+export const ORDER_STATUSES = ['pending', 'ready', 'shipped', 'delivered', 'cancelled']
 export const PAYMENT_STATUSES = ['unpaid', 'paid', 'cancelled']
+
+export const CARRIERS = [
+  { key: 'usps', name: 'USPS' },
+  { key: 'ups', name: 'UPS' },
+  { key: 'fedex', name: 'FedEx' },
+  { key: 'dhl', name: 'DHL' },
+  { key: 'other', name: 'Other' },
+]
+
+/** Public tracking URL for a stored carrier name + number (for admin display). */
+export function trackingUrl(carrier, number) {
+  if (!number) return null
+  const c = String(carrier || '').toLowerCase()
+  const n = encodeURIComponent(number)
+  if (c.includes('usps')) return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${n}`
+  if (c.includes('ups')) return `https://www.ups.com/track?tracknum=${n}`
+  if (c.includes('fedex')) return `https://www.fedex.com/fedextrack/?trknbr=${n}`
+  if (c.includes('dhl')) return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${n}`
+  return null
+}
+
+/** Admin: mark an order shipped, save tracking, and email the customer.
+ *  Goes through an admin-verified Netlify function (needs the session token). */
+export async function notifyShipment({ orderId, carrier, trackingNumber }) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  const res = await fetch('/.netlify/functions/notify-shipment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_token: session?.access_token,
+      order_id: orderId,
+      carrier,
+      tracking_number: trackingNumber,
+    }),
+  })
+  let data = null
+  try {
+    data = await res.json()
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) throw new Error(data?.error || 'Could not send the tracking email.')
+  return data
+}
 
 /** Admin: list every order, newest first. Requires an admin session (RLS). */
 export async function adminListOrders() {
