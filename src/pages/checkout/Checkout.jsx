@@ -10,6 +10,7 @@ import {
   PICKUP_PHONE_HREF,
 } from '../../lib/orders.js'
 import { isSquareConfigured, getSquarePayments } from '../../lib/square.js'
+import CardBrands from '../../components/CardBrands.jsx'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
 import { validateReferral } from '../../lib/affiliates.js'
@@ -140,6 +141,7 @@ export default function Checkout() {
   const [cardReady, setCardReady] = useState(false)
   const applePayRef = useRef(null)
   const [applePayReady, setApplePayReady] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   const noteWithAddress = () =>
     [
@@ -519,6 +521,15 @@ export default function Checkout() {
           {step === 2 && (
             <div className="checkout__form">
               <h2>Payment</h2>
+              <p className="checkout__secure">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                  stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"
+                  strokeLinejoin="round" aria-hidden="true">
+                  <rect x="4" y="11" width="16" height="9" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                </svg>
+                All transactions are secure and encrypted.
+              </p>
 
               {squareEnabled ? (
                 <>
@@ -528,17 +539,43 @@ export default function Checkout() {
                         type="button"
                         className="checkout__applepay"
                         aria-label="Pay with Apple Pay"
-                        disabled={busy}
+                        disabled={busy || !acceptedTerms}
                         onClick={payWithApplePay}
                       />
                       <div className="checkout__or"><span>or pay with card</span></div>
                     </>
                   )}
-                  <label className="checkout__sqlabel">Card details</label>
+
+                  <div className="checkout__cardhead">
+                    <span className="checkout__cardhead-label">
+                      <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                        stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <path d="M2 10h20" />
+                      </svg>
+                      Card Payments
+                    </span>
+                    <CardBrands />
+                  </div>
+
                   <div id="sq-card" className="checkout__sqcard" />
                   {!cardReady && !error && (
                     <p className="checkout__coupon-msg">Loading secure card form…</p>
                   )}
+
+                  <label className="checkout__terms">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    />
+                    <span>
+                      I confirm these products are for research use only and accept the{' '}
+                      <Link to="/terms-of-service">Terms of Service</Link> and{' '}
+                      <Link to="/refund-policy">Refund Policy</Link>.
+                    </span>
+                  </label>
+
                   <div className="checkout__step-actions">
                     <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
                       Back
@@ -546,7 +583,7 @@ export default function Checkout() {
                     <button
                       className="btn btn--primary"
                       onClick={payWithSquare}
-                      disabled={busy || !cardReady}
+                      disabled={busy || !cardReady || !acceptedTerms}
                     >
                       {busy ? 'Processing…' : `Pay ${money(totalDue)}`}
                     </button>
@@ -573,11 +610,28 @@ export default function Checkout() {
                       </span>
                     </div>
                   </div>
+
+                  <label className="checkout__terms">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    />
+                    <span>
+                      I confirm these products are for research use only and accept the{' '}
+                      <Link to="/terms-of-service">Terms of Service</Link>.
+                    </span>
+                  </label>
+
                   <div className="checkout__step-actions">
                     <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
                       Back
                     </button>
-                    <button className="btn btn--primary" onClick={placeOrder} disabled={busy}>
+                    <button
+                      className="btn btn--primary"
+                      onClick={placeOrder}
+                      disabled={busy || !acceptedTerms}
+                    >
                       {busy ? 'Placing order…' : 'Place order'}
                     </button>
                   </div>
@@ -587,6 +641,45 @@ export default function Checkout() {
                   </p>
                 </>
               )}
+
+              {/* Reassurance block */}
+              <div className="checkout__trust">
+                <div className="checkout__trust-item">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                    stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"
+                    strokeLinejoin="round" aria-hidden="true">
+                    <rect x="4" y="11" width="16" height="9" rx="2" />
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                  </svg>
+                  <div>
+                    <strong>Secure checkout</strong>
+                    <span>Encrypted card payments — we never store your card details.</span>
+                  </div>
+                </div>
+                <div className="checkout__trust-item">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                    stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"
+                    strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                  <div>
+                    <strong>Third-party tested</strong>
+                    <span>Every batch HPLC + LC-MS verified with a certificate of analysis.</span>
+                  </div>
+                </div>
+                <div className="checkout__trust-item">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                    stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"
+                    strokeLinejoin="round" aria-hidden="true">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <div>
+                    <strong>Real people, real support</strong>
+                    <span>A Las Vegas team you can reach by phone or email — order questions welcome.</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

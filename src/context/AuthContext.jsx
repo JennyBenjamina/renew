@@ -63,6 +63,13 @@ export function AuthProvider({ children }) {
       options: { data: meta },
     })
     if (error) throw error
+    // Notify the store owners of the new account (fire-and-forget; the function
+    // verifies the account exists before emailing, so it can't be abused).
+    fetch('/.netlify/functions/notify-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    }).catch(() => {})
     return { needsConfirmation: !data.session }
   }
 

@@ -38,6 +38,7 @@ export default function AdminAffiliates() {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
+  const [showArchived, setShowArchived] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -98,16 +99,57 @@ export default function AdminAffiliates() {
     }
   }
 
+  // Soft delete: hide from the list + disable the code, but keep the record.
+  const onArchive = async (rep) => {
+    if (
+      !confirm(
+        `Remove ${rep.name || rep.code}? Their code will stop working and they’ll be hidden from this list. The record and order history are kept.`
+      )
+    )
+      return
+    try {
+      await adminUpdateAffiliate(rep.id, { archived: true, active: false })
+      setReps((list) =>
+        list.map((r) => (r.id === rep.id ? { ...r, archived: true, active: false } : r))
+      )
+    } catch (err) {
+      alert(err.message || 'Could not remove the rep.')
+    }
+  }
+
+  const onRestore = async (rep) => {
+    try {
+      await adminUpdateAffiliate(rep.id, { archived: false })
+      setReps((list) => list.map((r) => (r.id === rep.id ? { ...r, archived: false } : r)))
+    } catch (err) {
+      alert(err.message || 'Could not restore the rep.')
+    }
+  }
+
+  const archivedReps = reps.filter((r) => r.archived)
+  const activeReps = reps.filter((r) => !r.archived)
+  const visibleReps = showArchived ? reps : activeReps
+
   return (
     <>
       <div className="admin__head">
         <div>
           <h1>Affiliates</h1>
-          <p>{reps.length} sales rep{reps.length === 1 ? '' : 's'}</p>
+          <p>
+            {activeReps.length} sales rep{activeReps.length === 1 ? '' : 's'}
+            {archivedReps.length ? ` · ${archivedReps.length} archived` : ''}
+          </p>
         </div>
-        <button className="btn btn--outline" onClick={load} disabled={loading || !isSupabaseConfigured}>
-          Refresh
-        </button>
+        <div className="admin__head-actions">
+          {archivedReps.length > 0 && (
+            <button className="admin__link" onClick={() => setShowArchived((v) => !v)}>
+              {showArchived ? 'Hide archived' : `Show archived (${archivedReps.length})`}
+            </button>
+          )}
+          <button className="btn btn--outline" onClick={load} disabled={loading || !isSupabaseConfigured}>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {!isSupabaseConfigured && (
@@ -149,19 +191,28 @@ export default function AdminAffiliates() {
         <p className="admin__empty">No reps yet. Add one above.</p>
       ) : (
         <div className="blogadmin__list">
-          {reps.map((r) => {
+          {visibleReps.length === 0 && (
+            <p className="admin__empty">
+              All reps are archived. Use “Show archived” to view them.
+            </p>
+          )}
+          {visibleReps.map((r) => {
             const t = totals[r.id] || { count: 0, sales: 0 }
             const repOrders = orders.filter((o) => o.affiliate_id === r.id)
             const isOpen = expandedId === r.id
             return (
-              <div key={r.id}>
+              <div key={r.id} className={r.archived ? 'is-archived' : ''}>
                 <article className="blogadmin__row">
                   <div className="blogadmin__main">
                     <div className="blogadmin__titleline">
                       <strong>{r.name || r.code}</strong>
-                      <span className={`blogadmin__badge ${r.active ? 'is-pub' : 'is-draft'}`}>
-                        {r.active ? 'Active' : 'Paused'}
-                      </span>
+                      {r.archived ? (
+                        <span className="blogadmin__badge is-draft">Archived</span>
+                      ) : (
+                        <span className={`blogadmin__badge ${r.active ? 'is-pub' : 'is-draft'}`}>
+                          {r.active ? 'Active' : 'Paused'}
+                        </span>
+                      )}
                       <span className={`blogadmin__badge ${r.user_id ? 'is-pub' : 'is-draft'}`}>
                         {r.user_id ? 'Signed up' : 'Awaiting signup'}
                       </span>
@@ -184,12 +235,23 @@ export default function AdminAffiliates() {
                     >
                       {isOpen ? 'Hide orders' : `View orders (${repOrders.length})`}
                     </button>
-                    <button className="admin__link" onClick={() => navigator.clipboard?.writeText(referralLink(r.code))}>
-                      Copy link
-                    </button>
-                    <button className="admin__link" onClick={() => toggleActive(r)}>
-                      {r.active ? 'Pause' : 'Activate'}
-                    </button>
+                    {r.archived ? (
+                      <button className="admin__link" onClick={() => onRestore(r)}>
+                        Restore
+                      </button>
+                    ) : (
+                      <>
+                        <button className="admin__link" onClick={() => navigator.clipboard?.writeText(referralLink(r.code))}>
+                          Copy link
+                        </button>
+                        <button className="admin__link" onClick={() => toggleActive(r)}>
+                          {r.active ? 'Pause' : 'Activate'}
+                        </button>
+                        <button className="admin__link admin__link--danger" onClick={() => onArchive(r)}>
+                          Remove
+                        </button>
+                      </>
+                    )}
                   </div>
                 </article>
 

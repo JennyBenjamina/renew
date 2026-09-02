@@ -9,6 +9,20 @@
   color: var(--color-text-inverse);
 }
 
+.footer__accept {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  margin-top: var(--space-5);
+  border-top: 1px solid color-mix(in srgb, var(--color-text-inverse) 15%, transparent);
+}
+.footer__accept > span {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--color-text-inverse) 70%, transparent);
+  letter-spacing: 0.02em;
+}
+
 .footer__grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;

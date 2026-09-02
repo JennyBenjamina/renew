@@ -19,6 +19,9 @@
 .blogadmin__row.is-busy {
   opacity: 0.5;
 }
+.is-archived .blogadmin__row {
+  opacity: 0.6;
+}
 .blogadmin__titleline {
   display: flex;
   align-items: center;
