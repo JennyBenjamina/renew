@@ -22,6 +22,7 @@ import {
   sendOrderEmails,
   metaCapiPurchase,
 } from './_order.mjs'
+import { shippingEstimate } from './_shipping.mjs'
 
 const json = (status, body) => ({
   statusCode: status,
@@ -58,7 +59,11 @@ export async function handler(event) {
     payload.referral_code,
     subtotal
   )
-  const total = Math.max(0, round2(subtotal - discount))
+  // 2b. Shipping (server authoritative): a fee only when shipping, from the ZIP.
+  const fulfillment = payload.fulfillment === 'ship' ? 'ship' : 'delivery'
+  const shipping = fulfillment === 'ship' ? shippingEstimate(payload.zip).fee : 0
+
+  const total = Math.max(0, round2(subtotal - discount + shipping))
   const amountCents = Math.round(total * 100)
   if (amountCents <= 0) return json(400, { error: 'Order total must be greater than zero.' })
 
@@ -115,11 +120,12 @@ export async function handler(event) {
     customer_email: customer.email,
     customer_phone: customer.phone,
     note: customer.note || null,
-    fulfillment: 'delivery',
+    fulfillment,
     status: 'pending',
     payment_status: 'paid',
     subtotal,
     discount,
+    shipping,
     referral_code: referralCode,
     affiliate_id: affiliateId,
     total,
@@ -135,8 +141,10 @@ export async function handler(event) {
     items,
     subtotal,
     discount,
+    shipping,
     total,
     referralCode,
+    fulfillment,
     paymentStatus: 'paid',
   })
   await metaCapiPurchase(env, { orderNumber, customer, items, total })

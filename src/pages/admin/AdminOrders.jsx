@@ -253,10 +253,19 @@ export default function AdminOrders() {
                             <span>−{money(o.discount)}</span>
                           </div>
                         )}
+                        {Number(o.shipping) > 0 && (
+                          <div className="orderrow__line orderrow__line--muted">
+                            <span>Shipping</span>
+                            <span>{money(o.shipping)}</span>
+                          </div>
+                        )}
                         <div className="ordercard__total">
                           <span>Total</span>
                           <strong>{money(o.total)}</strong>
                         </div>
+                        <p className="orderrow__fulfill">
+                          {o.fulfillment === 'ship' ? 'Ship to customer' : 'Local delivery (Las Vegas)'}
+                        </p>
                       </div>
                     </div>
 

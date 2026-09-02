@@ -280,6 +280,14 @@
   font-weight: 600;
   margin-top: var(--space-2);
 }
+.orderrow__line--muted {
+  color: var(--color-text-muted);
+}
+.orderrow__fulfill {
+  margin: var(--space-2) 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
 .orderrow__controls {
   display: flex;
   gap: var(--space-4);

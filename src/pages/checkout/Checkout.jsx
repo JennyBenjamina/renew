@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import {
   submitOrder,
   createSquarePayment,
+  estimateShipping,
   PICKUP_PHONE,
   PICKUP_PHONE_HREF,
 } from '../../lib/orders.js'
@@ -37,6 +38,8 @@ export default function Checkout() {
   const [coupon, setCoupon] = useState('')
   const [couponMsg, setCouponMsg] = useState('')
   const [discount, setDiscount] = useState(null) // { code, percent, name } | null
+  const [fulfillment, setFulfillment] = useState('delivery') // 'delivery' | 'ship'
+  const [shipEst, setShipEst] = useState(null) // { fee, zoneName } | null
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
@@ -105,14 +108,38 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Fetch a shipping estimate when shipping to a valid ZIP.
+  useEffect(() => {
+    if (fulfillment !== 'ship') {
+      setShipEst(null)
+      return
+    }
+    const zip = form.zip.trim()
+    if (!/^\d{5}$/.test(zip)) {
+      setShipEst(null)
+      return
+    }
+    let active = true
+    estimateShipping(zip).then((e) => active && setShipEst(e))
+    return () => {
+      active = false
+    }
+  }, [fulfillment, form.zip])
+
   const discountAmount = discount
     ? Math.round(subtotal * (discount.percent / 100) * 100) / 100
     : 0
-  const totalDue = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100)
+  const shippingFee = fulfillment === 'ship' ? Number(shipEst?.fee || 0) : 0
+  const totalDue = Math.max(
+    0,
+    Math.round((subtotal - discountAmount + shippingFee) * 100) / 100
+  )
 
   const squareEnabled = isSquareConfigured()
   const cardRef = useRef(null)
   const [cardReady, setCardReady] = useState(false)
+  const applePayRef = useRef(null)
+  const [applePayReady, setApplePayReady] = useState(false)
 
   const noteWithAddress = () =>
     [
@@ -171,12 +198,81 @@ export default function Checkout() {
         items,
         userId: user?.id,
         referralCode: discount?.code || null,
+        fulfillment,
+        zip: form.zip.trim(),
       })
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
       setDone({ order_number: result.order_number })
     } catch (err) {
       setError(err.message || 'Something went wrong.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Apple Pay — only appears on supported devices (Safari + a card in Wallet)
+  // and once the domain is verified in Square. The total is re-quoted whenever
+  // it changes so the Apple Pay sheet shows the right amount.
+  useEffect(() => {
+    if (step !== 2 || !squareEnabled) {
+      setApplePayReady(false)
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const payments = await getSquarePayments()
+        const req = payments.paymentRequest({
+          countryCode: 'US',
+          currencyCode: 'USD',
+          total: { amount: totalDue.toFixed(2), label: 'Renew' },
+        })
+        const ap = await payments.applePay(req)
+        if (cancelled) return
+        applePayRef.current = ap
+        setApplePayReady(true)
+      } catch {
+        // Unsupported browser/device — Apple Pay button just won't show.
+        if (!cancelled) {
+          applePayRef.current = null
+          setApplePayReady(false)
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [step, squareEnabled, totalDue])
+
+  const payWithApplePay = async () => {
+    if (!applePayRef.current) return
+    setError('')
+    setBusy(true)
+    try {
+      const result = await applePayRef.current.tokenize()
+      if (result.status !== 'OK') {
+        throw new Error(result.errors?.[0]?.message || 'Apple Pay was cancelled.')
+      }
+      const res = await createSquarePayment({
+        token: result.token,
+        customer: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          note: noteWithAddress(),
+        },
+        items,
+        userId: user?.id,
+        referralCode: discount?.code || null,
+        fulfillment,
+        zip: form.zip.trim(),
+      })
+      trackPurchase({ items, total: totalDue, orderNumber: res.order_number })
+      clear()
+      setDone({ order_number: res.order_number, paid: true })
+    } catch (err) {
+      setError(err.message || 'Apple Pay could not be completed.')
     } finally {
       setBusy(false)
     }
@@ -203,6 +299,8 @@ export default function Checkout() {
         items,
         userId: user?.id,
         referralCode: discount?.code || null,
+        fulfillment,
+        zip: form.zip.trim(),
       })
       trackPurchase({ items, total: totalDue, orderNumber: res.order_number })
       clear()
@@ -294,6 +392,30 @@ export default function Checkout() {
           {/* Step 1 — Shipping */}
           {step === 0 && (
             <div className="checkout__form">
+              <h2>How would you like to get it?</h2>
+              <div className="checkout__fulfill">
+                <button
+                  type="button"
+                  className={`checkout__fopt ${fulfillment === 'delivery' ? 'is-active' : ''}`}
+                  onClick={() => setFulfillment('delivery')}
+                >
+                  <strong>Local delivery</strong>
+                  <span>Las Vegas area · Free</span>
+                </button>
+                <button
+                  type="button"
+                  className={`checkout__fopt ${fulfillment === 'ship' ? 'is-active' : ''}`}
+                  onClick={() => setFulfillment('ship')}
+                >
+                  <strong>Ship to my address</strong>
+                  <span>
+                    {shippingFee > 0
+                      ? `${money(shippingFee)} · estimated`
+                      : 'Estimated from your ZIP'}
+                  </span>
+                </button>
+              </div>
+
               <h2>Shipping details</h2>
               <label>
                 Full Name
@@ -400,6 +522,18 @@ export default function Checkout() {
 
               {squareEnabled ? (
                 <>
+                  {applePayReady && (
+                    <>
+                      <button
+                        type="button"
+                        className="checkout__applepay"
+                        aria-label="Pay with Apple Pay"
+                        disabled={busy}
+                        onClick={payWithApplePay}
+                      />
+                      <div className="checkout__or"><span>or pay with card</span></div>
+                    </>
+                  )}
                   <label className="checkout__sqlabel">Card details</label>
                   <div id="sq-card" className="checkout__sqcard" />
                   {!cardReady && !error && (
@@ -469,7 +603,7 @@ export default function Checkout() {
               </div>
             ))}
           </div>
-          {discount && (
+          {(discount || fulfillment === 'ship') && (
             <div className="checkout__summary-line">
               <span>Subtotal</span>
               <span>{money(subtotal)}</span>
@@ -481,8 +615,20 @@ export default function Checkout() {
               <span>−{money(discountAmount)}</span>
             </div>
           )}
+          {fulfillment === 'ship' && (
+            <div className="checkout__summary-line">
+              <span>Shipping{shipEst?.zoneName ? ` · ${shipEst.zoneName}` : ''}</span>
+              <span>
+                {shippingFee > 0
+                  ? money(shippingFee)
+                  : /^\d{5}$/.test(form.zip.trim())
+                    ? '—'
+                    : 'Enter ZIP'}
+              </span>
+            </div>
+          )}
           <div className="checkout__total">
-            <span>Total due on delivery</span>
+            <span>{squareEnabled ? 'Total' : 'Total due on delivery'}</span>
             <strong>{money(totalDue)}</strong>
           </div>
           <Link to="/products" className="checkout__back">

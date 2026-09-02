@@ -164,7 +164,7 @@ export const emailShell = (inner) => `
     </td></tr>
   </table>`
 
-function itemsTableHtml({ items, subtotal, discount, total, referralCode }) {
+function itemsTableHtml({ items, subtotal, discount, shipping, total, referralCode }) {
   const rows = items
     .map(
       (i) =>
@@ -172,14 +172,12 @@ function itemsTableHtml({ items, subtotal, discount, total, referralCode }) {
         `<td style="padding:7px 0;text-align:right;border-bottom:1px solid #f2ece2;">${money(i.price * i.qty)}</td></tr>`
     )
     .join('')
+  const hasBreakdown = Number(discount) > 0 || Number(shipping) > 0
   return `
     <table style="width:100%;font-size:14px;border-collapse:collapse;">${rows}</table>
-    ${
-      Number(discount) > 0
-        ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:10px 0 0;">Subtotal: ${money(subtotal)}</p>
-           <p style="text-align:right;font-size:13px;color:#6f7d53;margin:2px 0 0;">Discount${referralCode ? ` (${referralCode})` : ''}: −${money(discount)}</p>`
-        : ''
-    }
+    ${hasBreakdown ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:10px 0 0;">Subtotal: ${money(subtotal)}</p>` : ''}
+    ${Number(discount) > 0 ? `<p style="text-align:right;font-size:13px;color:#6f7d53;margin:2px 0 0;">Discount${referralCode ? ` (${referralCode})` : ''}: −${money(discount)}</p>` : ''}
+    ${Number(shipping) > 0 ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:2px 0 0;">Shipping: ${money(shipping)}</p>` : ''}
     <p style="text-align:right;font-size:16px;font-weight:600;margin:8px 0 0;">Total: ${money(total)}</p>`
 }
 
@@ -210,7 +208,8 @@ export async function sendOrderEmails(env, o) {
     </table>
     <h3 style="margin:20px 0 6px;font-size:15px;">Items</h3>
     ${table}
-    <p style="color:${paid ? '#6f7d53' : '#8b8d87'};font-size:13px;margin:12px 0 0;">${payLine}</p>
+    <p style="color:#8b8d87;font-size:13px;margin:12px 0 0;">Fulfillment: <strong>${o.fulfillment === 'ship' ? 'Ship to customer' : 'Local delivery (Las Vegas)'}</strong></p>
+    <p style="color:${paid ? '#6f7d53' : '#8b8d87'};font-size:13px;margin:6px 0 0;">${payLine}</p>
     ${o.referralCode ? `<p style="color:#6f7d53;font-size:13px;margin:6px 0 0;">Referred by code: <strong>${o.referralCode}</strong></p>` : ''}
   `)
 

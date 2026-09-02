@@ -13,6 +13,7 @@
 //   META_PIXEL_ID, META_CAPI_TOKEN
 
 import crypto from 'node:crypto'
+import { shippingEstimate } from './_shipping.mjs'
 
 const sha256 = (v) =>
   crypto.createHash('sha256').update(String(v).trim().toLowerCase()).digest('hex')
@@ -90,7 +91,9 @@ export async function handler(event) {
       referralCode = null
     }
   }
-  const total = Math.max(0, Math.round((subtotal - discount) * 100) / 100)
+  const fulfillment = payload.fulfillment === 'ship' ? 'ship' : 'delivery'
+  const shipping = fulfillment === 'ship' ? shippingEstimate(payload.zip).fee : 0
+  const total = Math.max(0, Math.round((subtotal - discount + shipping) * 100) / 100)
 
   const orderNumber =
     'RN-' + Date.now().toString(36).toUpperCase().slice(-6) +
@@ -103,10 +106,11 @@ export async function handler(event) {
     customer_email: customer.email,
     customer_phone: customer.phone,
     note: customer.note || null,
-    fulfillment: 'delivery',
+    fulfillment,
     status: 'pending',
     subtotal,
     discount,
+    shipping,
     referral_code: referralCode,
     affiliate_id: affiliateId,
     total,
@@ -179,12 +183,9 @@ export async function handler(event) {
 
   const itemsTable = `
     <table style="width:100%;font-size:14px;border-collapse:collapse;">${itemRows}</table>
-    ${
-      discount > 0
-        ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:10px 0 0;">Subtotal: ${money(subtotal)}</p>
-           <p style="text-align:right;font-size:13px;color:#6f7d53;margin:2px 0 0;">Discount${referralCode ? ` (${referralCode})` : ''}: −${money(discount)}</p>`
-        : ''
-    }
+    ${discount > 0 || shipping > 0 ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:10px 0 0;">Subtotal: ${money(subtotal)}</p>` : ''}
+    ${discount > 0 ? `<p style="text-align:right;font-size:13px;color:#6f7d53;margin:2px 0 0;">Discount${referralCode ? ` (${referralCode})` : ''}: −${money(discount)}</p>` : ''}
+    ${shipping > 0 ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:2px 0 0;">Shipping: ${money(shipping)}</p>` : ''}
     <p style="text-align:right;font-size:16px;font-weight:600;margin:8px 0 0;">Total: ${money(total)}</p>`
 
   // Owner notification
@@ -302,6 +303,7 @@ export async function handler(event) {
     order_number: orderNumber,
     subtotal,
     discount,
+    shipping,
     total,
     referral_code: referralCode,
     recorded, // true if written to the Supabase orders table
