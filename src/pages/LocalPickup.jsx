@@ -102,7 +102,6 @@ export default function LocalPickup() {
               <div>
                 <dt>Contact</dt>
                 <dd>
-                  Abraham at{" "}
                   <a href={PICKUP_PHONE_HREF} className="pickup__phone">
                     {PICKUP_PHONE}
                   </a>
