@@ -113,55 +113,7 @@ export async function submitDeliveryInquiry({ email, zip }) {
   return data
 }
 
-/** Estimate the shipping fee for a destination ZIP (ships from Las Vegas). */
-export async function estimateShipping(zip) {
-  try {
-    const res = await fetch('/.netlify/functions/estimate-shipping', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ zip }),
-    })
-    return await res.json() // { fee, zone, zoneName }
-  } catch {
-    return { fee: 0 }
-  }
-}
-
-/** Charge a card with Square (via the create-square-payment function) and
- *  record a paid order. `token` is the single-use token from Square's SDK. */
-export async function createSquarePayment({
-  token,
-  customer,
-  items,
-  userId,
-  referralCode,
-  fulfillment,
-  zip,
-}) {
-  const res = await fetch('/.netlify/functions/create-square-payment', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      token,
-      customer,
-      items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
-      user_id: userId || null,
-      referral_code: referralCode || null,
-      fulfillment: fulfillment || 'delivery',
-      zip: zip || '',
-    }),
-  })
-  let data = null
-  try {
-    data = await res.json()
-  } catch {
-    /* ignore */
-  }
-  if (!res.ok) throw new Error(data?.error || 'Payment could not be completed.')
-  return data
-}
-
-export async function submitOrder({ customer, items, userId, referralCode, fulfillment, zip }) {
+export async function submitOrder({ customer, items, userId, referralCode }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -175,8 +127,6 @@ export async function submitOrder({ customer, items, userId, referralCode, fulfi
       })),
       user_id: userId || null,
       referral_code: referralCode || null,
-      fulfillment: fulfillment || 'delivery',
-      zip: zip || '',
     }),
   })
 

@@ -1,29 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
-import {
-  submitOrder,
-  createSquarePayment,
-  estimateShipping,
-  PICKUP_PHONE,
-  PICKUP_PHONE_HREF,
-} from '../../lib/orders.js'
-import { isSquareConfigured, getSquarePayments } from '../../lib/square.js'
-import CardBrands from '../../components/CardBrands.jsx'
+import { submitOrder, PICKUP_PHONE, PICKUP_PHONE_HREF } from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
 import { validateReferral } from '../../lib/affiliates.js'
 import { getStoredReferral } from '../../lib/referral.js'
 import './checkout.css'
 
-const STEPS = ['Shipping', 'Review', 'Payment']
+const STEPS = ['Details', 'Review', 'Confirm']
 const HOLD_SECONDS = 15 * 60
 
 export default function Checkout() {
   const { items, subtotal, count, clear } = useCart()
   const { user, profile } = useAuth()
-  const navigate = useNavigate()
 
   const [step, setStep] = useState(0)
   const [form, setForm] = useState({
@@ -39,8 +30,7 @@ export default function Checkout() {
   const [coupon, setCoupon] = useState('')
   const [couponMsg, setCouponMsg] = useState('')
   const [discount, setDiscount] = useState(null) // { code, percent, name } | null
-  const [fulfillment, setFulfillment] = useState('delivery') // 'delivery' | 'ship'
-  const [shipEst, setShipEst] = useState(null) // { fee, zoneName } | null
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
@@ -57,10 +47,7 @@ export default function Checkout() {
   // Cart-hold countdown.
   useEffect(() => {
     if (done || count === 0) return
-    const t = setInterval(
-      () => setSecondsLeft((s) => (s > 0 ? s - 1 : 0)),
-      1000
-    )
+    const t = setInterval(() => setSecondsLeft((s) => (s > 0 ? s - 1 : 0)), 1000)
     return () => clearInterval(t)
   }, [done, count])
 
@@ -70,7 +57,7 @@ export default function Checkout() {
     return `${m}:${String(s).padStart(2, '0')}`
   }, [secondsLeft])
 
-  const shippingValid =
+  const detailsValid =
     form.name.trim() &&
     form.email.trim() &&
     form.phone.trim() &&
@@ -109,206 +96,38 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Fetch a shipping estimate when shipping to a valid ZIP.
-  useEffect(() => {
-    if (fulfillment !== 'ship') {
-      setShipEst(null)
-      return
-    }
-    const zip = form.zip.trim()
-    if (!/^\d{5}$/.test(zip)) {
-      setShipEst(null)
-      return
-    }
-    let active = true
-    estimateShipping(zip).then((e) => active && setShipEst(e))
-    return () => {
-      active = false
-    }
-  }, [fulfillment, form.zip])
-
   const discountAmount = discount
     ? Math.round(subtotal * (discount.percent / 100) * 100) / 100
     : 0
-  const shippingFee = fulfillment === 'ship' ? Number(shipEst?.fee || 0) : 0
-  const totalDue = Math.max(
-    0,
-    Math.round((subtotal - discountAmount + shippingFee) * 100) / 100
-  )
+  const totalDue = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100)
 
-  const squareEnabled = isSquareConfigured()
-  const cardRef = useRef(null)
-  const [cardReady, setCardReady] = useState(false)
-  const applePayRef = useRef(null)
-  const [applePayReady, setApplePayReady] = useState(false)
-  const [acceptedTerms, setAcceptedTerms] = useState(false)
-
-  const noteWithAddress = () =>
-    [
-      `Ship to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
-      form.note.trim() && `Note: ${form.note.trim()}`,
-    ]
-      .filter(Boolean)
-      .join('\n')
-
-  // Mount Square's hosted card field when the Payment step is shown.
-  useEffect(() => {
-    if (step !== 2 || !squareEnabled) return
-    let card
-    let cancelled = false
-    ;(async () => {
-      try {
-        const payments = await getSquarePayments()
-        card = await payments.card()
-        await card.attach('#sq-card')
-        if (cancelled) {
-          card.destroy()
-          return
-        }
-        cardRef.current = card
-        setCardReady(true)
-      } catch (e) {
-        setError(e.message || 'Could not load the payment form.')
-      }
-    })()
-    return () => {
-      cancelled = true
-      setCardReady(false)
-      cardRef.current = null
-      if (card) {
-        try {
-          card.destroy()
-        } catch {
-          /* ignore */
-        }
-      }
-    }
-  }, [step, squareEnabled])
-
-  // Pay-on-delivery path (used when Square isn't configured).
   const placeOrder = async () => {
     setError('')
     setBusy(true)
     try {
+      const noteWithAddress = [
+        `Deliver to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
+        form.note.trim() && `Note: ${form.note.trim()}`,
+      ]
+        .filter(Boolean)
+        .join('\n')
+
       const result = await submitOrder({
         customer: {
           name: form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
-          note: noteWithAddress(),
+          note: noteWithAddress,
         },
         items,
         userId: user?.id,
         referralCode: discount?.code || null,
-        fulfillment,
-        zip: form.zip.trim(),
       })
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
       setDone({ order_number: result.order_number })
     } catch (err) {
       setError(err.message || 'Something went wrong.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  // Apple Pay — only appears on supported devices (Safari + a card in Wallet)
-  // and once the domain is verified in Square. The total is re-quoted whenever
-  // it changes so the Apple Pay sheet shows the right amount.
-  useEffect(() => {
-    if (step !== 2 || !squareEnabled) {
-      setApplePayReady(false)
-      return
-    }
-    let cancelled = false
-    ;(async () => {
-      try {
-        const payments = await getSquarePayments()
-        const req = payments.paymentRequest({
-          countryCode: 'US',
-          currencyCode: 'USD',
-          total: { amount: totalDue.toFixed(2), label: 'Renew' },
-        })
-        const ap = await payments.applePay(req)
-        if (cancelled) return
-        applePayRef.current = ap
-        setApplePayReady(true)
-      } catch {
-        // Unsupported browser/device — Apple Pay button just won't show.
-        if (!cancelled) {
-          applePayRef.current = null
-          setApplePayReady(false)
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [step, squareEnabled, totalDue])
-
-  const payWithApplePay = async () => {
-    if (!applePayRef.current) return
-    setError('')
-    setBusy(true)
-    try {
-      const result = await applePayRef.current.tokenize()
-      if (result.status !== 'OK') {
-        throw new Error(result.errors?.[0]?.message || 'Apple Pay was cancelled.')
-      }
-      const res = await createSquarePayment({
-        token: result.token,
-        customer: {
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          note: noteWithAddress(),
-        },
-        items,
-        userId: user?.id,
-        referralCode: discount?.code || null,
-        fulfillment,
-        zip: form.zip.trim(),
-      })
-      trackPurchase({ items, total: totalDue, orderNumber: res.order_number })
-      clear()
-      setDone({ order_number: res.order_number, paid: true })
-    } catch (err) {
-      setError(err.message || 'Apple Pay could not be completed.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  // Card payment path (Square).
-  const payWithSquare = async () => {
-    setError('')
-    if (!cardRef.current) return
-    setBusy(true)
-    try {
-      const result = await cardRef.current.tokenize()
-      if (result.status !== 'OK') {
-        throw new Error(result.errors?.[0]?.message || 'Please check your card details.')
-      }
-      const res = await createSquarePayment({
-        token: result.token,
-        customer: {
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          note: noteWithAddress(),
-        },
-        items,
-        userId: user?.id,
-        referralCode: discount?.code || null,
-        fulfillment,
-        zip: form.zip.trim(),
-      })
-      trackPurchase({ items, total: totalDue, orderNumber: res.order_number })
-      clear()
-      setDone({ order_number: res.order_number, paid: true })
-    } catch (err) {
-      setError(err.message || 'Payment could not be completed.')
     } finally {
       setBusy(false)
     }
@@ -326,15 +145,14 @@ export default function Checkout() {
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </span>
-          <h1>{done.paid ? 'Payment received' : 'Order received'}</h1>
+          <h1>Order received</h1>
           <p>
-            Your order <strong>{done.order_number}</strong> is confirmed.
-            {done.paid
-              ? ' Your card has been charged and a receipt is on its way. We’ll reach out to arrange delivery.'
-              : ' We’ll reach out to arrange your delivery. No payment is taken online — you’ll pay on delivery.'}
+            Your order <strong>{done.order_number}</strong> is in. We’ll reach out
+            to arrange your delivery. No payment is taken online — you’ll pay on
+            delivery.
           </p>
           <p className="checkout__confirm-contact">
-            Questions? Call us at <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
+            Questions? Call or text us at <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
           </p>
           <Link to="/products" className="btn btn--primary">
             Continue browsing
@@ -364,7 +182,7 @@ export default function Checkout() {
       <header className="checkout__hero deco-band">
         <div className="container checkout__hero-row">
           <div>
-            <span className="eyebrow">Secure checkout</span>
+            <span className="eyebrow">Checkout</span>
             <h1>Complete your order</h1>
           </div>
           <div className="checkout__timer" aria-live="polite">
@@ -391,34 +209,10 @@ export default function Checkout() {
 
           {error && <div className="auth__alert auth__alert--error">{error}</div>}
 
-          {/* Step 1 — Shipping */}
+          {/* Step 1 — Delivery details */}
           {step === 0 && (
             <div className="checkout__form">
-              <h2>How would you like to get it?</h2>
-              <div className="checkout__fulfill">
-                <button
-                  type="button"
-                  className={`checkout__fopt ${fulfillment === 'delivery' ? 'is-active' : ''}`}
-                  onClick={() => setFulfillment('delivery')}
-                >
-                  <strong>Local delivery</strong>
-                  <span>Las Vegas area · Free</span>
-                </button>
-                <button
-                  type="button"
-                  className={`checkout__fopt ${fulfillment === 'ship' ? 'is-active' : ''}`}
-                  onClick={() => setFulfillment('ship')}
-                >
-                  <strong>Ship to my address</strong>
-                  <span>
-                    {shippingFee > 0
-                      ? `${money(shippingFee)} · estimated`
-                      : 'Estimated from your ZIP'}
-                  </span>
-                </button>
-              </div>
-
-              <h2>Shipping details</h2>
+              <h2>Delivery details</h2>
               <label>
                 Full Name
                 <input value={form.name} onChange={set('name')}
@@ -445,22 +239,22 @@ export default function Checkout() {
                 <label>
                   City
                   <input value={form.city} onChange={set('city')}
-                    placeholder="San Diego" autoComplete="address-level2" />
+                    placeholder="Las Vegas" autoComplete="address-level2" />
                 </label>
                 <label>
                   State
                   <input value={form.state} onChange={set('state')}
-                    placeholder="CA" autoComplete="address-level1" />
+                    placeholder="NV" autoComplete="address-level1" />
                 </label>
                 <label>
                   ZIP
                   <input value={form.zip} onChange={set('zip')}
-                    placeholder="92101" autoComplete="postal-code" />
+                    placeholder="89101" autoComplete="postal-code" />
                 </label>
               </div>
               <button
                 className="btn btn--primary btn--block"
-                disabled={!shippingValid}
+                disabled={!detailsValid}
                 onClick={() => setStep(1)}
               >
                 Continue to review
@@ -474,7 +268,7 @@ export default function Checkout() {
               <h2>Review your order</h2>
               <div className="checkout__review-block">
                 <div className="checkout__review-head">
-                  <span>Shipping to</span>
+                  <span>Delivering to</span>
                   <button className="checkout__edit" onClick={() => setStep(0)}>
                     Edit
                   </button>
@@ -511,151 +305,65 @@ export default function Checkout() {
                   Back
                 </button>
                 <button className="btn btn--primary" onClick={() => setStep(2)}>
-                  Continue to payment
+                  Continue
                 </button>
               </div>
             </div>
           )}
 
-          {/* Step 3 — Payment */}
+          {/* Step 3 — Confirm (pay on delivery) */}
           {step === 2 && (
             <div className="checkout__form">
-              <h2>Payment</h2>
-              <p className="checkout__secure">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
-                  stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"
-                  strokeLinejoin="round" aria-hidden="true">
-                  <rect x="4" y="11" width="16" height="9" rx="2" />
-                  <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              <h2>Confirm your order</h2>
+
+              <div className="checkout__pay-notice">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                  stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M2 10h20" />
                 </svg>
-                All transactions are secure and encrypted.
+                <div>
+                  <strong>Pay on delivery</strong>
+                  <span>
+                    No payment is taken online — you’ll pay in person when your
+                    order arrives. We’ll reach out within 24 hours to arrange it.
+                  </span>
+                </div>
+              </div>
+
+              <label className="checkout__terms">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                />
+                <span>
+                  I confirm these products are for research use only and accept the{' '}
+                  <Link to="/terms-of-service">Terms of Service</Link> and{' '}
+                  <Link to="/refund-policy">Refund Policy</Link>.
+                </span>
+              </label>
+
+              <div className="checkout__step-actions">
+                <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                  Back
+                </button>
+                <button
+                  className="btn btn--primary"
+                  onClick={placeOrder}
+                  disabled={busy || !acceptedTerms}
+                >
+                  {busy ? 'Placing order…' : 'Place order'}
+                </button>
+              </div>
+              <p className="checkout__disclaimer">
+                For research use only. Not for human consumption. Payment is
+                collected in person on delivery.
               </p>
-
-              {squareEnabled ? (
-                <>
-                  {applePayReady && (
-                    <>
-                      <button
-                        type="button"
-                        className="checkout__applepay"
-                        aria-label="Pay with Apple Pay"
-                        disabled={busy || !acceptedTerms}
-                        onClick={payWithApplePay}
-                      />
-                      <div className="checkout__or"><span>or pay with card</span></div>
-                    </>
-                  )}
-
-                  <div className="checkout__cardhead">
-                    <span className="checkout__cardhead-label">
-                      <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
-                        stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-                        <rect x="2" y="5" width="20" height="14" rx="2" />
-                        <path d="M2 10h20" />
-                      </svg>
-                      Card Payments
-                    </span>
-                    <CardBrands />
-                  </div>
-
-                  <div id="sq-card" className="checkout__sqcard" />
-                  {!cardReady && !error && (
-                    <p className="checkout__coupon-msg">Loading secure card form…</p>
-                  )}
-
-                  <label className="checkout__terms">
-                    <input
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    />
-                    <span>
-                      I confirm these products are for research use only and accept the{' '}
-                      <Link to="/terms-of-service">Terms of Service</Link> and{' '}
-                      <Link to="/refund-policy">Refund Policy</Link>.
-                    </span>
-                  </label>
-
-                  <div className="checkout__step-actions">
-                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
-                      Back
-                    </button>
-                    <button
-                      className="btn btn--primary"
-                      onClick={payWithSquare}
-                      disabled={busy || !cardReady || !acceptedTerms}
-                    >
-                      {busy ? 'Processing…' : `Pay ${money(totalDue)}`}
-                    </button>
-                  </div>
-                  <p className="checkout__disclaimer">
-                    Payments are securely processed by Square — we never see your
-                    card number. For research use only. Not for human consumption.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="checkout__pay-notice">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
-                      stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-                      strokeLinejoin="round">
-                      <rect x="2" y="5" width="20" height="14" rx="2" />
-                      <path d="M2 10h20" />
-                    </svg>
-                    <div>
-                      <strong>Pay on delivery</strong>
-                      <span>
-                        No payment is taken online right now — you’ll pay in person
-                        when your order arrives.
-                      </span>
-                    </div>
-                  </div>
-
-                  <label className="checkout__terms">
-                    <input
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    />
-                    <span>
-                      I confirm these products are for research use only and accept the{' '}
-                      <Link to="/terms-of-service">Terms of Service</Link>.
-                    </span>
-                  </label>
-
-                  <div className="checkout__step-actions">
-                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
-                      Back
-                    </button>
-                    <button
-                      className="btn btn--primary"
-                      onClick={placeOrder}
-                      disabled={busy || !acceptedTerms}
-                    >
-                      {busy ? 'Placing order…' : 'Place order'}
-                    </button>
-                  </div>
-                  <p className="checkout__disclaimer">
-                    For research use only. Not for human consumption. Payment is
-                    collected in person on delivery.
-                  </p>
-                </>
-              )}
 
               {/* Reassurance block */}
               <div className="checkout__trust">
-                <div className="checkout__trust-item">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
-                    stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"
-                    strokeLinejoin="round" aria-hidden="true">
-                    <rect x="4" y="11" width="16" height="9" rx="2" />
-                    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                  </svg>
-                  <div>
-                    <strong>Secure checkout</strong>
-                    <span>Encrypted card payments — we never store your card details.</span>
-                  </div>
-                </div>
                 <div className="checkout__trust-item">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
                     stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"
@@ -666,6 +374,18 @@ export default function Checkout() {
                   <div>
                     <strong>Third-party tested</strong>
                     <span>Every batch HPLC + LC-MS verified with a certificate of analysis.</span>
+                  </div>
+                </div>
+                <div className="checkout__trust-item">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                    stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"
+                    strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11z" />
+                    <circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                  <div>
+                    <strong>Local, from our Las Vegas lab</strong>
+                    <span>Packed and checked by hand, delivered by real people.</span>
                   </div>
                 </div>
                 <div className="checkout__trust-item">
@@ -696,7 +416,7 @@ export default function Checkout() {
               </div>
             ))}
           </div>
-          {(discount || fulfillment === 'ship') && (
+          {discount && (
             <div className="checkout__summary-line">
               <span>Subtotal</span>
               <span>{money(subtotal)}</span>
@@ -708,20 +428,8 @@ export default function Checkout() {
               <span>−{money(discountAmount)}</span>
             </div>
           )}
-          {fulfillment === 'ship' && (
-            <div className="checkout__summary-line">
-              <span>Shipping{shipEst?.zoneName ? ` · ${shipEst.zoneName}` : ''}</span>
-              <span>
-                {shippingFee > 0
-                  ? money(shippingFee)
-                  : /^\d{5}$/.test(form.zip.trim())
-                    ? '—'
-                    : 'Enter ZIP'}
-              </span>
-            </div>
-          )}
           <div className="checkout__total">
-            <span>{squareEnabled ? 'Total' : 'Total due on delivery'}</span>
+            <span>Total due on delivery</span>
             <strong>{money(totalDue)}</strong>
           </div>
           <Link to="/products" className="checkout__back">

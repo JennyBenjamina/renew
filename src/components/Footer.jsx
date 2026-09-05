@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo.jsx'
 import NewsletterForm from './NewsletterForm.jsx'
-import CardBrands from './CardBrands.jsx'
 import './Footer.css'
 
 export default function Footer() {
@@ -59,11 +58,6 @@ export default function Footer() {
           the purchase of any products is restricted to individuals 21 years of
           age or older. Trusted by thousands worldwide.
         </p>
-      </div>
-
-      <div className="container footer__accept">
-        <span>We accept</span>
-        <CardBrands />
       </div>
 
       <div className="container footer__bottom">
