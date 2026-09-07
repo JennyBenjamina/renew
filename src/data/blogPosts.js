@@ -7,7 +7,7 @@
  *      become editable in the admin Blog manager + appear in the sitemap.
  *
  * Each post is written research-use-only: structural / procedural / verification
- * facts only, no outcome, dosing, or human-use claims. Titles, headings, and the
+ * facts only, no outcome, usage, or human-use claims. Titles, headings, and the
  * `keywords` + `faq` fields target informational search (SEO) and answer engines
  * (AEO) — the FAQ blocks are emitted as FAQPage JSON-LD on each post.
  */
@@ -215,7 +215,7 @@ Finally, weigh the operational signals that are harder to fake:
 
 ## Red flags to walk away from
 
-Certain patterns should end the evaluation: no COA available before purchase, purity claims with no supporting chromatogram, batch numbers that don't match between label and report, outcome or dosing language on product pages, or a vendor that can't say who tests their material. Any one of these means the core claim — purity and identity — is unverifiable.
+Certain patterns should end the evaluation: no COA available before purchase, purity claims with no supporting chromatogram, batch numbers that don't match between label and report, outcome or usage language on product pages, or a vendor that can't say who tests their material. Any one of these means the core claim — purity and identity — is unverifiable.
 
 A supplier that clears this checklist isn't promising results; it's proving contents. That's the most a research buyer should expect, and the least a serious vendor should provide.`,
     faq: [
@@ -225,7 +225,7 @@ A supplier that clears this checklist isn't promising results; it's proving cont
       },
       {
         q: 'What are red flags when buying research peptides?',
-        a: 'Walk away from vendors with no COA available before purchase, purity claims lacking a supporting chromatogram, batch numbers that don’t match between the vial and the report, outcome or dosing language, or an inability to name who tests their material.',
+        a: 'Walk away from vendors with no COA available before purchase, purity claims lacking a supporting chromatogram, batch numbers that don’t match between the vial and the report, outcome or usage language, or an inability to name who tests their material.',
       },
       {
         q: 'Why does third-party testing matter more than in-house testing?',
