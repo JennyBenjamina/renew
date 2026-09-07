@@ -42,7 +42,16 @@ export default function App() {
         {/* Storefront (public) */}
         <Route element={<StorefrontLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Catalog />} />
+          {/* Storefront gated behind login (required by our payment processor):
+              catalog, prices, and checkout require an account. */}
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <Catalog />
+              </ProtectedRoute>
+            }
+          />
           {/* Old slug → redirect so existing /catalog links still work */}
           <Route path="/catalog" element={<Navigate to="/products" replace />} />
           <Route path="/delivery" element={<LocalPickup />} />
@@ -63,7 +72,14 @@ export default function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/coas" element={<COAs />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Customer accounts */}
           <Route path="/login" element={<Login />} />
