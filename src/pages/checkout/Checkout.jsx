@@ -31,6 +31,7 @@ export default function Checkout() {
   const [couponMsg, setCouponMsg] = useState('')
   const [discount, setDiscount] = useState(null) // { code, percent, name } | null
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [intendedUse, setIntendedUse] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
@@ -107,6 +108,7 @@ export default function Checkout() {
     try {
       const noteWithAddress = [
         `Deliver to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
+        `Declared use: ${intendedUse}`,
         form.note.trim() && `Note: ${form.note.trim()}`,
       ]
         .filter(Boolean)
@@ -332,6 +334,19 @@ export default function Checkout() {
                 </div>
               </div>
 
+              <label className="checkout__use">
+                Intended use
+                <select
+                  value={intendedUse}
+                  onChange={(e) => setIntendedUse(e.target.value)}
+                >
+                  <option value="">Select intended use…</option>
+                  <option value="Laboratory / in-vitro research use only">
+                    Laboratory / in-vitro research use only
+                  </option>
+                </select>
+              </label>
+
               <label className="checkout__terms">
                 <input
                   type="checkbox"
@@ -339,7 +354,8 @@ export default function Checkout() {
                   onChange={(e) => setAcceptedTerms(e.target.checked)}
                 />
                 <span>
-                  I confirm these products are for research use only and accept the{' '}
+                  I declare I am a qualified researcher and these products are for
+                  research use only. I accept the{' '}
                   <Link to="/terms-of-service">Terms of Service</Link> and{' '}
                   <Link to="/refund-policy">Refund Policy</Link>.
                 </span>
@@ -352,7 +368,7 @@ export default function Checkout() {
                 <button
                   className="btn btn--primary"
                   onClick={placeOrder}
-                  disabled={busy || !acceptedTerms}
+                  disabled={busy || !acceptedTerms || !intendedUse}
                 >
                   {busy ? 'Placing order…' : 'Place order'}
                 </button>

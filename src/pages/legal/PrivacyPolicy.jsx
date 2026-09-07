@@ -1,4 +1,4 @@
-import LegalLayout from './LegalLayout.jsx'
+import LegalLayout from "./LegalLayout.jsx";
 
 export default function PrivacyPolicy() {
   return (
@@ -8,7 +8,9 @@ export default function PrivacyPolicy() {
       intro="This policy explains what information Renew collects, how it is used, and the choices you have."
     >
       <div className="legal__prose">
-        <p className="legal__updated">Last updated: {new Date().getFullYear()}</p>
+        <p className="legal__updated">
+          Last updated: {new Date().getFullYear()}
+        </p>
 
         <h2>Information we collect</h2>
         <p>
@@ -44,37 +46,31 @@ export default function PrivacyPolicy() {
 
         <h2>Sharing</h2>
         <p>
-          We do not sell your personal information. We share it only with service
-          providers who help us operate the site and fulfill orders, or where
-          required by law.
+          We do not sell your personal information. We share it only with
+          service providers who help us operate the site and fulfill orders, or
+          where required by law.
         </p>
 
         <h2>Data retention</h2>
         <p>
-          We retain information for as long as needed to provide our services and
-          to satisfy legal, tax, and compliance requirements, after which it is
-          deleted or anonymized.
+          We retain information for as long as needed to provide our services
+          and to satisfy legal, tax, and compliance requirements, after which it
+          is deleted or anonymized.
         </p>
 
         <h2>Your choices</h2>
         <p>
           You may request access to, correction of, or deletion of your personal
-          information, subject to legal limits. To make a request, contact us at{' '}
+          information, subject to legal limits. To make a request, contact us at{" "}
           <a href="mailto:privacy@renewlabslv.com">privacy@renewlabslv.com</a>.
         </p>
 
         <h2>Contact</h2>
         <p>
-          Questions about this policy can be sent to{' '}
+          Questions about this policy can be sent to{" "}
           <a href="mailto:privacy@renewlabslv.com">privacy@renewlabslv.com</a>.
-        </p>
-
-        <p className="legal__note">
-          This privacy policy is a general template provided for the Renew MVP and
-          should be reviewed and adapted by qualified legal counsel before launch
-          to ensure it meets the requirements that apply to your business.
         </p>
       </div>
     </LegalLayout>
-  )
+  );
 }

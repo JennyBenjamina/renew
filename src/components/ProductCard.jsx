@@ -97,6 +97,11 @@ export default function ProductCard({ product }) {
           )}
         </div>
 
+        <p className="pcard__ruo">
+          Research reagent — for laboratory research use only. Not for human or
+          veterinary consumption.
+        </p>
+
         <div className="pcard__footer">
           <div className="pcard__price">
             <span className="pcard__now">{money(product.price)}</span>

@@ -9,11 +9,6 @@ const empty = {
   phone: '',
   password: '',
   confirm: '',
-  address_street: '',
-  address_city: '',
-  address_state: '',
-  address_postal: '',
-  address_country: '',
 }
 
 export default function Signup() {
@@ -52,11 +47,6 @@ export default function Signup() {
         password: form.password,
         full_name: form.full_name.trim(),
         phone: form.phone.trim(),
-        address_street: form.address_street.trim(),
-        address_city: form.address_city.trim(),
-        address_state: form.address_state.trim(),
-        address_postal: form.address_postal.trim(),
-        address_country: form.address_country.trim(),
       })
       if (needsConfirmation) setDone('confirm')
       else navigate('/account', { replace: true })
@@ -164,45 +154,6 @@ export default function Signup() {
               {confirmError && (
                 <span className="auth__field-error">{confirmError}</span>
               )}
-            </label>
-          </div>
-        </section>
-
-        <section className="auth__section">
-          <h2 className="auth__section-title">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-              stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-              strokeLinejoin="round">
-              <path d="M12 21s7-5.2 7-11a7 7 0 0 0-14 0c0 5.8 7 11 7 11z" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
-            Shipping Address
-          </h2>
-          <div className="auth__grid">
-            <label className="auth__full">
-              Street Address
-              <input value={form.address_street} onChange={set('address_street')}
-                placeholder="123 Science Blvd, Suite 400" autoComplete="address-line1" />
-            </label>
-            <label>
-              City
-              <input value={form.address_city} onChange={set('address_city')}
-                placeholder="San Diego" autoComplete="address-level2" />
-            </label>
-            <label>
-              State / Province
-              <input value={form.address_state} onChange={set('address_state')}
-                placeholder="CA" autoComplete="address-level1" />
-            </label>
-            <label>
-              Postal / Zip Code
-              <input value={form.address_postal} onChange={set('address_postal')}
-                placeholder="92101" autoComplete="postal-code" />
-            </label>
-            <label>
-              Country
-              <input value={form.address_country} onChange={set('address_country')}
-                placeholder="United States" autoComplete="country-name" />
             </label>
           </div>
         </section>

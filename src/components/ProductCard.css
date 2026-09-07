@@ -123,6 +123,13 @@
   color: var(--color-accent);
 }
 
+.pcard__ruo {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .pcard__footer {
   margin-top: auto;
   display: flex;

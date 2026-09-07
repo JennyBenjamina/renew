@@ -5,7 +5,7 @@ import './ComplianceGate.css'
 const TERMS = [
   'I confirm that I am 21 years of age or older.',
   'I understand that all products on this website are intended for research use only.',
-  'I understand these products are not intended for human consumption, medical use, diagnosis, treatment, prevention of disease, cosmetic use, dietary supplement use, food use, or veterinary use.',
+  'I understand these products are sold for laboratory research use only and are not for human or veterinary consumption.',
   'I certify that I am accessing this website for lawful research purposes only and agree to the Renew Research Use Only Terms & Conditions.',
 ]
 

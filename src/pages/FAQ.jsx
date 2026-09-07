@@ -39,7 +39,7 @@ const faqs = [
   },
   {
     q: 'Are these products for human use?',
-    a: 'No. All products on this site are sold for laboratory research use only. They are not intended to diagnose, treat, cure, or prevent any disease, and are not for human or veterinary consumption. By purchasing you confirm you are a qualified researcher.',
+    a: 'No. All products on this site are sold for laboratory research use only and are not for human or veterinary consumption. By purchasing you confirm you are a qualified researcher.',
   },
 ]
 

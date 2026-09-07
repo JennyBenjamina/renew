@@ -72,7 +72,7 @@ export default function About() {
               <h3>Research-use compliance</h3>
               <p>
                 All products are intended strictly for laboratory research and
-                are not for human consumption, medical, or veterinary use.
+                are not for human or veterinary consumption.
               </p>
             </article>
           </div>

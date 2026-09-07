@@ -20,6 +20,9 @@ export default function StorefrontLayout() {
     <>
       {!accepted && <ComplianceGate />}
       <div className={accepted ? 'app' : 'app app--gated'} aria-hidden={!accepted}>
+        <div className="ruo-banner" role="note">
+          For laboratory research use only — not for human or veterinary consumption.
+        </div>
         <Navbar />
         <main>
           {/* Keyed by route so a page error clears when navigating away,
