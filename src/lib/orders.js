@@ -113,6 +113,52 @@ export async function submitDeliveryInquiry({ email, zip }) {
   return data
 }
 
+/** Charge a card online via TagadaPay (server verifies price, records the paid
+ *  order, and emails owner + customer). `tagadaToken` comes from the browser
+ *  tokenizer so the PAN never reaches our server. Returns the function payload:
+ *  { ok, order_number, total, ... } on success, or { requireAction:'redirect',
+ *  redirectUrl } when the card needs extra 3-D Secure authentication. */
+export async function processPayment({
+  customer,
+  items,
+  userId,
+  referralCode,
+  tagadaToken,
+  scaRequired,
+  sessionData,
+  fulfillment,
+  zip,
+}) {
+  const res = await fetch('/.netlify/functions/process-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      customer,
+      items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+      user_id: userId || null,
+      referral_code: referralCode || null,
+      tagadaToken,
+      scaRequired: Boolean(scaRequired),
+      sessionData: sessionData || null,
+      fulfillment: fulfillment || 'delivery',
+      zip: zip || null,
+    }),
+  })
+
+  let data = null
+  try {
+    data = await res.json()
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) {
+    const err = new Error(data?.error || 'Your payment could not be processed.')
+    err.notConfigured = res.status === 503
+    throw err
+  }
+  return data
+}
+
 export async function submitOrder({ customer, items, userId, referralCode }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',

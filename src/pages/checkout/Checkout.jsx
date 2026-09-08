@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { submitOrder, PICKUP_PHONE, PICKUP_PHONE_HREF } from '../../lib/orders.js'
+import { submitOrder, processPayment, PICKUP_PHONE, PICKUP_PHONE_HREF } from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
 import { validateReferral } from '../../lib/affiliates.js'
 import { getStoredReferral } from '../../lib/referral.js'
+import { tagadaEnabled } from '../../lib/tagada.js'
 import './checkout.css'
+
+// Lazy so the card SDK ships in its own chunk — only fetched when online
+// payments are enabled and the shopper reaches the confirm step.
+const CardPayment = lazy(() => import('../../components/CardPayment.jsx'))
 
 const STEPS = ['Details', 'Review', 'Confirm']
 const HOLD_SECONDS = 15 * 60
@@ -102,34 +107,74 @@ export default function Checkout() {
     : 0
   const totalDue = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100)
 
+  const buildNote = () =>
+    [
+      `Deliver to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
+      `Declared use: ${intendedUse}`,
+      form.note.trim() && `Note: ${form.note.trim()}`,
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+  const customerPayload = () => ({
+    name: form.name.trim(),
+    email: form.email.trim(),
+    phone: form.phone.trim(),
+    note: buildNote(),
+  })
+
+  // Pay-on-delivery: record the order, no payment taken online.
   const placeOrder = async () => {
     setError('')
     setBusy(true)
     try {
-      const noteWithAddress = [
-        `Deliver to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
-        `Declared use: ${intendedUse}`,
-        form.note.trim() && `Note: ${form.note.trim()}`,
-      ]
-        .filter(Boolean)
-        .join('\n')
-
       const result = await submitOrder({
-        customer: {
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          note: noteWithAddress,
-        },
+        customer: customerPayload(),
         items,
         userId: user?.id,
         referralCode: discount?.code || null,
       })
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
-      setDone({ order_number: result.order_number })
+      setDone({ order_number: result.order_number, paid: false })
     } catch (err) {
       setError(err.message || 'Something went wrong.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Online card payment (TagadaPay). Called by <CardPayment> with a card token.
+  const payOnline = async ({ tagadaToken, scaRequired, sessionData }) => {
+    setError('')
+    setBusy(true)
+    try {
+      const result = await processPayment({
+        customer: customerPayload(),
+        items,
+        userId: user?.id,
+        referralCode: discount?.code || null,
+        tagadaToken,
+        scaRequired,
+        sessionData,
+        fulfillment: 'delivery',
+        zip: form.zip,
+      })
+      // Rare: card needs extra 3-D Secure authentication — send them to finish it.
+      if (result?.requireAction === 'redirect' && result.redirectUrl) {
+        window.location.href = result.redirectUrl
+        return
+      }
+      trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
+      clear()
+      setDone({ order_number: result.order_number, paid: true })
+    } catch (err) {
+      if (err.notConfigured) {
+        // Server not wired for online payment yet — fall back to pay-on-delivery.
+        await placeOrder()
+        return
+      }
+      setError(err.message || 'Your payment could not be processed.')
     } finally {
       setBusy(false)
     }
@@ -149,9 +194,10 @@ export default function Checkout() {
           </span>
           <h1>Order received</h1>
           <p>
-            Your order <strong>{done.order_number}</strong> is in. We’ll reach out
-            to arrange your delivery. No payment is taken online — you’ll pay on
-            delivery.
+            Your order <strong>{done.order_number}</strong> is in.{' '}
+            {done.paid
+              ? 'Your payment was received — a receipt is on its way to your inbox. We’ll reach out to arrange your delivery.'
+              : 'We’ll reach out to arrange your delivery. No payment is taken online — you’ll pay on delivery.'}
           </p>
           <p className="checkout__confirm-contact">
             Questions? Call or text us at <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
@@ -326,11 +372,23 @@ export default function Checkout() {
                   <path d="M2 10h20" />
                 </svg>
                 <div>
-                  <strong>Pay on delivery</strong>
-                  <span>
-                    No payment is taken online — you’ll pay in person when your
-                    order arrives. We’ll reach out within 24 hours to arrange it.
-                  </span>
+                  {tagadaEnabled ? (
+                    <>
+                      <strong>Pay securely by card</strong>
+                      <span>
+                        We accept Visa, Mastercard, and American Express. Your
+                        card is charged now and we’ll arrange your delivery.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Pay on delivery</strong>
+                      <span>
+                        No payment is taken online — you’ll pay in person when your
+                        order arrives. We’ll reach out within 24 hours to arrange it.
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -361,22 +419,46 @@ export default function Checkout() {
                 </span>
               </label>
 
-              <div className="checkout__step-actions">
-                <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
-                  Back
-                </button>
-                <button
-                  className="btn btn--primary"
-                  onClick={placeOrder}
-                  disabled={busy || !acceptedTerms || !intendedUse}
-                >
-                  {busy ? 'Placing order…' : 'Place order'}
-                </button>
-              </div>
-              <p className="checkout__disclaimer">
-                For research use only. Not for human consumption. Payment is
-                collected in person on delivery.
-              </p>
+              {tagadaEnabled ? (
+                <>
+                  <Suspense fallback={<p className="checkout__coupon-msg">Loading secure payment…</p>}>
+                    <CardPayment
+                      amountLabel={money(totalDue)}
+                      canPay={acceptedTerms && Boolean(intendedUse)}
+                      submitting={busy}
+                      onPay={payOnline}
+                      onError={setError}
+                    />
+                  </Suspense>
+                  <div className="checkout__step-actions checkout__step-actions--single">
+                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                      Back
+                    </button>
+                  </div>
+                  <p className="checkout__disclaimer">
+                    For research use only. Not for human consumption.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="checkout__step-actions">
+                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                      Back
+                    </button>
+                    <button
+                      className="btn btn--primary"
+                      onClick={placeOrder}
+                      disabled={busy || !acceptedTerms || !intendedUse}
+                    >
+                      {busy ? 'Placing order…' : 'Place order'}
+                    </button>
+                  </div>
+                  <p className="checkout__disclaimer">
+                    For research use only. Not for human consumption. Payment is
+                    collected in person on delivery.
+                  </p>
+                </>
+              )}
 
               {/* Reassurance block */}
               <div className="checkout__trust">
@@ -445,7 +527,7 @@ export default function Checkout() {
             </div>
           )}
           <div className="checkout__total">
-            <span>Total due on delivery</span>
+            <span>{tagadaEnabled ? 'Total' : 'Total due on delivery'}</span>
             <strong>{money(totalDue)}</strong>
           </div>
           <Link to="/products" className="checkout__back">
