@@ -258,7 +258,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-top: var(--space-4);
+  margin-top: var(--space-6);
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--color-text-muted);
@@ -555,6 +555,88 @@
 .checkout__pay-notice span {
   color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+/* --- Accepted payment methods (pay on delivery) --- */
+.checkout__pay-methods {
+  margin-top: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface, #fff);
+  padding: var(--space-4);
+}
+.checkout__pay-methods-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.checkout__pay-methods-head > span:first-child {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.checkout__pay-methods-secure {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #2f7d5b;
+}
+.checkout__pay-methods-secure svg {
+  color: #2f7d5b;
+}
+.checkout__pay-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+.checkout__pay-method {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: var(--space-3) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+.checkout__pay-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.checkout__pay-badge--zelle {
+  background: #6d1ed4;
+}
+.checkout__pay-badge--venmo {
+  background: #008cff;
+}
+.checkout__pay-badge--cash {
+  background: #2f7d5b;
+}
+.checkout__pay-method-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.checkout__pay-methods-note {
+  margin: var(--space-3) 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  text-align: center;
 }
 
 /* --- Online card payment (TagadaPay) --- */

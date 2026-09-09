@@ -384,13 +384,60 @@ export default function Checkout() {
                     <>
                       <strong>Pay on delivery</strong>
                       <span>
-                        No payment is taken online — you’ll pay in person when your
-                        order arrives. We’ll reach out within 24 hours to arrange it.
+                        No payment is taken online — you’ll pay when your order
+                        arrives. We’ll reach out within 24 hours to arrange it.
                       </span>
                     </>
                   )}
                 </div>
               </div>
+
+              {!tagadaEnabled && (
+                <div className="checkout__pay-methods">
+                  <div className="checkout__pay-methods-head">
+                    <span>Accepted at delivery</span>
+                    <span className="checkout__pay-methods-secure">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
+                        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                        strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+                        <path d="M9 12l2 2 4-4" />
+                      </svg>
+                      No payment online
+                    </span>
+                  </div>
+                  <div className="checkout__pay-methods-grid">
+                    <div className="checkout__pay-method">
+                      <span className="checkout__pay-badge checkout__pay-badge--zelle" aria-hidden="true">
+                        Z
+                      </span>
+                      <span className="checkout__pay-method-name">Zelle</span>
+                    </div>
+                    <div className="checkout__pay-method">
+                      <span className="checkout__pay-badge checkout__pay-badge--venmo" aria-hidden="true">
+                        V
+                      </span>
+                      <span className="checkout__pay-method-name">Venmo</span>
+                    </div>
+                    <div className="checkout__pay-method">
+                      <span className="checkout__pay-badge checkout__pay-badge--cash" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                          stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                          strokeLinejoin="round">
+                          <rect x="2" y="6" width="20" height="12" rx="2" />
+                          <circle cx="12" cy="12" r="2.5" />
+                          <path d="M6 12h.01M18 12h.01" />
+                        </svg>
+                      </span>
+                      <span className="checkout__pay-method-name">Cash</span>
+                    </div>
+                  </div>
+                  <p className="checkout__pay-methods-note">
+                    Pay by Zelle, Venmo, or cash when your order is handed to you —
+                    nothing is charged online.
+                  </p>
+                </div>
+              )}
 
               <label className="checkout__use">
                 Intended use
