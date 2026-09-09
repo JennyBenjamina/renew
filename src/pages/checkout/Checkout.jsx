@@ -408,10 +408,10 @@ export default function Checkout() {
                   </div>
                   <div className="checkout__pay-methods-grid">
                     <div className="checkout__pay-method">
-                      <span className="checkout__pay-word checkout__pay-word--zelle">Zelle</span>
+                      <img className="checkout__pay-img" src="/pay/zelle.png" alt="Zelle" />
                     </div>
                     <div className="checkout__pay-method">
-                      <span className="checkout__pay-word checkout__pay-word--venmo">venmo</span>
+                      <img className="checkout__pay-img" src="/pay/venmo.png" alt="Venmo" />
                     </div>
                     <div className="checkout__pay-method">
                       <span className="checkout__pay-word checkout__pay-word--cash">
