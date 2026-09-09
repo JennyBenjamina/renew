@@ -235,7 +235,7 @@
   font-size: 0.95rem;
 }
 
-.checkout__use {
+.checkout__form .checkout__use {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -243,7 +243,8 @@
   font-weight: 600;
   margin-top: var(--space-4);
 }
-.checkout__use select {
+.checkout__form .checkout__use select {
+  width: 100%;
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 400;
@@ -254,25 +255,27 @@
   color: var(--color-text);
 }
 
-.checkout__terms {
+.checkout__form .checkout__terms {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
   gap: 10px;
   margin-top: var(--space-6);
   font-size: 0.9rem;
+  font-weight: 400;
   line-height: 1.5;
   color: var(--color-text-muted);
   cursor: pointer;
 }
-.checkout__terms input {
+.checkout__form .checkout__terms input {
   margin-top: 2px;
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   flex: none;
   accent-color: var(--color-primary);
   cursor: pointer;
 }
-.checkout__terms a {
+.checkout__form .checkout__terms a {
   color: var(--color-accent);
   font-weight: 600;
 }
@@ -596,40 +599,37 @@
 }
 .checkout__pay-method {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  min-height: 54px;
   padding: var(--space-3) var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
+  background: #fff;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
-.checkout__pay-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  color: #fff;
+.checkout__pay-method:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.checkout__pay-word {
   font-weight: 800;
   font-size: 1.15rem;
+  letter-spacing: -0.01em;
   line-height: 1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
-.checkout__pay-badge--zelle {
-  background: #6d1ed4;
+.checkout__pay-word--zelle {
+  color: #6d1ed4;
 }
-.checkout__pay-badge--venmo {
-  background: #008cff;
+.checkout__pay-word--venmo {
+  color: #008cff;
+  letter-spacing: -0.03em;
 }
-.checkout__pay-badge--cash {
-  background: #2f7d5b;
-}
-.checkout__pay-method-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text);
+.checkout__pay-word--cash {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #1e8a5a;
 }
 .checkout__pay-methods-note {
   margin: var(--space-3) 0 0;

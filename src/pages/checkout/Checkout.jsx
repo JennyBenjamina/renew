@@ -408,28 +408,21 @@ export default function Checkout() {
                   </div>
                   <div className="checkout__pay-methods-grid">
                     <div className="checkout__pay-method">
-                      <span className="checkout__pay-badge checkout__pay-badge--zelle" aria-hidden="true">
-                        Z
-                      </span>
-                      <span className="checkout__pay-method-name">Zelle</span>
+                      <span className="checkout__pay-word checkout__pay-word--zelle">Zelle</span>
                     </div>
                     <div className="checkout__pay-method">
-                      <span className="checkout__pay-badge checkout__pay-badge--venmo" aria-hidden="true">
-                        V
-                      </span>
-                      <span className="checkout__pay-method-name">Venmo</span>
+                      <span className="checkout__pay-word checkout__pay-word--venmo">venmo</span>
                     </div>
                     <div className="checkout__pay-method">
-                      <span className="checkout__pay-badge checkout__pay-badge--cash" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-                          stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
-                          strokeLinejoin="round">
+                      <span className="checkout__pay-word checkout__pay-word--cash">
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
+                          stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                          strokeLinejoin="round" aria-hidden="true">
                           <rect x="2" y="6" width="20" height="12" rx="2" />
                           <circle cx="12" cy="12" r="2.5" />
-                          <path d="M6 12h.01M18 12h.01" />
                         </svg>
+                        Cash
                       </span>
-                      <span className="checkout__pay-method-name">Cash</span>
                     </div>
                   </div>
                   <p className="checkout__pay-methods-note">
