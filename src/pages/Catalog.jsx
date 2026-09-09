@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import ProductGrid from '../components/ProductGrid.jsx'
 import { fetchProducts } from '../lib/products.js'
-import { categories } from '../data/products.js'
 import './Catalog.css'
 
 export default function Catalog() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [category, setCategory] = useState('All')
   const [sort, setSort] = useState('featured')
   const [inStockOnly, setInStockOnly] = useState(false)
 
@@ -31,7 +29,6 @@ export default function Catalog() {
 
   const visible = useMemo(() => {
     let list = [...products]
-    if (category !== 'All') list = list.filter((p) => p.category === category)
     if (inStockOnly) list = list.filter((p) => p.in_stock)
 
     const within = {
@@ -47,7 +44,7 @@ export default function Catalog() {
       return within ? within(a, b) : 0
     })
     return list
-  }, [products, category, sort, inStockOnly])
+  }, [products, sort, inStockOnly])
 
   return (
     <div className="catalog">
@@ -64,18 +61,6 @@ export default function Catalog() {
 
       <div className="container catalog__body">
         <div className="catalog__toolbar">
-          <div className="catalog__cats">
-            {categories.map((c) => (
-              <button
-                key={c}
-                className={`chip ${category === c ? 'is-active' : ''}`}
-                onClick={() => setCategory(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-
           <div className="catalog__controls">
             <label className="catalog__stock">
               <input

@@ -17,32 +17,70 @@ const CardPayment = lazy(() => import('../../components/CardPayment.jsx'))
 const STEPS = ['Details', 'Review', 'Confirm']
 const HOLD_SECONDS = 15 * 60
 
+// Persist the in-progress checkout for the browser session, so a shopper who
+// navigates away (or reloads) keeps their delivery details, note, step, coupon,
+// and intended-use selection. Cleared once the order is placed.
+const CHECKOUT_KEY = 'renew.checkout'
+function loadSavedCheckout() {
+  try {
+    return JSON.parse(sessionStorage.getItem(CHECKOUT_KEY)) || null
+  } catch {
+    return null
+  }
+}
+function clearSavedCheckout() {
+  try {
+    sessionStorage.removeItem(CHECKOUT_KEY)
+  } catch {
+    /* sessionStorage unavailable */
+  }
+}
+
 export default function Checkout() {
-  const { items, subtotal, count, clear } = useCart()
+  const { items, subtotal, count, clear, setQty, remove } = useCart()
   const { user, profile } = useAuth()
 
-  const [step, setStep] = useState(0)
-  const [form, setForm] = useState({
-    name: profile?.full_name || '',
-    email: profile?.email || user?.email || '',
-    phone: profile?.phone || '',
-    street: profile?.address_street || '',
-    city: profile?.address_city || '',
-    state: profile?.address_state || '',
-    zip: profile?.address_postal || '',
-    note: '',
-  })
-  const [coupon, setCoupon] = useState('')
+  const saved = loadSavedCheckout()
+
+  const [step, setStep] = useState(saved?.step ?? 0)
+  const [form, setForm] = useState(
+    saved?.form || {
+      name: profile?.full_name || '',
+      email: profile?.email || user?.email || '',
+      phone: profile?.phone || '',
+      street: profile?.address_street || '',
+      city: profile?.address_city || '',
+      state: profile?.address_state || '',
+      zip: profile?.address_postal || '',
+      note: '',
+    }
+  )
+  const [coupon, setCoupon] = useState(saved?.coupon || '')
   const [couponMsg, setCouponMsg] = useState('')
   const [discount, setDiscount] = useState(null) // { code, percent, name } | null
   const [acceptedTerms, setAcceptedTerms] = useState(false)
-  const [intendedUse, setIntendedUse] = useState('')
+  const [intendedUse, setIntendedUse] = useState(saved?.intendedUse || '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
   const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS)
 
   const set = (f) => (e) => setForm((s) => ({ ...s, [f]: e.target.value }))
+
+  // Save the in-progress checkout to the browser session on every change, so
+  // leaving and returning to the page restores everything. Skipped once the
+  // order is confirmed (done), since we clear it then.
+  useEffect(() => {
+    if (done) return
+    try {
+      sessionStorage.setItem(
+        CHECKOUT_KEY,
+        JSON.stringify({ form, coupon, intendedUse, step })
+      )
+    } catch {
+      /* sessionStorage unavailable — form simply won't persist */
+    }
+  }, [form, coupon, intendedUse, step, done])
 
   // Fire InitiateCheckout once when a real cart loads.
   useEffect(() => {
@@ -95,10 +133,11 @@ export default function Checkout() {
 
   const applyCoupon = () => applyCode(coupon)
 
-  // Auto-apply a referral code carried in from a rep's link (?ref=CODE).
+  // On mount, re-apply a saved coupon (from a restored session) or a referral
+  // code carried in from a rep's link (?ref=CODE).
   useEffect(() => {
-    const ref = getStoredReferral()
-    if (ref) applyCode(ref)
+    const code = saved?.coupon || getStoredReferral()
+    if (code) applyCode(code)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -136,6 +175,7 @@ export default function Checkout() {
       })
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
+      clearSavedCheckout()
       setDone({ order_number: result.order_number, paid: false })
     } catch (err) {
       setError(err.message || 'Something went wrong.')
@@ -167,6 +207,7 @@ export default function Checkout() {
       }
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
+      clearSavedCheckout()
       setDone({ order_number: result.order_number, paid: true })
     } catch (err) {
       if (err.notConfigured) {
@@ -547,10 +588,37 @@ export default function Checkout() {
           <div className="checkout__items">
             {items.map((i) => (
               <div className="checkout__item" key={i.id}>
-                <span className="checkout__item-name">
-                  {i.qty}× {i.name}
-                </span>
-                <span>{money(i.price * i.qty)}</span>
+                <div className="checkout__item-top">
+                  <span className="checkout__item-name">{i.name}</span>
+                  <span className="checkout__item-price">{money(i.price * i.qty)}</span>
+                </div>
+                <div className="checkout__item-controls">
+                  <div className="checkout__qty">
+                    <button
+                      type="button"
+                      onClick={() => setQty(i.id, i.qty - 1)}
+                      aria-label={`Decrease ${i.name}`}
+                    >
+                      −
+                    </button>
+                    <span aria-live="polite">{i.qty}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQty(i.id, i.qty + 1)}
+                      aria-label={`Increase ${i.name}`}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    className="checkout__item-remove"
+                    onClick={() => remove(i.id)}
+                    aria-label={`Remove ${i.name}`}
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ))}
           </div>
