@@ -113,10 +113,11 @@ export async function submitDeliveryInquiry({ email, zip }) {
   return data
 }
 
-/** Start a Stripe hosted Checkout. Server re-prices the cart and returns a
- *  Stripe-hosted URL to redirect to; the order is recorded by the webhook once
- *  payment succeeds. Returns { url, order_number }. */
-export async function createCheckoutSession({
+/** Create a Stripe PaymentIntent for the embedded card flow. Server re-prices
+ *  the cart and returns a client_secret to confirm on-page; the order is
+ *  recorded by the webhook once payment succeeds. Returns
+ *  { clientSecret, order_number, amount }. */
+export async function createPaymentIntent({
   customer,
   items,
   userId,
@@ -124,7 +125,7 @@ export async function createCheckoutSession({
   fulfillment,
   zip,
 }) {
-  const res = await fetch('/.netlify/functions/create-checkout-session', {
+  const res = await fetch('/.netlify/functions/create-payment-intent', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -142,8 +143,8 @@ export async function createCheckoutSession({
   } catch {
     /* ignore */
   }
-  if (!res.ok || !data?.url) {
-    const err = new Error(data?.error || 'Could not start checkout.')
+  if (!res.ok || !data?.clientSecret) {
+    const err = new Error(data?.error || 'Could not start payment.')
     err.notConfigured = res.status === 503
     throw err
   }

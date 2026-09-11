@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import {
   submitOrder,
   processPayment,
-  createCheckoutSession,
+  createPaymentIntent,
   PICKUP_PHONE,
   PICKUP_PHONE_HREF,
 } from '../../lib/orders.js'
@@ -21,9 +21,10 @@ import './checkout.css'
 // Precedence for the card path: Stripe first, then TagadaPay, else pay-on-delivery.
 const onlineCardEnabled = stripeEnabled || tagadaEnabled
 
-// Lazy so the card SDK ships in its own chunk — only fetched when online
+// Lazy so the payment SDKs ship in their own chunks — only fetched when online
 // payments are enabled and the shopper reaches the confirm step.
 const CardPayment = lazy(() => import('../../components/CardPayment.jsx'))
+const StripeCard = lazy(() => import('../../components/StripeCard.jsx'))
 
 const STEPS = ['Details', 'Review', 'Confirm']
 const HOLD_SECONDS = 15 * 60
@@ -215,30 +216,25 @@ export default function Checkout() {
     }
   }
 
-  // Online card payment (Stripe hosted Checkout). Redirects to Stripe; the order
-  // is recorded by the webhook once payment succeeds, and Stripe returns the
-  // customer to /checkout?stripe=success (handled on mount below).
-  const startStripeCheckout = async () => {
-    setError('')
-    setBusy(true)
-    try {
-      const { url } = await createCheckoutSession({
-        customer: customerPayload(),
-        items,
-        userId: user?.id,
-        referralCode: discount?.code || null,
-        fulfillment: 'delivery',
-        zip: form.zip,
-      })
-      window.location.href = url // leave the SPA for Stripe's hosted page
-    } catch (err) {
-      if (err.notConfigured) {
-        await placeOrder()
-        return
-      }
-      setError(err.message || 'Could not start checkout.')
-      setBusy(false)
-    }
+  // Online card payment (Stripe embedded Payment Element). <StripeCard> calls
+  // this to create the server-side PaymentIntent, then confirms the card on-page.
+  const createStripeIntent = () =>
+    createPaymentIntent({
+      customer: customerPayload(),
+      items,
+      userId: user?.id,
+      referralCode: discount?.code || null,
+      fulfillment: 'delivery',
+      zip: form.zip,
+    })
+
+  // Called by <StripeCard> once the card is confirmed. The paid order is recorded
+  // by the webhook; here we just finish the client-side flow.
+  const onStripePaid = (orderNumber) => {
+    trackPurchase({ items, total: totalDue, orderNumber })
+    clear()
+    clearSavedCheckout()
+    setDone({ order_number: orderNumber, paid: true })
   }
 
   // Online card payment (TagadaPay). Called by <CardPayment> with a card token.
@@ -559,26 +555,24 @@ export default function Checkout() {
 
               {stripeEnabled ? (
                 <>
-                  <div className="checkout__step-actions">
+                  <Suspense fallback={<p className="checkout__coupon-msg">Loading secure payment…</p>}>
+                    <StripeCard
+                      amount={Math.round(totalDue * 100)}
+                      amountLabel={money(totalDue)}
+                      canPay={acceptedTerms && Boolean(intendedUse)}
+                      submitting={busy}
+                      createIntent={createStripeIntent}
+                      onPaid={onStripePaid}
+                      onError={setError}
+                    />
+                  </Suspense>
+                  <div className="checkout__step-actions checkout__step-actions--single">
                     <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
                       Back
                     </button>
-                    <button
-                      className="btn btn--primary"
-                      onClick={startStripeCheckout}
-                      disabled={busy || !acceptedTerms || !intendedUse}
-                    >
-                      {busy ? 'Redirecting…' : `Pay ${money(totalDue)}`}
-                    </button>
                   </div>
-                  <p className="checkout__secure">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
-                      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
-                      strokeLinejoin="round" aria-hidden="true">
-                      <rect x="4" y="11" width="16" height="9" rx="2" />
-                      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-                    </svg>
-                    You’ll complete payment on Stripe’s secure checkout, then return here.
+                  <p className="checkout__disclaimer">
+                    For research use only. Not for human consumption.
                   </p>
                 </>
               ) : tagadaEnabled ? (

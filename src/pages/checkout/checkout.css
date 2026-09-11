@@ -724,3 +724,45 @@
 .checkout__step-actions--single {
   justify-content: flex-start;
 }
+
+/* --- Stripe trust strip (embedded card) --- */
+.checkout__stripe-trust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+.checkout__cardbrands {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cardbrand {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #4b5563;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  padding: 3px 7px;
+  line-height: 1;
+}
+.cardbrand--visa { color: #1a1f71; }
+.cardbrand--mc { color: #b7410e; }
+.cardbrand--amex { color: #2e77bb; }
+.cardbrand--disc { color: #e6772e; }
+.checkout__poweredby {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+.checkout__stripe-word {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #635bff; /* Stripe brand blurple */
+}
