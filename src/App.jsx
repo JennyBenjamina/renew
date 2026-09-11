@@ -44,14 +44,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           {/* Storefront gated behind login (required by our payment processor):
               catalog, prices, and checkout require an account. */}
-          <Route
-            path="/products"
-            element={
-              <ProtectedRoute>
-                <Catalog />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/products" element={<Catalog />} />
           {/* Old slug → redirect so existing /catalog links still work */}
           <Route path="/catalog" element={<Navigate to="/products" replace />} />
           <Route path="/delivery" element={<LocalPickup />} />

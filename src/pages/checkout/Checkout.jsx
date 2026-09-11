@@ -15,7 +15,6 @@ import { validateReferral } from '../../lib/affiliates.js'
 import { getStoredReferral } from '../../lib/referral.js'
 import { tagadaEnabled } from '../../lib/tagada.js'
 import { stripeEnabled } from '../../lib/stripe.js'
-import { TERMS_VERSION } from '../../lib/compliance.js'
 import './checkout.css'
 
 // Precedence for the card path: Stripe first, then TagadaPay, else pay-on-delivery.
@@ -70,8 +69,6 @@ export default function Checkout() {
   const [coupon, setCoupon] = useState(saved?.coupon || '')
   const [couponMsg, setCouponMsg] = useState('')
   const [discount, setDiscount] = useState(null) // { code, percent, name } | null
-  const [acceptedTerms, setAcceptedTerms] = useState(false)
-  const [intendedUse, setIntendedUse] = useState(saved?.intendedUse || '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
@@ -85,14 +82,11 @@ export default function Checkout() {
   useEffect(() => {
     if (done) return
     try {
-      sessionStorage.setItem(
-        CHECKOUT_KEY,
-        JSON.stringify({ form, coupon, intendedUse, step })
-      )
+      sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ form, coupon, step }))
     } catch {
       /* sessionStorage unavailable — form simply won't persist */
     }
-  }, [form, coupon, intendedUse, step, done])
+  }, [form, coupon, step, done])
 
   // Handle the return from Stripe hosted Checkout (?stripe=success|cancel).
   useEffect(() => {
@@ -180,8 +174,6 @@ export default function Checkout() {
   const buildNote = () =>
     [
       `Deliver to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
-      `Declared use: ${intendedUse}`,
-      `Research Use Only terms accepted: v${TERMS_VERSION} at ${new Date().toISOString()}`,
       form.note.trim() && `Note: ${form.note.trim()}`,
     ]
       .filter(Boolean)
@@ -538,40 +530,13 @@ export default function Checkout() {
                 </div>
               )}
 
-              <label className="checkout__use">
-                Intended use
-                <select
-                  value={intendedUse}
-                  onChange={(e) => setIntendedUse(e.target.value)}
-                >
-                  <option value="">Select intended use…</option>
-                  <option value="Laboratory / in-vitro research use only">
-                    Laboratory / in-vitro research use only
-                  </option>
-                </select>
-              </label>
-
-              <label className="checkout__terms">
-                <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)}
-                />
-                <span>
-                  I declare I am a qualified researcher and these products are for
-                  research use only. I accept the{' '}
-                  <Link to="/terms-of-service">Terms of Service</Link> and{' '}
-                  <Link to="/refund-policy">Refund Policy</Link>.
-                </span>
-              </label>
-
               {stripeEnabled ? (
                 <>
                   <Suspense fallback={<p className="checkout__coupon-msg">Loading secure payment…</p>}>
                     <StripeCard
                       amount={Math.round(totalDue * 100)}
                       amountLabel={money(totalDue)}
-                      canPay={acceptedTerms && Boolean(intendedUse)}
+                      canPay
                       submitting={busy}
                       createIntent={createStripeIntent}
                       onPaid={onStripePaid}
@@ -592,7 +557,7 @@ export default function Checkout() {
                   <Suspense fallback={<p className="checkout__coupon-msg">Loading secure payment…</p>}>
                     <CardPayment
                       amountLabel={money(totalDue)}
-                      canPay={acceptedTerms && Boolean(intendedUse)}
+                      canPay
                       submitting={busy}
                       onPay={payOnline}
                       onError={setError}
@@ -616,7 +581,7 @@ export default function Checkout() {
                     <button
                       className="btn btn--primary"
                       onClick={placeOrder}
-                      disabled={busy || !acceptedTerms || !intendedUse}
+                      disabled={busy}
                     >
                       {busy ? 'Placing order…' : 'Place order'}
                     </button>

@@ -1,32 +1,37 @@
 import { useState } from 'react'
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import {
+  Elements,
+  ExpressCheckoutElement,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js'
 import { getStripe } from '../lib/stripe.js'
 
-/* Embedded Stripe card entry (Payment Element) — card fields render on our own
- * checkout page, no redirect. Uses the deferred intent flow: the Payment Element
- * is created with the amount up front; the PaymentIntent is created server-side
- * only when the customer clicks Pay, then confirmed on-page. The order is
- * recorded by the stripe-webhook (payment_intent.succeeded). */
+/* Embedded Stripe checkout — express wallets (Apple Pay / Google Pay / Link /
+ * Amazon Pay, whatever the account + browser support) on top, then card fields
+ * below. Deferred intent flow: the PaymentIntent is created server-side only at
+ * confirm time. The order is recorded by stripe-webhook (payment_intent.succeeded). */
 
 function CardForm({ amountLabel, canPay, submitting, createIntent, onPaid, onError }) {
   const stripe = useStripe()
   const elements = useElements()
   const [working, setWorking] = useState(false)
+  const [hasExpress, setHasExpress] = useState(false)
   const busy = working || submitting
   const disabled = busy || !canPay || !stripe || !elements
 
-  const pay = async () => {
-    if (!stripe || !elements || !canPay) return // never charge without the declaration
+  // Shared confirm path for both the card button and the express wallets.
+  const runConfirm = async () => {
+    if (!stripe || !elements || !canPay) return
     onError('')
     setWorking(true)
     try {
-      // Validate the card fields first (required for the deferred flow).
       const { error: submitError } = await elements.submit()
       if (submitError) {
-        onError(submitError.message || 'Please check your card details.')
+        onError(submitError.message || 'Please check your payment details.')
         return
       }
-      // Create the PaymentIntent server-side (authoritative amount), then confirm.
       const { clientSecret, order_number } = await createIntent()
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -42,10 +47,8 @@ function CardForm({ amountLabel, canPay, submitting, createIntent, onPaid, onErr
       }
       if (paymentIntent && ['succeeded', 'processing'].includes(paymentIntent.status)) {
         onPaid(order_number)
-        return
       }
-      // Otherwise Stripe handled a redirect (e.g. 3-D Secure) — the return_url
-      // brings the customer back to /checkout?stripe=success.
+      // Otherwise Stripe handled a redirect (e.g. 3-D Secure) → return_url.
     } catch (err) {
       onError(
         err?.notConfigured
@@ -59,25 +62,27 @@ function CardForm({ amountLabel, canPay, submitting, createIntent, onPaid, onErr
 
   return (
     <div className="checkout__card">
-      <p className="checkout__paylabel">
-        Pay by <strong>card</strong> — or choose Apple&nbsp;Pay, Google&nbsp;Pay, or Link
-        if you prefer. Card is selected by default; Link is optional.
-      </p>
+      {/* Express wallets — renders only what the browser/account supports. */}
+      <div className="checkout__express">
+        {hasExpress && <span className="checkout__express-label">Express checkout</span>}
+        <ExpressCheckoutElement
+          onReady={(e) => setHasExpress(Boolean(e?.availablePaymentMethods))}
+          onConfirm={runConfirm}
+        />
+        {hasExpress && <div className="checkout__or">Or pay with card</div>}
+      </div>
+
       <PaymentElement
         options={{
           layout: 'tabs',
-          // Card first so it's the default tab — Link and wallets come after.
           paymentMethodOrder: ['card', 'apple_pay', 'google_pay', 'link'],
         }}
       />
-      <button className="btn btn--primary btn--block" onClick={pay} disabled={disabled}>
+
+      <button className="btn btn--primary btn--block" onClick={runConfirm} disabled={disabled}>
         {busy ? 'Processing…' : `Pay ${amountLabel}`}
       </button>
-      {!canPay && (
-        <p className="checkout__payhint">
-          Select an intended use and check the declaration above to enable payment.
-        </p>
-      )}
+
       <p className="checkout__secure">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
           strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
