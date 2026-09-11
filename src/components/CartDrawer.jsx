@@ -81,7 +81,7 @@ export default function CartDrawer() {
                 Checkout
               </button>
               <p className="drawer__note">
-                Delivery — no online payment. For research use only.
+                For research use only.
               </p>
             </footer>
           </>

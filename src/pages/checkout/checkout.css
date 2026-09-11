@@ -530,6 +530,26 @@
   background: var(--color-primary);
   color: var(--color-primary-contrast);
 }
+.checkout__steplink {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.checkout__steplink:disabled {
+  cursor: default;
+}
+.checkout__steplink:not(:disabled):hover {
+  color: var(--color-primary);
+}
 
 .checkout__row--3 {
   grid-template-columns: 1fr 0.6fr 0.8fr;
@@ -742,21 +762,13 @@
   gap: 6px;
   flex-wrap: wrap;
 }
-.cardbrand {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #4b5563;
-  background: #fff;
+.cardbrand-img {
+  height: 26px;
+  width: auto;
+  display: block;
   border: 1px solid var(--color-border);
   border-radius: 5px;
-  padding: 3px 7px;
-  line-height: 1;
 }
-.cardbrand--visa { color: #1a1f71; }
-.cardbrand--mc { color: #b7410e; }
-.cardbrand--amex { color: #2e77bb; }
-.cardbrand--disc { color: #e6772e; }
 .checkout__poweredby {
   font-size: 0.78rem;
   color: var(--color-text-muted);

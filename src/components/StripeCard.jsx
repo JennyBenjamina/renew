@@ -74,10 +74,10 @@ function CardForm({ amountLabel, canPay, submitting, createIntent, onPaid, onErr
 
       <div className="checkout__stripe-trust">
         <span className="checkout__cardbrands" aria-label="Visa, Mastercard, American Express, Discover accepted">
-          <span className="cardbrand cardbrand--visa">VISA</span>
-          <span className="cardbrand cardbrand--mc">Mastercard</span>
-          <span className="cardbrand cardbrand--amex">AMEX</span>
-          <span className="cardbrand cardbrand--disc">Discover</span>
+          <img src="/pay/visa.svg" alt="Visa" className="cardbrand-img" />
+          <img src="/pay/mastercard.svg" alt="Mastercard" className="cardbrand-img" />
+          <img src="/pay/amex.svg" alt="American Express" className="cardbrand-img" />
+          <img src="/pay/discover.svg" alt="Discover" className="cardbrand-img" />
         </span>
         <span className="checkout__poweredby">
           Powered by <span className="checkout__stripe-word">stripe</span>

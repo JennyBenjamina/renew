@@ -336,17 +336,29 @@ export default function Checkout() {
       <div className="container checkout__grid">
         <div className="checkout__main">
           <ol className="checkout__steps-nav">
-            {STEPS.map((s, i) => (
-              <li
-                key={s}
-                className={`checkout__stepitem ${i === step ? 'is-active' : ''} ${
-                  i < step ? 'is-done' : ''
-                }`}
-              >
-                <span className="checkout__stepnum">{i + 1}</span>
-                {s}
-              </li>
-            ))}
+            {STEPS.map((s, i) => {
+              // Going back is always allowed; going forward needs valid details.
+              const reachable = i <= step || detailsValid
+              return (
+                <li
+                  key={s}
+                  className={`checkout__stepitem ${i === step ? 'is-active' : ''} ${
+                    i < step ? 'is-done' : ''
+                  }`}
+                >
+                  <button
+                    type="button"
+                    className="checkout__steplink"
+                    onClick={() => reachable && !busy && setStep(i)}
+                    disabled={!reachable || busy}
+                    aria-current={i === step ? 'step' : undefined}
+                  >
+                    <span className="checkout__stepnum">{i + 1}</span>
+                    {s}
+                  </button>
+                </li>
+              )
+            })}
           </ol>
 
           {error && <div className="auth__alert auth__alert--error">{error}</div>}
@@ -443,7 +455,7 @@ export default function Checkout() {
               {couponMsg && <p className="checkout__coupon-msg">{couponMsg}</p>}
 
               <div className="checkout__step-actions">
-                <button className="btn btn--ghost" onClick={() => setStep(0)}>
+                <button className="btn btn--outline" onClick={() => setStep(0)}>
                   Back
                 </button>
                 <button className="btn btn--primary" onClick={() => setStep(2)}>
@@ -567,7 +579,7 @@ export default function Checkout() {
                     />
                   </Suspense>
                   <div className="checkout__step-actions checkout__step-actions--single">
-                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                    <button className="btn btn--outline" onClick={() => setStep(1)} disabled={busy}>
                       Back
                     </button>
                   </div>
@@ -587,7 +599,7 @@ export default function Checkout() {
                     />
                   </Suspense>
                   <div className="checkout__step-actions checkout__step-actions--single">
-                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                    <button className="btn btn--outline" onClick={() => setStep(1)} disabled={busy}>
                       Back
                     </button>
                   </div>
@@ -598,7 +610,7 @@ export default function Checkout() {
               ) : (
                 <>
                   <div className="checkout__step-actions">
-                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                    <button className="btn btn--outline" onClick={() => setStep(1)} disabled={busy}>
                       Back
                     </button>
                     <button
