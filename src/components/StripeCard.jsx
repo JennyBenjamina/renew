@@ -16,7 +16,7 @@ function CardForm({ amountLabel, canPay, submitting, createIntent, onPaid, onErr
   const disabled = busy || !canPay || !stripe || !elements
 
   const pay = async () => {
-    if (!stripe || !elements) return
+    if (!stripe || !elements || !canPay) return // never charge without the declaration
     onError('')
     setWorking(true)
     try {
@@ -59,10 +59,25 @@ function CardForm({ amountLabel, canPay, submitting, createIntent, onPaid, onErr
 
   return (
     <div className="checkout__card">
-      <PaymentElement options={{ layout: 'tabs' }} />
+      <p className="checkout__paylabel">
+        Pay by <strong>card</strong> — or choose Apple&nbsp;Pay, Google&nbsp;Pay, or Link
+        if you prefer. Card is selected by default; Link is optional.
+      </p>
+      <PaymentElement
+        options={{
+          layout: 'tabs',
+          // Card first so it's the default tab — Link and wallets come after.
+          paymentMethodOrder: ['card', 'apple_pay', 'google_pay', 'link'],
+        }}
+      />
       <button className="btn btn--primary btn--block" onClick={pay} disabled={disabled}>
         {busy ? 'Processing…' : `Pay ${amountLabel}`}
       </button>
+      {!canPay && (
+        <p className="checkout__payhint">
+          Select an intended use and check the declaration above to enable payment.
+        </p>
+      )}
       <p className="checkout__secure">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
           strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
