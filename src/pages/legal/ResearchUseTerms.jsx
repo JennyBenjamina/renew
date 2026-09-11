@@ -107,6 +107,7 @@ export default function ResearchUseTerms() {
         </button>
       }
     >
+      <p className="legal__updated">Last updated: September 10, 2026</p>
       <ol className="legal__cards">
         {sections.map((s, i) => (
           <li className="legal__card" key={s.title}>

@@ -43,8 +43,9 @@ export default function LocalSection() {
           <h2>Real people, right here in Las Vegas.</h2>
           <p>
             Renew isn’t a faceless dropshipper. We’re a small, independent
-            team in Las Vegas, Nevada — synthesizing, checking, and delivering
-            research compounds ourselves, and standing behind every batch.
+            team in Las Vegas, Nevada — sourcing from our certified partner lab,
+            quality-checking, and delivering research compounds ourselves, and
+            standing behind every batch.
           </p>
         </div>
 

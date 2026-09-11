@@ -97,8 +97,8 @@ export default function Home() {
         image="/renew-collection.jpg"
         alt="The full range of Renew Labs research compound vials in a laboratory setting"
         eyebrow="The full range"
-        title="One trusted lineup, synthesized for precision"
-        body="From GLP-3 RETA and MOTS-c to BPC-157, TB-500, and NAD+, every Renew compound is produced under strict, verified quality controls and third-party tested for purity — labeled for research use only."
+        title="One trusted lineup, tested for precision"
+        body="From GLP3-RT and MOTS-c to BPC-157, TB-500, and NAD+, every Renew compound is produced under strict, verified quality controls and third-party tested for purity by our certified partner lab, Freedom Diagnostics — labeled for research use only."
         ctaLabel="Shop the collection"
         ctaTo="/products"
         subtle
@@ -108,10 +108,10 @@ export default function Home() {
 
       <ImageBand
         image="/renew-partner.jpg"
-        alt="A content creator reviewing Renew Labs analytics on a laptop dashboard"
+        alt="A researcher reviewing Renew Labs certificates of analysis on a laptop dashboard"
         eyebrow="Partner with Renew"
-        title="Built for researchers and creators"
-        body="Independent researchers, educators, and content creators partner with Renew to share a brand they can stand behind — professional packaging, clean labeling, and compounds backed by verified certificates of analysis."
+        title="Built for qualified researchers"
+        body="Independent researchers and laboratories partner with Renew for a supplier they can stand behind — professional packaging, clean labeling, and compounds backed by verified third-party certificates of analysis."
         ctaLabel="Create an account"
         ctaTo="/signup"
         reverse

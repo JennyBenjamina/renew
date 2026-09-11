@@ -5,7 +5,7 @@ import './About.css'
 const stats = [
   { value: '99.9%', label: 'Verified purity' },
   { value: '100%', label: 'Batches tested' },
-  { value: 'ISO', label: 'Certified labs' },
+  { value: 'Certified', label: 'Partner lab' },
   { value: '24/7', label: 'COA access' },
 ]
 
@@ -55,9 +55,9 @@ export default function About() {
             <article>
               <h3>Controlled synthesis</h3>
               <p>
-                Production happens in ISO-certified facilities using advanced
-                protocols designed to eliminate contaminants and preserve
-                structural integrity from batch to batch.
+                Production happens at our certified partner laboratory, Freedom
+                Diagnostics, using advanced protocols designed to eliminate
+                contaminants and preserve structural integrity from batch to batch.
               </p>
             </article>
             <article>

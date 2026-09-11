@@ -2,13 +2,24 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { submitOrder, processPayment, PICKUP_PHONE, PICKUP_PHONE_HREF } from '../../lib/orders.js'
+import {
+  submitOrder,
+  processPayment,
+  createCheckoutSession,
+  PICKUP_PHONE,
+  PICKUP_PHONE_HREF,
+} from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
 import { validateReferral } from '../../lib/affiliates.js'
 import { getStoredReferral } from '../../lib/referral.js'
 import { tagadaEnabled } from '../../lib/tagada.js'
+import { stripeEnabled } from '../../lib/stripe.js'
+import { TERMS_VERSION } from '../../lib/compliance.js'
 import './checkout.css'
+
+// Precedence for the card path: Stripe first, then TagadaPay, else pay-on-delivery.
+const onlineCardEnabled = stripeEnabled || tagadaEnabled
 
 // Lazy so the card SDK ships in its own chunk — only fetched when online
 // payments are enabled and the shopper reaches the confirm step.
@@ -82,6 +93,25 @@ export default function Checkout() {
     }
   }, [form, coupon, intendedUse, step, done])
 
+  // Handle the return from Stripe hosted Checkout (?stripe=success|cancel).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const s = params.get('stripe')
+    if (!s) return
+    if (s === 'success') {
+      const orderNumber = params.get('order') || ''
+      trackPurchase({ items, total: totalDue, orderNumber })
+      clear()
+      clearSavedCheckout()
+      setDone({ order_number: orderNumber, paid: true })
+    } else if (s === 'cancel') {
+      setError('Payment was canceled — your cart is still here. You can try again.')
+    }
+    // Clean the query string so a refresh doesn't re-trigger.
+    window.history.replaceState({}, '', '/checkout')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Fire InitiateCheckout once when a real cart loads.
   useEffect(() => {
     if (count > 0) trackInitiateCheckout(items, subtotal)
@@ -150,6 +180,7 @@ export default function Checkout() {
     [
       `Deliver to: ${form.street}, ${form.city}, ${form.state} ${form.zip}`,
       `Declared use: ${intendedUse}`,
+      `Research Use Only terms accepted: v${TERMS_VERSION} at ${new Date().toISOString()}`,
       form.note.trim() && `Note: ${form.note.trim()}`,
     ]
       .filter(Boolean)
@@ -180,6 +211,32 @@ export default function Checkout() {
     } catch (err) {
       setError(err.message || 'Something went wrong.')
     } finally {
+      setBusy(false)
+    }
+  }
+
+  // Online card payment (Stripe hosted Checkout). Redirects to Stripe; the order
+  // is recorded by the webhook once payment succeeds, and Stripe returns the
+  // customer to /checkout?stripe=success (handled on mount below).
+  const startStripeCheckout = async () => {
+    setError('')
+    setBusy(true)
+    try {
+      const { url } = await createCheckoutSession({
+        customer: customerPayload(),
+        items,
+        userId: user?.id,
+        referralCode: discount?.code || null,
+        fulfillment: 'delivery',
+        zip: form.zip,
+      })
+      window.location.href = url // leave the SPA for Stripe's hosted page
+    } catch (err) {
+      if (err.notConfigured) {
+        await placeOrder()
+        return
+      }
+      setError(err.message || 'Could not start checkout.')
       setBusy(false)
     }
   }
@@ -413,7 +470,7 @@ export default function Checkout() {
                   <path d="M2 10h20" />
                 </svg>
                 <div>
-                  {tagadaEnabled ? (
+                  {onlineCardEnabled ? (
                     <>
                       <strong>Pay securely by card</strong>
                       <span>
@@ -433,7 +490,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {!tagadaEnabled && (
+              {!onlineCardEnabled && (
                 <div className="checkout__pay-methods">
                   <div className="checkout__pay-methods-head">
                     <span>Accepted at delivery</span>
@@ -500,7 +557,31 @@ export default function Checkout() {
                 </span>
               </label>
 
-              {tagadaEnabled ? (
+              {stripeEnabled ? (
+                <>
+                  <div className="checkout__step-actions">
+                    <button className="btn btn--ghost" onClick={() => setStep(1)} disabled={busy}>
+                      Back
+                    </button>
+                    <button
+                      className="btn btn--primary"
+                      onClick={startStripeCheckout}
+                      disabled={busy || !acceptedTerms || !intendedUse}
+                    >
+                      {busy ? 'Redirecting…' : `Pay ${money(totalDue)}`}
+                    </button>
+                  </div>
+                  <p className="checkout__secure">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+                      strokeLinejoin="round" aria-hidden="true">
+                      <rect x="4" y="11" width="16" height="9" rx="2" />
+                      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                    </svg>
+                    You’ll complete payment on Stripe’s secure checkout, then return here.
+                  </p>
+                </>
+              ) : tagadaEnabled ? (
                 <>
                   <Suspense fallback={<p className="checkout__coupon-msg">Loading secure payment…</p>}>
                     <CardPayment
@@ -635,7 +716,7 @@ export default function Checkout() {
             </div>
           )}
           <div className="checkout__total">
-            <span>{tagadaEnabled ? 'Total' : 'Total due on delivery'}</span>
+            <span>{onlineCardEnabled ? 'Total' : 'Total due on delivery'}</span>
             <strong>{money(totalDue)}</strong>
           </div>
           <Link to="/products" className="checkout__back">

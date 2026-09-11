@@ -13,39 +13,40 @@
  */
 
 export const BLOG_CATEGORIES = [
-  'Compound Guides',
-  'COA & Testing',
-  'Buying Guides',
-  'Comparisons',
-  'Shipping & Storage',
-]
+  "Compound Guides",
+  "COA & Testing",
+  "Buying Guides",
+  "Comparisons",
+  "Shipping & Storage",
+];
 
 export const blogPosts = [
   /* ------------------------------------------------------------------ *
    * 1. COMPOUND GUIDE
    * ------------------------------------------------------------------ */
   {
-    slug: 'what-is-bpc-157',
-    title: 'What Is BPC-157? Peptide Class, Sequence, and Handling',
-    category: 'Compound Guides',
-    author: 'Renew Research Team',
+    slug: "what-is-bpc-157",
+    title: "What Is BPC-157? Peptide Class, Sequence, and Handling",
+    category: "Compound Guides",
+    author: "Renew Research Team",
     published: true,
-    published_at: '2026-08-05',
-    updated_at: '2026-08-05',
+    published_at: "2026-08-05",
+    updated_at: "2026-08-05",
     read_minutes: 5,
     image_url: null,
     excerpt:
-      'A research-use-only structural reference for BPC-157: its pentadecapeptide class, 15-residue sequence, molecular weight, salt form, and how a lyophilized vial is handled and reconstituted.',
-    meta_title: 'What Is BPC-157? Sequence, Class & Handling | Renew Research Notes',
+      "A research-use-only structural reference for BPC-157: its pentadecapeptide class, 15-residue sequence, molecular weight, salt form, and how a lyophilized vial is handled and reconstituted.",
+    meta_title:
+      "What Is BPC-157? Sequence, Class & Handling | Renew Research Notes",
     meta_description:
-      'BPC-157 explained for research use: pentadecapeptide class, 15-amino-acid sequence, molecular weight, acetate salt form, reconstitution and cold-chain storage. No outcome claims.',
+      "BPC-157 explained for research use: pentadecapeptide class, 15-amino-acid sequence, molecular weight, acetate salt form, reconstitution and cold-chain storage. No outcome claims.",
     keywords: [
-      'what is BPC-157',
-      'BPC-157 sequence',
-      'BPC-157 molecular weight',
-      'BPC-157 peptide class',
-      'BPC-157 reconstitution',
-      'research peptide BPC-157',
+      "what is BPC-157",
+      "BPC-157 sequence",
+      "BPC-157 molecular weight",
+      "BPC-157 peptide class",
+      "BPC-157 reconstitution",
+      "research peptide BPC-157",
     ],
     body: `BPC-157 is one of the most frequently referenced compounds in the research-peptide catalog. This guide covers only what can be stated structurally and procedurally — its classification, sequence, and laboratory handling. It makes no claims about biological effects, and nothing here is guidance for human or animal use.
 
@@ -66,23 +67,23 @@ Because the acetate salt form is what most vials contain, the mass on the label 
 
 ## How a lyophilized vial is handled
 
-BPC-157 is supplied as a **lyophilized** (freeze-dried) powder — a dry cake at the bottom of the vial. Lyophilized peptide is comparatively stable for short-term room-temperature shipping, but for anything beyond immediate use it is kept frozen. Reconstitution is done with bacteriostatic water, and the concentration is simple arithmetic: milligrams of peptide divided by milliliters of diluent gives milligrams per milliliter.
+BPC-157 is supplied as a **lyophilized** (freeze-dried) powder — a dry cake at the bottom of the vial. Lyophilized peptide is comparatively stable for short-term room-temperature shipping, but for anything beyond immediate use it is kept frozen. Reconstitution is done with Research water, and the concentration is simple arithmetic: milligrams of peptide divided by milliliters of diluent gives milligrams per milliliter.
 
 ## Why the COA matters more than the label
 
 A printed label states an intended identity and amount; a **certificate of analysis** states what a third-party lab actually measured for that batch — purity by HPLC and identity by LC-MS. When evaluating any BPC-157 vial, the batch ID on the label should resolve to a COA showing both tests. A guide to reading that document is linked below.`,
     faq: [
       {
-        q: 'What class of peptide is BPC-157?',
-        a: 'BPC-157 is a synthetic pentadecapeptide — a single chain of 15 amino acids produced by solid-phase peptide synthesis. It is supplied for laboratory research use only.',
+        q: "What class of peptide is BPC-157?",
+        a: "BPC-157 is a synthetic pentadecapeptide — a single chain of 15 amino acids produced by solid-phase peptide synthesis. It is supplied for laboratory research use only.",
       },
       {
-        q: 'What is the molecular weight of BPC-157?',
-        a: 'The average molecular weight of BPC-157 in its free-acid form is approximately 1419.5 g/mol, with the molecular formula C62H98N16O22. Vials are commonly supplied as the lyophilized acetate salt.',
+        q: "What is the molecular weight of BPC-157?",
+        a: "The average molecular weight of BPC-157 in its free-acid form is approximately 1419.5 g/mol, with the molecular formula C62H98N16O22. Vials are commonly supplied as the lyophilized acetate salt.",
       },
       {
-        q: 'How is a lyophilized BPC-157 vial reconstituted?',
-        a: 'A lyophilized vial is reconstituted with bacteriostatic water. Concentration in mg/mL equals the milligrams of peptide divided by the milliliters of diluent added. The vial label and matching certificate of analysis define the amount you are working from.',
+        q: "How is a lyophilized BPC-157 vial reconstituted?",
+        a: "A lyophilized vial is reconstituted with Research water. Concentration in mg/mL equals the milligrams of peptide divided by the milliliters of diluent added. The vial label and matching certificate of analysis define the amount you are working from.",
       },
     ],
   },
@@ -91,27 +92,27 @@ A printed label states an intended identity and amount; a **certificate of analy
    * 2. COA & TESTING (how-to)
    * ------------------------------------------------------------------ */
   {
-    slug: 'how-to-read-a-peptide-coa',
-    title: 'How to Read a Peptide Certificate of Analysis (COA)',
-    category: 'COA & Testing',
-    author: 'Renew Research Team',
+    slug: "how-to-read-a-peptide-coa",
+    title: "How to Read a Peptide Certificate of Analysis (COA)",
+    category: "COA & Testing",
+    author: "Renew Research Team",
     published: true,
-    published_at: '2026-08-06',
-    updated_at: '2026-08-06',
+    published_at: "2026-08-06",
+    updated_at: "2026-08-06",
     read_minutes: 6,
     image_url: null,
     excerpt:
-      'A field-by-field walkthrough of a research-peptide certificate of analysis: batch and lot IDs, the HPLC purity chromatogram, LC-MS identity confirmation, and the dates that prove the document matches the vial in your hand.',
-    meta_title: 'How to Read a Peptide Certificate of Analysis (COA) | Renew',
+      "A field-by-field walkthrough of a research-peptide certificate of analysis: batch and lot IDs, the HPLC purity chromatogram, LC-MS identity confirmation, and the dates that prove the document matches the vial in your hand.",
+    meta_title: "How to Read a Peptide Certificate of Analysis (COA) | Renew",
     meta_description:
-      'Learn to read a peptide COA field by field: batch/lot ID, HPLC purity, LC-MS identity, test dates, and the testing lab. A verification-first guide for research buyers.',
+      "Learn to read a peptide COA field by field: batch/lot ID, HPLC purity, LC-MS identity, test dates, and the testing lab. A verification-first guide for research buyers.",
     keywords: [
-      'how to read a peptide COA',
-      'certificate of analysis peptide',
-      'peptide purity HPLC',
-      'LC-MS peptide identity',
-      'batch ID COA lookup',
-      'verify peptide COA',
+      "how to read a peptide COA",
+      "certificate of analysis peptide",
+      "peptide purity HPLC",
+      "LC-MS peptide identity",
+      "batch ID COA lookup",
+      "verify peptide COA",
     ],
     body: `A certificate of analysis (COA) is the single most useful document a research-peptide buyer can read. It is a third-party laboratory report tied to one production batch. Knowing how to read it — and how to confirm it matches the vial in front of you — is the difference between a verifiable purchase and a marketing claim.
 
@@ -146,16 +147,16 @@ Two final checks separate a real report from a decorative one:
 The strongest verification is matching the report against the testing lab's own records rather than trusting a PDF supplied in isolation. A doctored COA typically shows mismatched fonts, inconsistent batch numbers between the label and the report, or a purity figure with no supporting chromatogram. When those elements are consistent and independently checkable, the COA does its job.`,
     faq: [
       {
-        q: 'What does a peptide certificate of analysis show?',
-        a: 'A peptide COA is a third-party lab report for one production batch. It shows the batch/lot number, HPLC purity percentage with a chromatogram, LC-MS identity confirmation, the test date, and the name of the testing laboratory.',
+        q: "What does a peptide certificate of analysis show?",
+        a: "A peptide COA is a third-party lab report for one production batch. It shows the batch/lot number, HPLC purity percentage with a chromatogram, LC-MS identity confirmation, the test date, and the name of the testing laboratory.",
       },
       {
-        q: 'What is the difference between HPLC and LC-MS on a COA?',
-        a: 'HPLC measures purity — the percentage of the sample that is the target compound. LC-MS confirms identity by measuring molecular mass to verify the material is the labeled molecule. A complete COA includes both.',
+        q: "What is the difference between HPLC and LC-MS on a COA?",
+        a: "HPLC measures purity — the percentage of the sample that is the target compound. LC-MS confirms identity by measuring molecular mass to verify the material is the labeled molecule. A complete COA includes both.",
       },
       {
-        q: 'How do I verify a peptide COA is authentic?',
-        a: 'Match the batch number on the COA to the number on the vial, confirm the report names an independent testing lab, check that the purity figure is backed by a chromatogram, and where possible cross-reference the report against the testing lab’s own records rather than a standalone PDF.',
+        q: "How do I verify a peptide COA is authentic?",
+        a: "Match the batch number on the COA to the number on the vial, confirm the report names an independent testing lab, check that the purity figure is backed by a chromatogram, and where possible cross-reference the report against the testing lab’s own records rather than a standalone PDF.",
       },
     ],
   },
@@ -164,27 +165,28 @@ The strongest verification is matching the report against the testing lab's own 
    * 3. BUYING GUIDE
    * ------------------------------------------------------------------ */
   {
-    slug: 'how-to-choose-a-research-peptide-supplier',
-    title: 'How to Choose a Research Peptide Supplier: A Verification Checklist',
-    category: 'Buying Guides',
-    author: 'Renew Research Team',
+    slug: "how-to-choose-a-research-peptide-supplier",
+    title:
+      "How to Choose a Research Peptide Supplier: A Verification Checklist",
+    category: "Buying Guides",
+    author: "Renew Research Team",
     published: true,
-    published_at: '2026-08-07',
-    updated_at: '2026-08-07',
+    published_at: "2026-08-07",
+    updated_at: "2026-08-07",
     read_minutes: 6,
     image_url: null,
     excerpt:
-      'A concrete checklist for evaluating research-peptide suppliers: named third-party labs, batch-ID-to-COA matching, HPLC plus LC-MS coverage, US-domestic handling, and transparent business practices.',
-    meta_title: 'How to Choose a Research Peptide Supplier (Checklist) | Renew',
+      "A concrete checklist for evaluating research-peptide suppliers: named third-party labs, batch-ID-to-COA matching, HPLC plus LC-MS coverage, US-domestic handling, and transparent business practices.",
+    meta_title: "How to Choose a Research Peptide Supplier (Checklist) | Renew",
     meta_description:
-      'A verification-first checklist for choosing a research peptide supplier: per-batch COAs, named third-party labs, HPLC + LC-MS testing, domestic handling, and transparency red flags.',
+      "A verification-first checklist for choosing a research peptide supplier: per-batch COAs, named third-party labs, HPLC + LC-MS testing, domestic handling, and transparency red flags.",
     keywords: [
-      'how to choose a research peptide supplier',
-      'research peptide supplier checklist',
-      'best research peptide vendor',
-      'verify peptide vendor',
-      'peptide supplier red flags',
-      'buy research peptides',
+      "how to choose a research peptide supplier",
+      "research peptide supplier checklist",
+      "best research peptide vendor",
+      "verify peptide vendor",
+      "peptide supplier red flags",
+      "buy research peptides",
     ],
     body: `Choosing a research-peptide supplier comes down to one question: how much of what they claim can you actually verify? Marketing copy is easy to write; documentation is not. This checklist ranks suppliers on evidence you can independently confirm, not on adjectives.
 
@@ -220,16 +222,16 @@ Certain patterns should end the evaluation: no COA available before purchase, pu
 A supplier that clears this checklist isn't promising results; it's proving contents. That's the most a research buyer should expect, and the least a serious vendor should provide.`,
     faq: [
       {
-        q: 'What should I look for in a research peptide supplier?',
-        a: 'Prioritize suppliers that publish a certificate of analysis for every batch, name the independent lab that tested it, report both HPLC purity and LC-MS identity, handle synthesis and fulfillment domestically, and provide transparent business contact and research-use-only terms.',
+        q: "What should I look for in a research peptide supplier?",
+        a: "Prioritize suppliers that publish a certificate of analysis for every batch, name the independent lab that tested it, report both HPLC purity and LC-MS identity, handle synthesis and fulfillment domestically, and provide transparent business contact and research-use-only terms.",
       },
       {
-        q: 'What are red flags when buying research peptides?',
-        a: 'Walk away from vendors with no COA available before purchase, purity claims lacking a supporting chromatogram, batch numbers that don’t match between the vial and the report, outcome or usage language, or an inability to name who tests their material.',
+        q: "What are red flags when buying research peptides?",
+        a: "Walk away from vendors with no COA available before purchase, purity claims lacking a supporting chromatogram, batch numbers that don’t match between the vial and the report, outcome or usage language, or an inability to name who tests their material.",
       },
       {
-        q: 'Why does third-party testing matter more than in-house testing?',
-        a: 'Independent third-party testing removes the conflict of interest in a vendor grading its own product. A named external lab can be cross-referenced, which is what makes a reported purity figure credible and verifiable.',
+        q: "Why does third-party testing matter more than in-house testing?",
+        a: "Independent third-party testing removes the conflict of interest in a vendor grading its own product. A named external lab can be cross-referenced, which is what makes a reported purity figure credible and verifiable.",
       },
     ],
   },
@@ -238,27 +240,28 @@ A supplier that clears this checklist isn't promising results; it's proving cont
    * 4. COMPARISON
    * ------------------------------------------------------------------ */
   {
-    slug: 'research-peptide-vendor-comparison-checklist',
-    title: 'Comparing Research Peptide Vendors: A Verification-First Framework',
-    category: 'Comparisons',
-    author: 'Renew Research Team',
+    slug: "research-peptide-vendor-comparison-checklist",
+    title: "Comparing Research Peptide Vendors: A Verification-First Framework",
+    category: "Comparisons",
+    author: "Renew Research Team",
     published: true,
-    published_at: '2026-08-08',
-    updated_at: '2026-08-08',
+    published_at: "2026-08-08",
+    updated_at: "2026-08-08",
     read_minutes: 5,
     image_url: null,
     excerpt:
-      'A neutral, verification-first framework for comparing research-peptide vendors side by side — the exact documentation and handling questions to line up before choosing, so a comparison rests on facts you can confirm.',
-    meta_title: 'Comparing Research Peptide Vendors: A Verification Framework | Renew',
+      "A neutral, verification-first framework for comparing research-peptide vendors side by side — the exact documentation and handling questions to line up before choosing, so a comparison rests on facts you can confirm.",
+    meta_title:
+      "Comparing Research Peptide Vendors: A Verification Framework | Renew",
     meta_description:
-      'A neutral framework for comparing research peptide vendors: COA availability, testing methods, batch traceability, domestic handling, and support — the verifiable criteria that matter.',
+      "A neutral framework for comparing research peptide vendors: COA availability, testing methods, batch traceability, domestic handling, and support — the verifiable criteria that matter.",
     keywords: [
-      'research peptide vendor comparison',
-      'compare peptide suppliers',
-      'peptide vendor alternatives',
-      'best research peptide company',
-      'peptide supplier comparison',
-      'COA verified peptides',
+      "research peptide vendor comparison",
+      "compare peptide suppliers",
+      "peptide vendor alternatives",
+      "best research peptide company",
+      "peptide supplier comparison",
+      "COA verified peptides",
     ],
     body: `Vendor comparisons are only as good as the criteria behind them. Ranking suppliers on "quality" or "reputation" invites opinion; ranking them on documentation you can independently confirm produces a comparison that holds up. This framework lists the columns to fill in for any two vendors before deciding between them.
 
@@ -287,17 +290,17 @@ Applied to Renew: every compound is positioned for laboratory research use only,
 Before committing to any supplier, fill in the seven rows above for your shortlist. If a vendor leaves the COA, testing-method, or lab-independence rows blank, that gap *is* the comparison result. The goal isn't to crown a winner in the abstract — it's to confirm, for the specific vial you'd receive, that its contents are documented and its identity is verifiable.`,
     faq: [
       {
-        q: 'How should I compare research peptide vendors?',
-        a: 'Compare vendors on verifiable criteria applied identically to each: per-batch COA availability, batch-ID traceability, HPLC and LC-MS testing, lab independence, domestic handling, structure-based catalog framing, and support/terms. Let the evidence rank them rather than reputation.',
+        q: "How should I compare research peptide vendors?",
+        a: "Compare vendors on verifiable criteria applied identically to each: per-batch COA availability, batch-ID traceability, HPLC and LC-MS testing, lab independence, domestic handling, structure-based catalog framing, and support/terms. Let the evidence rank them rather than reputation.",
       },
       {
         q: 'Why avoid "X vs Y" vendor rankings that name a winner?',
-        a: 'Named head-to-head rankings often rest on claims that can’t be independently checked and go stale as marketing changes. A verification-first framework — gathering the same confirmable facts for each vendor — produces a comparison that stays accurate.',
+        a: "Named head-to-head rankings often rest on claims that can’t be independently checked and go stale as marketing changes. A verification-first framework — gathering the same confirmable facts for each vendor — produces a comparison that stays accurate.",
       },
       {
-        q: 'What single factor matters most when comparing suppliers?',
-        a: 'Whether a supplier publishes a certificate of analysis for the specific batch you would receive, showing both HPLC purity and LC-MS identity from a named independent lab. If that row is blank, the rest of the comparison is moot.',
+        q: "What single factor matters most when comparing suppliers?",
+        a: "Whether a supplier publishes a certificate of analysis for the specific batch you would receive, showing both HPLC purity and LC-MS identity from a named independent lab. If that row is blank, the rest of the comparison is moot.",
       },
     ],
   },
-]
+];

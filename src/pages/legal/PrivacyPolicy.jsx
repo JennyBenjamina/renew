@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
     >
       <div className="legal__prose">
         <p className="legal__updated">
-          Last updated: {new Date().getFullYear()}
+          Last updated: September 10, 2026
         </p>
 
         <h2>Information we collect</h2>
@@ -30,18 +30,21 @@ export default function PrivacyPolicy() {
 
         <h2>Compliance records</h2>
         <p>
-          When you accept our compliance notice, we record that an acceptance
-          occurred (the terms version and a timestamp) to document agreement to
-          our Research Use Only terms. This record does not include personal
-          identifiers beyond what is necessary for that purpose.
+          When you accept our compliance notice or place an order, we record that
+          acceptance on our servers — the terms version you agreed to, a
+          timestamp, and, where you are signed in, your account — to document
+          agreement to our Research Use Only terms. This authoritative record is
+          kept server-side (not only in your browser) so it cannot be cleared
+          from your device.
         </p>
 
         <h2>Cookies and local storage</h2>
         <p>
-          We use your browser’s local storage to remember preferences — such as
-          your color theme, cart contents, and whether you have accepted the
-          compliance notice — so the site works smoothly on return visits. This
-          information stays on your device.
+          We also use your browser’s local storage for convenience — remembering
+          your color theme, cart contents, and a short-lived flag so the
+          compliance notice isn’t shown again on every visit. This device-side
+          data is only a convenience; the authoritative acceptance record is the
+          server-side one described above.
         </p>
 
         <h2>Sharing</h2>

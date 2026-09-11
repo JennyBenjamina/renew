@@ -5,7 +5,7 @@
  * `lot`, `purity`, etc. are filled — the COA page will then show a "View COA"
  * button linking to the PDF (hosted in public/coas/).
  *
- * The Retatrutide 15mg COA (Lot RNRT15001, tested by Freedom Diagnostics) is
+ * The GLP3-RT 15mg COA (Lot RNRT15001, tested by Freedom Diagnostics) is
  * already uploaded and wired below — flip its status to 'available' to publish.
  */
 

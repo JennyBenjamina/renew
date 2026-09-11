@@ -8,10 +8,10 @@ export const products = [
   {
     id: 'glp3-reta-15',
     slug: 'glp3-reta-15mg',
-    name: 'GLP-3 RETA 15mg Vial',
+    name: 'GLP3-RT 15mg Vial',
     category: 'GLP',
     description:
-      'A 15mg research-grade GLP-3 RETA vial for advanced laboratory studies. Each batch is third-party tested for purity and consistency. For research purposes only. Not for human consumption.',
+      'A 15mg research-grade GLP3-RT vial for advanced laboratory studies. Each batch is third-party tested for purity and consistency by our certified partner lab, Freedom Diagnostics. For research purposes only. Not for human consumption.',
     price: 109.99,
     compare_at_price: null,
     purity: '99.9%',
@@ -24,10 +24,10 @@ export const products = [
   {
     id: 'glp3-reta-30',
     slug: 'glp3-reta-30mg',
-    name: 'GLP-3 RETA 30mg Vial',
+    name: 'GLP3-RT 30mg Vial',
     category: 'GLP',
     description:
-      'A 30mg research-grade GLP-3 RETA vial designed for scientific and investigational use. Rigorously tested for exact concentration and purity. For research purposes only. Not for human consumption.',
+      'A 30mg research-grade GLP3-RT vial designed for scientific and investigational use. Rigorously tested for exact concentration and purity by our certified partner lab, Freedom Diagnostics. For research purposes only. Not for human consumption.',
     price: 154.99,
     compare_at_price: 179.99,
     purity: '99.9%',
@@ -59,7 +59,7 @@ export const products = [
     name: 'TB-500 5mg Vial',
     category: 'Peptides',
     description:
-      'A 5mg TB-500 research-grade peptide manufactured in an ISO-certified facility. Every batch ships with a verified certificate of analysis. For research purposes only. Not for human consumption.',
+      'A 5mg TB-500 research-grade peptide tested by our certified partner lab, Freedom Diagnostics. Every batch ships with a verified certificate of analysis. For research purposes only. Not for human consumption.',
     price: 59.99,
     compare_at_price: null,
     purity: '99.7%',

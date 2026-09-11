@@ -18,8 +18,8 @@ export default function AffiliateSection() {
           <span className="eyebrow">Partner with Renew</span>
           <h2>Earn by recommending the industry standard.</h2>
           <p>
-            Are you an influencer, independent researcher, or content creator in
-            the scientific community? Join our affiliate program and earn by
+            Are you an independent researcher, educator, or professional in the
+            scientific community? Join our affiliate program and earn by
             recommending research compounds you can trust.
           </p>
           <button className="btn btn--primary" onClick={() => setOpen(true)}>

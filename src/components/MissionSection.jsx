@@ -10,7 +10,7 @@ const features = [
   },
   {
     title: 'Stringent Quality Control',
-    body: 'Manufactured in ISO-certified laboratories using advanced synthesis protocols to eliminate contaminants and maintain absolute structural integrity.',
+    body: 'Produced by our certified partner laboratory, Freedom Diagnostics, using advanced synthesis protocols to eliminate contaminants and maintain absolute structural integrity.',
     icon: (
       <>
         <path d="M4 7h16M4 12h16M4 17h10" />

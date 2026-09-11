@@ -10,7 +10,7 @@ export default function RefundPolicy() {
     >
       <div className="legal__prose">
         <p className="legal__updated">
-          Last updated: {new Date().getFullYear()}
+          Last updated: September 10, 2026
         </p>
 
         <h2>Eligibility for a return or refund</h2>
@@ -31,8 +31,8 @@ export default function RefundPolicy() {
           For the safety and integrity of research materials, we cannot accept
           returns of items that have been <strong>opened or used</strong>,
           including any vial whose seal has been broken or that has been
-          reconstituted. This also applies to bacteriostatic water and any
-          consumable supplies once opened. Such items are non-returnable and
+          reconstituted. This also applies to research water and any consumable
+          supplies once opened. Such items are non-returnable and
           non-refundable.
         </p>
 
@@ -40,7 +40,7 @@ export default function RefundPolicy() {
         <p>
           If your order arrives damaged, defective, or incorrect, contact us
           within
-          <strong> 48 hours</strong> of delivery with your order number and
+          <strong> 7 days</strong> of delivery with your order number and
           photos of the item and packaging. We will arrange a replacement or a
           full refund at no cost to you.
         </p>

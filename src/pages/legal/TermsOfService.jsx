@@ -10,7 +10,7 @@ export default function TermsOfService() {
     >
       <div className="legal__prose">
         <p className="legal__updated">
-          Last updated: {new Date().getFullYear()}
+          Last updated: September 10, 2026
         </p>
 
         <h2>1. Acceptance of these terms</h2>
@@ -50,11 +50,13 @@ export default function TermsOfService() {
           are not liable for typographical errors.
         </p>
 
-        <h2>5. Payment and delivery</h2>
+        <h2>5. Payment, shipping, and delivery</h2>
         <p>
-          Orders are fulfilled by local delivery, with payment collected at the
-          time of delivery unless otherwise stated at checkout. Title and risk
-          of loss pass to you upon delivery. You are responsible for providing
+          Payment is taken at checkout at the time you place your order. Orders
+          are fulfilled by shipping or local delivery within the United States;
+          we do not ship internationally or to any country, region, or person
+          subject to U.S. sanctions or export restrictions. Title and risk of
+          loss pass to you upon delivery. You are responsible for providing
           accurate contact and delivery information.
         </p>
 
@@ -108,9 +110,9 @@ export default function TermsOfService() {
 
         <h2>12. Governing law &amp; contact</h2>
         <p>
-          These terms are governed by the laws of the state in which Renew
-          operates, without regard to conflict-of-law principles. Questions
-          about these terms can be sent to{" "}
+          These terms are governed by the laws of the State of Nevada, without
+          regard to conflict-of-law principles. Questions about these terms can
+          be sent to{" "}
           <a href="mailto:support@renewlabslv.com">support@renewlabslv.com</a>.
         </p>
       </div>
