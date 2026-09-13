@@ -93,7 +93,7 @@ export default function AdminCampaigns() {
       <div className="admin__head">
         <div>
           <h1>Text campaign</h1>
-          <p>Send an SMS to all past customers via Telnyx (opt-outs excluded).</p>
+          <p>Send an SMS to customers who opted in at checkout via Telnyx (opt-outs excluded).</p>
         </div>
         <div className="admin__head-actions">
           <button className="btn btn--outline" onClick={loadRecipients} disabled={loadingRecips}>

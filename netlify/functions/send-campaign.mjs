@@ -103,9 +103,9 @@ export async function handler(event) {
     return json(500, { error: 'Could not verify access.' })
   }
 
-  // 2. Build the recipient list: distinct customer phones minus opt-outs.
+  // 2. Build the recipient list: consented customers, distinct, minus opt-outs.
   const [orders, optOuts] = await Promise.all([
-    sbGet(env, 'orders?select=customer_phone'),
+    sbGet(env, 'orders?select=customer_phone&sms_consent=eq.true'),
     sbGet(env, 'sms_opt_outs?select=phone_number&active=eq.true'),
   ])
   const suppressed = new Set((optOuts || []).map((o) => toE164(o.phone_number)).filter(Boolean))

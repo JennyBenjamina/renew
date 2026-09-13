@@ -805,3 +805,25 @@
   color: var(--color-text-muted);
   margin-bottom: var(--space-2);
 }
+
+/* --- SMS marketing consent checkbox --- */
+.checkout__form .checkout__sms-consent {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  margin: var(--space-4) 0 var(--space-5);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.checkout__form .checkout__sms-consent input {
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}

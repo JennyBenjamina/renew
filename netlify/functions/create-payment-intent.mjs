@@ -78,6 +78,7 @@ export async function handler(event) {
     customer_email: customer.email,
     customer_phone: customer.phone,
     note: (customer.note || '').slice(0, 480),
+    sms_consent: payload.sms_consent === true ? 'true' : 'false',
     subtotal: String(subtotal),
     discount: String(discount),
     shipping: String(shipping),

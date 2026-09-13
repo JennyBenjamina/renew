@@ -23,7 +23,11 @@ export function toE164(raw) {
 export async function campaignRecipients() {
   if (!isSupabaseConfigured) return []
   const [{ data: orders, error: oErr }, { data: opts }] = await Promise.all([
-    supabase.from('orders').select('customer_name, customer_phone, created_at').order('created_at', { ascending: false }),
+    supabase
+      .from('orders')
+      .select('customer_name, customer_phone, created_at')
+      .eq('sms_consent', true)
+      .order('created_at', { ascending: false }),
     supabase.from('sms_opt_outs').select('phone_number').eq('active', true),
   ])
   if (oErr) throw oErr

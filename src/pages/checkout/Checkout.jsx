@@ -69,6 +69,7 @@ export default function Checkout() {
   const [coupon, setCoupon] = useState(saved?.coupon || '')
   const [couponMsg, setCouponMsg] = useState('')
   const [discount, setDiscount] = useState(null) // { code, percent, name } | null
+  const [smsConsent, setSmsConsent] = useState(saved?.smsConsent || false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(null)
@@ -82,11 +83,14 @@ export default function Checkout() {
   useEffect(() => {
     if (done) return
     try {
-      sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ form, coupon, step }))
+      sessionStorage.setItem(
+        CHECKOUT_KEY,
+        JSON.stringify({ form, coupon, step, smsConsent })
+      )
     } catch {
       /* sessionStorage unavailable — form simply won't persist */
     }
-  }, [form, coupon, step, done])
+  }, [form, coupon, step, smsConsent, done])
 
   // Handle the return from Stripe hosted Checkout (?stripe=success|cancel).
   useEffect(() => {
@@ -196,6 +200,7 @@ export default function Checkout() {
         items,
         userId: user?.id,
         referralCode: discount?.code || null,
+        smsConsent,
       })
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
       clear()
@@ -218,6 +223,7 @@ export default function Checkout() {
       referralCode: discount?.code || null,
       fulfillment: 'delivery',
       zip: form.zip,
+      smsConsent,
     })
 
   // Called by <StripeCard> once the card is confirmed. The paid order is recorded
@@ -244,6 +250,7 @@ export default function Checkout() {
         sessionData,
         fulfillment: 'delivery',
         zip: form.zip,
+        smsConsent,
       })
       // Rare: card needs extra 3-D Secure authentication — send them to finish it.
       if (result?.requireAction === 'redirect' && result.redirectUrl) {
@@ -398,6 +405,20 @@ export default function Checkout() {
                     placeholder="89101" autoComplete="postal-code" />
                 </label>
               </div>
+
+              <label className="checkout__sms-consent">
+                <input
+                  type="checkbox"
+                  checked={smsConsent}
+                  onChange={(e) => setSmsConsent(e.target.checked)}
+                />
+                <span>
+                  Text me offers and updates from Renew Labs LV. Msg &amp; data
+                  rates may apply, frequency varies, reply STOP to opt out.
+                  Consent is not a condition of purchase.
+                </span>
+              </label>
+
               <button
                 className="btn btn--primary btn--block"
                 disabled={!detailsValid}

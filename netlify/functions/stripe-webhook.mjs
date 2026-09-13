@@ -84,6 +84,7 @@ async function recordPaidOrder(env, { metadata, sessionId, paymentIntentId, fall
     referral_code: m.referral_code || null,
     affiliate_id: m.affiliate_id || null,
     total,
+    sms_consent: m.sms_consent === 'true',
     stripe_session_id: sessionId || null,
     stripe_payment_intent: paymentIntentId || null,
     items: items.map((i) => ({ id: i.id, name: i.name, qty: Number(i.qty), price: Number(i.price) })),

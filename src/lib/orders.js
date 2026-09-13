@@ -124,6 +124,7 @@ export async function createPaymentIntent({
   referralCode,
   fulfillment,
   zip,
+  smsConsent,
 }) {
   const res = await fetch('/.netlify/functions/create-payment-intent', {
     method: 'POST',
@@ -135,6 +136,7 @@ export async function createPaymentIntent({
       referral_code: referralCode || null,
       fulfillment: fulfillment || 'delivery',
       zip: zip || null,
+      sms_consent: Boolean(smsConsent),
     }),
   })
   let data = null
@@ -166,6 +168,7 @@ export async function processPayment({
   sessionData,
   fulfillment,
   zip,
+  smsConsent,
 }) {
   const res = await fetch('/.netlify/functions/process-payment', {
     method: 'POST',
@@ -180,6 +183,7 @@ export async function processPayment({
       sessionData: sessionData || null,
       fulfillment: fulfillment || 'delivery',
       zip: zip || null,
+      sms_consent: Boolean(smsConsent),
     }),
   })
 
@@ -197,7 +201,7 @@ export async function processPayment({
   return data
 }
 
-export async function submitOrder({ customer, items, userId, referralCode }) {
+export async function submitOrder({ customer, items, userId, referralCode, smsConsent }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -211,6 +215,7 @@ export async function submitOrder({ customer, items, userId, referralCode }) {
       })),
       user_id: userId || null,
       referral_code: referralCode || null,
+      sms_consent: Boolean(smsConsent),
     }),
   })
 

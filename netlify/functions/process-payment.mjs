@@ -223,6 +223,7 @@ export async function handler(event) {
       referral_code: referralCode,
       affiliate_id: affiliateId,
       total,
+      sms_consent: payload.sms_consent === true,
       tagada_payment_id: paymentId || null,
       tagada_payment_instrument_id: paymentInstrumentId,
       items: priced.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),

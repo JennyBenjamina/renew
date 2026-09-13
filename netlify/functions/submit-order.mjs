@@ -114,6 +114,7 @@ export async function handler(event) {
     referral_code: referralCode,
     affiliate_id: affiliateId,
     total,
+    sms_consent: payload.sms_consent === true,
     items: items.map((i) => ({
       id: i.id,
       name: i.name,

@@ -38,6 +38,23 @@ export default function PrivacyPolicy() {
           from your device.
         </p>
 
+        <h2>Text messages (SMS)</h2>
+        <p>
+          If you check the “Text me offers and updates” box at checkout and
+          provide your mobile number, you consent to receive recurring marketing
+          text messages from Renew Labs LV (offers, new-product and restock
+          alerts). Consent is not a condition of any purchase. Message frequency
+          varies, and message and data rates may apply. Reply <strong>STOP</strong>{" "}
+          at any time to unsubscribe, or <strong>HELP</strong> for help.
+        </p>
+        <p>
+          We do not sell, rent, or share your mobile phone number or SMS opt-in
+          information with third parties or affiliates for their own marketing
+          purposes. Your number is shared only with our SMS provider (Telnyx)
+          solely to deliver the messages you requested, and your opt-out status
+          is retained to honor your preferences.
+        </p>
+
         <h2>Cookies and local storage</h2>
         <p>
           We also use your browser’s local storage for convenience — remembering
