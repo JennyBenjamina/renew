@@ -277,6 +277,14 @@ export default function ProductForm({ product, existingIds, onSave, onClose }) {
               />
               “Sale” badge
             </label>
+            <label className="pform__check">
+              <input
+                type="checkbox"
+                checked={form.badges?.includes('custom')}
+                onChange={toggleBadge('custom')}
+              />
+              “Custom” badge
+            </label>
           </div>
         </div>
 

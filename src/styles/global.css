@@ -164,6 +164,9 @@ button {
 .badge--new {
   background: var(--color-new);
 }
+.badge--custom {
+  background: var(--color-primary);
+}
 .badge--instock {
   background: var(--color-instock);
 }

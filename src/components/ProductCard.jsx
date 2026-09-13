@@ -51,6 +51,9 @@ export default function ProductCard({ product }) {
             <span className="badge badge--new">New</span>
           )}
           {onSale && <span className="badge badge--sale">Sale</span>}
+          {product.badges?.includes('custom') && (
+            <span className="badge badge--custom">Custom</span>
+          )}
         </div>
         <span
           className={`badge ${

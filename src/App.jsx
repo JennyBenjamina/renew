@@ -16,6 +16,7 @@ import AdminBlog from './pages/admin/AdminBlog.jsx'
 import BlogPostForm from './pages/admin/BlogPostForm.jsx'
 import AdminSubscribers from './pages/admin/AdminSubscribers.jsx'
 import AdminAffiliates from './pages/admin/AdminAffiliates.jsx'
+import AdminCampaigns from './pages/admin/AdminCampaigns.jsx'
 import AffiliateDashboard from './pages/affiliate/AffiliateDashboard.jsx'
 import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
 import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
@@ -117,6 +118,7 @@ export default function App() {
           <Route path="blog/:id" element={<BlogPostForm />} />
           <Route path="subscribers" element={<AdminSubscribers />} />
           <Route path="affiliates" element={<AdminAffiliates />} />
+          <Route path="campaigns" element={<AdminCampaigns />} />
         </Route>
       </Routes>
     </>
