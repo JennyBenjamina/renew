@@ -111,6 +111,57 @@ export default function Checkout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile])
 
+  // Fallback prefill: for returning customers whose profile has no address yet,
+  // pull name/phone/address from their most recent order (address lives in the
+  // order note as "Deliver to: street, city, state zip"). Only fills empties.
+  useEffect(() => {
+    if (!user) return
+    let active = true
+    ;(async () => {
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('customer_name, customer_phone, note')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+        const last = data?.[0]
+        if (!last || !active) return
+        // Parse "Deliver to: STREET, CITY, STATE ZIP" from the note.
+        let street = '', city = '', state = '', zip = ''
+        const line = (last.note || '')
+          .split('\n')
+          .find((l) => l.trim().toLowerCase().startsWith('deliver to:'))
+        if (line) {
+          const body = line.replace(/deliver to:/i, '').trim()
+          const parts = body.split(',').map((s) => s.trim()).filter(Boolean)
+          if (parts.length >= 3) {
+            const sz = parts[parts.length - 1].split(/\s+/)
+            zip = sz.pop() || ''
+            state = sz.join(' ')
+            city = parts[parts.length - 2]
+            street = parts.slice(0, parts.length - 2).join(', ')
+          }
+        }
+        setForm((f) => ({
+          ...f,
+          name: f.name || last.customer_name || '',
+          phone: f.phone || last.customer_phone || '',
+          street: f.street || street,
+          city: f.city || city,
+          state: f.state || state,
+          zip: f.zip || zip,
+        }))
+      } catch {
+        /* prefill convenience only */
+      }
+    })()
+    return () => {
+      active = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
+
   // Save the entered address back to the signed-in user's profile so it prefills
   // next time. Best-effort — never blocks the order.
   const saveAddressToProfile = async () => {
