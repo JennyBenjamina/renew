@@ -92,7 +92,9 @@ export async function handler(event) {
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency: 'usd',
-      automatic_payment_methods: { enabled: true },
+      // Explicit list (not automatic) so unwanted methods like Cash App Pay are
+      // never offered. 'card' covers Apple Pay / Google Pay in the Element.
+      payment_method_types: ['card', 'link'],
       receipt_email: customer.email,
       description: `Renew order ${orderNumber}`,
       metadata,

@@ -123,6 +123,9 @@ export default function StripeCard({
     mode: 'payment',
     amount: Math.max(50, Number(amount) || 50), // Stripe USD minimum is $0.50
     currency: 'usd',
+    // Restrict to card (incl. Apple/Google Pay) + Link — no Cash App Pay, etc.
+    // Must match the PaymentIntent's payment_method_types on the server.
+    paymentMethodTypes: ['card', 'link'],
     appearance: {
       theme: 'stripe',
       variables: { colorPrimary: '#a4605a', borderRadius: '10px' },

@@ -15,6 +15,7 @@ import { validateReferral } from '../../lib/affiliates.js'
 import { getStoredReferral } from '../../lib/referral.js'
 import { tagadaEnabled } from '../../lib/tagada.js'
 import { stripeEnabled } from '../../lib/stripe.js'
+import { supabase } from '../../lib/supabaseClient.js'
 import './checkout.css'
 
 // Precedence for the card path: Stripe first, then TagadaPay, else pay-on-delivery.
@@ -91,6 +92,44 @@ export default function Checkout() {
       /* sessionStorage unavailable — form simply won't persist */
     }
   }, [form, coupon, step, smsConsent, done])
+
+  // Prefill contact + address from the signed-in user's profile once it loads.
+  // Only fills fields that are still empty, so it never overwrites a restored
+  // session or anything the shopper has already typed.
+  useEffect(() => {
+    if (!profile) return
+    setForm((f) => ({
+      ...f,
+      name: f.name || profile.full_name || '',
+      email: f.email || profile.email || user?.email || '',
+      phone: f.phone || profile.phone || '',
+      street: f.street || profile.address_street || '',
+      city: f.city || profile.address_city || '',
+      state: f.state || profile.address_state || '',
+      zip: f.zip || profile.address_postal || '',
+    }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile])
+
+  // Save the entered address back to the signed-in user's profile so it prefills
+  // next time. Best-effort — never blocks the order.
+  const saveAddressToProfile = async () => {
+    if (!user) return
+    try {
+      await supabase
+        .from('profiles')
+        .update({
+          phone: form.phone.trim(),
+          address_street: form.street.trim(),
+          address_city: form.city.trim(),
+          address_state: form.state.trim(),
+          address_postal: form.zip.trim(),
+        })
+        .eq('id', user.id)
+    } catch {
+      /* ignore — prefill convenience only */
+    }
+  }
 
   // Handle the return from Stripe hosted Checkout (?stripe=success|cancel).
   useEffect(() => {
@@ -203,6 +242,7 @@ export default function Checkout() {
         smsConsent,
       })
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
+      saveAddressToProfile()
       clear()
       clearSavedCheckout()
       setDone({ order_number: result.order_number, paid: false })
@@ -230,6 +270,7 @@ export default function Checkout() {
   // by the webhook; here we just finish the client-side flow.
   const onStripePaid = (orderNumber) => {
     trackPurchase({ items, total: totalDue, orderNumber })
+    saveAddressToProfile()
     clear()
     clearSavedCheckout()
     setDone({ order_number: orderNumber, paid: true })
@@ -258,6 +299,7 @@ export default function Checkout() {
         return
       }
       trackPurchase({ items, total: totalDue, orderNumber: result.order_number })
+      saveAddressToProfile()
       clear()
       clearSavedCheckout()
       setDone({ order_number: result.order_number, paid: true })
