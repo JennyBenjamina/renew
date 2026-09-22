@@ -4,6 +4,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  reorderProducts,
 } from '../../lib/products.js'
 import { money } from '../../lib/format.js'
 import ProductForm from './ProductForm.jsx'
@@ -15,6 +16,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null) // product object, {} for new, or null
   const [busyId, setBusyId] = useState(null)
+  const [reordering, setReordering] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -53,6 +55,25 @@ export default function AdminDashboard() {
       alert(err.message || 'Delete failed.')
     } finally {
       setBusyId(null)
+    }
+  }
+
+  // Move a product up/down in the display order and persist the new order.
+  const move = async (index, dir) => {
+    const j = index + dir
+    if (j < 0 || j >= products.length) return
+    const next = [...products]
+    ;[next[index], next[j]] = [next[j], next[index]]
+    setProducts(next) // optimistic
+    setReordering(true)
+    setError('')
+    try {
+      await reorderProducts(next)
+    } catch (err) {
+      setError(err.message || 'Could not save the new order.')
+      load() // revert to server truth
+    } finally {
+      setReordering(false)
     }
   }
 
@@ -96,6 +117,7 @@ export default function AdminDashboard() {
             <table className="admin__table">
               <thead>
                 <tr>
+                  <th aria-label="Reorder">Order</th>
                   <th>Name</th>
                   <th>Category</th>
                   <th>Price</th>
@@ -106,8 +128,30 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((p) => (
+                {products.map((p, i) => (
                   <tr key={p.id} className={busyId === p.id ? 'is-busy' : ''}>
+                    <td>
+                      <div className="admin__reorder">
+                        <button
+                          className="admin__move"
+                          onClick={() => move(i, -1)}
+                          disabled={reordering || i === 0}
+                          aria-label={`Move ${p.name} up`}
+                          title="Move up"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          className="admin__move"
+                          onClick={() => move(i, 1)}
+                          disabled={reordering || i === products.length - 1}
+                          aria-label={`Move ${p.name} down`}
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                    </td>
                     <td>
                       <strong>{p.name}</strong>
                       <span className="admin__slug">{p.slug}</span>

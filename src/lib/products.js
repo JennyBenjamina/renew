@@ -12,7 +12,8 @@ export async function fetchProducts() {
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .order('featured', { ascending: false })
+      .order('sort_order', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false })
     if (error) {
       console.warn('Supabase fetch failed, using local catalog:', error.message)
       return localProducts
@@ -39,12 +40,13 @@ function requireSupabase() {
   }
 }
 
-/** Admin catalog listing — always from Supabase, newest first. */
+/** Admin catalog listing — in the manual display order (same as storefront). */
 export async function adminListProducts() {
   requireSupabase()
   const { data, error } = await supabase
     .from('products')
     .select('*')
+    .order('sort_order', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
@@ -52,13 +54,35 @@ export async function adminListProducts() {
 
 export async function createProduct(product) {
   requireSupabase()
+  // Append new products to the end of the manual order.
+  let sort_order = product.sort_order
+  if (sort_order == null) {
+    const { data: top } = await supabase
+      .from('products')
+      .select('sort_order')
+      .order('sort_order', { ascending: false, nullsFirst: false })
+      .limit(1)
+    sort_order = (top?.[0]?.sort_order ?? 0) + 10
+  }
   const { data, error } = await supabase
     .from('products')
-    .insert(product)
+    .insert({ ...product, sort_order })
     .select()
     .single()
   if (error) throw error
   return data
+}
+
+/** Persist a new display order. `ordered` is the full list of products in the
+ *  desired order; each gets sort_order 10, 20, 30, … */
+export async function reorderProducts(ordered) {
+  requireSupabase()
+  const updates = ordered.map((p, i) =>
+    supabase.from('products').update({ sort_order: (i + 1) * 10 }).eq('id', p.id)
+  )
+  const results = await Promise.all(updates)
+  const firstErr = results.find((r) => r.error)?.error
+  if (firstErr) throw firstErr
 }
 
 export async function updateProduct(id, patch) {

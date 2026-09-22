@@ -6,7 +6,7 @@ import './Catalog.css'
 export default function Catalog() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [sort, setSort] = useState('featured')
+  const [sort, setSort] = useState('recommended')
   const [inStockOnly, setInStockOnly] = useState(false)
 
   useEffect(() => {
@@ -31,11 +31,13 @@ export default function Catalog() {
     let list = [...products]
     if (inStockOnly) list = list.filter((p) => p.in_stock)
 
+    // "Recommended" keeps the manual admin order exactly as fetched.
+    if (sort === 'recommended') return list
+
     const within = {
       'price-asc': (a, b) => a.price - b.price,
       'price-desc': (a, b) => b.price - a.price,
       name: (a, b) => a.name.localeCompare(b.name),
-      featured: (a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0),
     }[sort]
 
     list.sort((a, b) => {
@@ -71,7 +73,7 @@ export default function Catalog() {
               In stock only
             </label>
             <select value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="featured">Sort: In stock first</option>
+              <option value="recommended">Sort: Recommended</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
               <option value="name">Name: A–Z</option>
