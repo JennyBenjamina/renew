@@ -122,30 +122,70 @@ export async function resolveAffiliate(env, referralCodeRaw, subtotal) {
   return { referralCode, affiliateId, discount }
 }
 
-/** Insert an order row (service role). Returns { recorded, dbError }. */
+// Columns that are safe to drop if the DB doesn't have them yet (pending
+// migration). The core order still records; we never lose a paid sale over a
+// missing optional column.
+const OPTIONAL_ORDER_COLUMNS = new Set([
+  'sms_consent',
+  'stripe_session_id',
+  'stripe_payment_intent',
+  'tagada_payment_id',
+  'tagada_payment_instrument_id',
+  'affiliate_id',
+  'payment_status',
+  'shipping',
+])
+
+/** Insert an order row (service role). Self-healing: if the insert is rejected
+ *  because a column doesn't exist yet, it drops that optional column and retries
+ *  so a pending migration never silently loses an order. Returns
+ *  { recorded, dbError, dropped }. */
 export async function recordOrder(env, orderRow) {
   const { SUPABASE_URL, SERVICE_KEY } = env
   if (!SUPABASE_URL) return { recorded: false, dbError: 'SUPABASE_URL not set' }
   if (!SERVICE_KEY) return { recorded: false, dbError: 'SUPABASE_SERVICE_ROLE_KEY not set' }
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-      method: 'POST',
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify(orderRow),
-    })
-    if (res.ok) return { recorded: true, dbError: null }
-    const dbError = `insert ${res.status}: ${(await res.text()).slice(0, 300)}`
-    console.error('Supabase insert failed:', dbError)
-    return { recorded: false, dbError }
-  } catch (err) {
-    console.error('Supabase insert error:', err)
-    return { recorded: false, dbError: 'fetch error: ' + (err?.message || String(err)) }
+
+  const row = { ...orderRow }
+  const dropped = []
+
+  for (let attempt = 0; attempt < 8; attempt++) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+        method: 'POST',
+        headers: {
+          apikey: SERVICE_KEY,
+          Authorization: `Bearer ${SERVICE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify(row),
+      })
+      if (res.ok) {
+        if (dropped.length) {
+          console.warn('Order recorded after dropping missing columns:', dropped.join(', '))
+        }
+        return { recorded: true, dbError: null, dropped }
+      }
+      const text = (await res.text()).slice(0, 400)
+      // Find the offending column name from the PostgREST / Postgres error.
+      const m =
+        text.match(/'([a-z_]+)' column/i) ||
+        text.match(/column "([a-z_]+)"/i) ||
+        text.match(/Could not find the '([a-z_]+)'/i)
+      const col = m?.[1]
+      if (col && col in row && OPTIONAL_ORDER_COLUMNS.has(col)) {
+        delete row[col]
+        dropped.push(col)
+        continue // retry without it
+      }
+      console.error('Supabase insert failed:', `insert ${res.status}: ${text}`)
+      return { recorded: false, dbError: `insert ${res.status}: ${text}`, dropped }
+    } catch (err) {
+      console.error('Supabase insert error:', err)
+      return { recorded: false, dbError: 'fetch error: ' + (err?.message || String(err)), dropped }
+    }
   }
+  return { recorded: false, dbError: 'insert failed after dropping optional columns', dropped }
 }
 
 export const emailShell = (inner) => `
