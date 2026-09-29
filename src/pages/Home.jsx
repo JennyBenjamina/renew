@@ -37,10 +37,9 @@ export default function Home() {
         <div className="container">
           <div className="section__head">
             <span className="eyebrow">Las Vegas · Research compounds</span>
-            <h2>Research Grade Peptides delivered to your door in as little as 2 hours</h2>
+            <h2>Research Peptides for Laboratory Use</h2>
             <p>
-              A COA on every batch — packed and delivered locally by real people
-              in Las Vegas.
+              Local Las Vegas fulfillment available in as little as 2 hours.
             </p>
           </div>
 

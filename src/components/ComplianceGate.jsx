@@ -3,19 +3,39 @@ import { useCompliance } from '../context/ComplianceContext.jsx'
 import './ComplianceGate.css'
 
 const TERMS = [
-  'I confirm that I am 21 years of age or older.',
   'I understand that all products on this website are intended for research use only.',
   'I understand these products are sold for laboratory research use only and are not for human or veterinary consumption.',
   'I certify that I am accessing this website for lawful research purposes only and agree to the Renew Research Use Only Terms & Conditions.',
 ]
 
+const MIN_AGE = 21
+
+/** Whole-years age from a YYYY-MM-DD date string, or null if invalid. */
+function ageFromDob(dob) {
+  if (!dob) return null
+  const d = new Date(dob)
+  if (Number.isNaN(d.getTime())) return null
+  const now = new Date()
+  let age = now.getFullYear() - d.getFullYear()
+  const m = now.getMonth() - d.getMonth()
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--
+  return age
+}
+
 export default function ComplianceGate() {
   const { accept } = useCompliance()
   const [checked, setChecked] = useState(TERMS.map(() => false))
   const [remember, setRemember] = useState(false)
+  const [dob, setDob] = useState('')
+
+  const age = ageFromDob(dob)
+  const isOldEnough = age !== null && age >= MIN_AGE
+  const dobTooYoung = age !== null && age < MIN_AGE
+  const today = new Date().toISOString().slice(0, 10)
 
   const checkedCount = checked.filter(Boolean).length
   const allChecked = checkedCount === TERMS.length
+  const canEnter = isOldEnough && allChecked
 
   const toggle = (i) =>
     setChecked((c) => c.map((v, idx) => (idx === i ? !v : v)))
@@ -38,6 +58,22 @@ export default function ComplianceGate() {
         </header>
 
         <div className="gate__terms">
+          <label className="gate__dob">
+            <span className="gate__dob-label">Date of birth</span>
+            <input
+              type="date"
+              value={dob}
+              max={today}
+              onChange={(e) => setDob(e.target.value)}
+              aria-invalid={dobTooYoung}
+            />
+            {dobTooYoung && (
+              <span className="gate__dob-error">
+                You must be {MIN_AGE} or older to enter this site.
+              </span>
+            )}
+          </label>
+
           {TERMS.map((t, i) => (
             <button
               type="button"
@@ -74,18 +110,20 @@ export default function ComplianceGate() {
           </a>
           <button
             className="btn btn--primary"
-            disabled={!allChecked}
+            disabled={!canEnter}
             onClick={() => accept(remember)}
             title={
-              allChecked
+              canEnter
                 ? undefined
-                : `Confirm all ${TERMS.length} statements to continue`
+                : 'Enter your date of birth and confirm all statements to continue'
             }
           >
-            {allChecked
+            {canEnter
               ? 'I Agree & Enter Site'
-              : `Confirm all statements (${checkedCount}/${TERMS.length})`}
-            {allChecked && (
+              : !isOldEnough
+                ? 'Enter your date of birth'
+                : `Confirm all statements (${checkedCount}/${TERMS.length})`}
+            {canEnter && (
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
                 stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
                 strokeLinejoin="round">
