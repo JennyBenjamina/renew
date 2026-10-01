@@ -10,15 +10,29 @@ const TERMS = [
 
 const MIN_AGE = 21
 
-/** Whole-years age from a YYYY-MM-DD date string, or null if invalid. */
-function ageFromDob(dob) {
-  if (!dob) return null
-  const d = new Date(dob)
-  if (Number.isNaN(d.getTime())) return null
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+const DAYS = Array.from({ length: 31 }, (_, i) => i + 1)
+const CURRENT_YEAR = new Date().getFullYear()
+const YEARS = Array.from({ length: 100 }, (_, i) => CURRENT_YEAR - i)
+
+/** Whole-years age from y/m/d parts, or null if the date is incomplete/invalid. */
+function ageFromParts(year, month, day) {
+  if (!year || !month || !day) return null
+  const y = Number(year)
+  const m = Number(month) // 1–12
+  const d = Number(day)
+  const date = new Date(y, m - 1, d)
+  // Reject impossible dates like Feb 30 (JS would roll them over).
+  if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
+    return null
+  }
   const now = new Date()
-  let age = now.getFullYear() - d.getFullYear()
-  const m = now.getMonth() - d.getMonth()
-  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--
+  let age = now.getFullYear() - y
+  const mm = now.getMonth() - (m - 1)
+  if (mm < 0 || (mm === 0 && now.getDate() < d)) age--
   return age
 }
 
@@ -26,12 +40,14 @@ export default function ComplianceGate() {
   const { accept } = useCompliance()
   const [checked, setChecked] = useState(TERMS.map(() => false))
   const [remember, setRemember] = useState(false)
-  const [dob, setDob] = useState('')
+  const [month, setMonth] = useState('')
+  const [day, setDay] = useState('')
+  const [year, setYear] = useState('')
 
-  const age = ageFromDob(dob)
+  const complete = Boolean(month && day && year)
+  const age = ageFromParts(year, month, day)
   const isOldEnough = age !== null && age >= MIN_AGE
-  const dobTooYoung = age !== null && age < MIN_AGE
-  const today = new Date().toISOString().slice(0, 10)
+  const dobTooYoung = complete && (age === null || age < MIN_AGE)
 
   const checkedCount = checked.filter(Boolean).length
   const allChecked = checkedCount === TERMS.length
@@ -58,21 +74,52 @@ export default function ComplianceGate() {
         </header>
 
         <div className="gate__terms">
-          <label className="gate__dob">
+          <div className="gate__dob">
             <span className="gate__dob-label">Date of birth</span>
-            <input
-              type="date"
-              value={dob}
-              max={today}
-              onChange={(e) => setDob(e.target.value)}
-              aria-invalid={dobTooYoung}
-            />
+            <div className="gate__dob-row">
+              <select
+                className="gate__dob-select"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                aria-label="Birth month"
+                aria-invalid={dobTooYoung}
+              >
+                <option value="">Month</option>
+                {MONTHS.map((name, i) => (
+                  <option key={name} value={i + 1}>{name}</option>
+                ))}
+              </select>
+              <select
+                className="gate__dob-select"
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+                aria-label="Birth day"
+                aria-invalid={dobTooYoung}
+              >
+                <option value="">Day</option>
+                {DAYS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+              <select
+                className="gate__dob-select"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                aria-label="Birth year"
+                aria-invalid={dobTooYoung}
+              >
+                <option value="">Year</option>
+                {YEARS.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
             {dobTooYoung && (
               <span className="gate__dob-error">
                 You must be {MIN_AGE} or older to enter this site.
               </span>
             )}
-          </label>
+          </div>
 
           {TERMS.map((t, i) => (
             <button
