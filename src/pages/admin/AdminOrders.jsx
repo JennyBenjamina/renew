@@ -4,6 +4,8 @@ import {
   updateOrderStatus,
   updateOrderPaymentStatus,
   notifyShipment,
+  uploadDeliveryPhoto,
+  notifyDelivered,
   trackingUrl,
   ORDER_STATUSES,
   PAYMENT_STATUSES,
@@ -41,6 +43,7 @@ export default function AdminOrders() {
   const [openId, setOpenId] = useState(null)
   const [ship, setShip] = useState({ carrier: 'usps', tracking: '' })
   const [shipBusy, setShipBusy] = useState(false)
+  const [deliverBusy, setDeliverBusy] = useState(false)
 
   // Prefill the shipment form from the expanded order.
   useEffect(() => {
@@ -73,6 +76,28 @@ export default function AdminOrders() {
       alert(e.message || 'Could not send the tracking email.')
     } finally {
       setShipBusy(false)
+    }
+  }
+
+  // Courier snaps a photo → upload → mark delivered + email the customer.
+  const onDeliver = async (order, file) => {
+    if (!file) return
+    setDeliverBusy(true)
+    try {
+      const photoUrl = await uploadDeliveryPhoto(file, order.order_number || order.id)
+      const r = await notifyDelivered({ orderId: order.id, photoUrl })
+      setOrders((list) =>
+        list.map((o) =>
+          o.id === order.id
+            ? { ...o, status: 'delivered', delivered_at: r.delivered_at, delivery_photo_url: r.delivery_photo_url }
+            : o
+        )
+      )
+      alert('Delivered — photo confirmation emailed to the customer.')
+    } catch (e) {
+      alert(e.message || 'Could not send the delivery confirmation.')
+    } finally {
+      setDeliverBusy(false)
     }
   }
 
@@ -337,6 +362,42 @@ export default function AdminOrders() {
                               : 'Save & email tracking'}
                         </button>
                       </div>
+                    </div>
+
+                    <div className="orderrow__deliver">
+                      <span className="ordercard__label">Delivery confirmation</span>
+                      {o.delivery_photo_url && (
+                        <div className="orderrow__proof">
+                          <a href={o.delivery_photo_url} target="_blank" rel="noreferrer">
+                            <img src={o.delivery_photo_url} alt="Delivery proof" />
+                          </a>
+                          <span className="orderrow__proof-meta">
+                            Delivered {o.delivered_at ? formatDate(o.delivered_at) : ''}
+                          </span>
+                        </div>
+                      )}
+                      <label className={`btn btn--primary orderrow__deliver-btn ${deliverBusy ? 'is-busy' : ''}`}>
+                        {deliverBusy
+                          ? 'Sending…'
+                          : o.delivery_photo_url
+                            ? '📷 Replace photo & re-notify'
+                            : '📷 Take photo & mark delivered'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          hidden
+                          disabled={deliverBusy}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0]
+                            e.target.value = ''
+                            onDeliver(o, f)
+                          }}
+                        />
+                      </label>
+                      <p className="orderrow__deliver-hint">
+                        Snaps a photo on your phone, marks the order delivered, and emails the customer the confirmation.
+                      </p>
                     </div>
                   </div>
                 )}

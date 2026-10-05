@@ -56,6 +56,48 @@ export async function notifyShipment({ orderId, carrier, trackingNumber }) {
   return data
 }
 
+/** Upload a delivery-confirmation photo (courier snaps it on their phone).
+ *  Stored in the product-images bucket under delivery/. Returns the public URL. */
+export async function uploadDeliveryPhoto(file, orderNumber = 'order') {
+  if (!isSupabaseConfigured) throw new Error('Supabase is not configured.')
+  if (!file || !file.type.startsWith('image/')) throw new Error('Please choose an image.')
+  if (file.size > 10 * 1024 * 1024) throw new Error('Image is too large (max 10 MB).')
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+  const safe = String(orderNumber).replace(/[^a-z0-9-]/gi, '').toLowerCase() || 'order'
+  const path = `delivery/${safe}-${Date.now()}.${ext}`
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(path, file, { cacheControl: '3600', upsert: true })
+  if (error) throw error
+  const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+  return data.publicUrl
+}
+
+/** Admin: mark an order delivered with a photo and email the customer.
+ *  Goes through an admin-verified Netlify function. */
+export async function notifyDelivered({ orderId, photoUrl }) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  const res = await fetch('/.netlify/functions/notify-delivered', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_token: session?.access_token,
+      order_id: orderId,
+      photo_url: photoUrl,
+    }),
+  })
+  let data = null
+  try {
+    data = await res.json()
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) throw new Error(data?.error || 'Could not send the delivery email.')
+  return data
+}
+
 /** Admin: list every order, newest first. Requires an admin session (RLS). */
 export async function adminListOrders() {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured.')
