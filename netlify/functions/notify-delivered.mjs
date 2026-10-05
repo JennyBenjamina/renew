@@ -33,7 +33,7 @@ export async function handler(event) {
   if (!orderId) return json(400, { error: 'Order is required.' })
 
   const env = readEnv()
-  const { SUPABASE_URL, SERVICE_KEY, RESEND_API_KEY, FROM } = env
+  const { SUPABASE_URL, SERVICE_KEY, RESEND_API_KEY, FROM, NOTIFY } = env
   if (!SUPABASE_URL || !SERVICE_KEY) return json(500, { error: 'Server not configured.' })
 
   // 1. Verify the caller is a signed-in admin.
@@ -112,6 +112,7 @@ export async function handler(event) {
         body: JSON.stringify({
           from: FROM,
           to: [order.customer_email],
+          bcc: NOTIFY && NOTIFY.length ? NOTIFY : undefined,
           subject: `Your Renew order ${order.order_number} was delivered`,
           html,
         }),
