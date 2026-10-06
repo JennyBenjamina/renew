@@ -5,7 +5,7 @@
 //
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, ORDER_FROM_EMAIL
 
-import { readEnv, emailShell } from './_order.mjs'
+import { readEnv, emailShell, money } from './_order.mjs'
 
 const json = (status, body) => ({
   statusCode: status,
@@ -58,7 +58,7 @@ export async function handler(event) {
   let order
   try {
     const oRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/orders?select=order_number,customer_name,customer_email&id=eq.${orderId}&limit=1`,
+      `${SUPABASE_URL}/rest/v1/orders?select=order_number,customer_name,customer_email,items,subtotal,discount,shipping,total,referral_code&id=eq.${orderId}&limit=1`,
       { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
     )
     order = oRes.ok ? (await oRes.json())[0] : null
@@ -94,6 +94,29 @@ export async function handler(event) {
     const photoBlock = photoUrl
       ? `<p style="margin:18px 0;"><img src="${esc(photoUrl)}" alt="Delivery photo" style="max-width:100%;border-radius:12px;border:1px solid #e7ddce;" /></p>`
       : ''
+
+    // Order recap — items + totals.
+    const items = Array.isArray(order.items) ? order.items : []
+    const discount = Number(order.discount) || 0
+    const shipping = Number(order.shipping) || 0
+    const subtotal = Number(order.subtotal) || 0
+    const itemRows = items
+      .map(
+        (i) =>
+          `<tr><td style="padding:7px 0;border-bottom:1px solid #f2ece2;">${esc(i.qty)}× ${esc(i.name)}</td>` +
+          `<td style="padding:7px 0;text-align:right;border-bottom:1px solid #f2ece2;">${money(Number(i.price) * Number(i.qty))}</td></tr>`
+      )
+      .join('')
+    const hasBreakdown = discount > 0 || shipping > 0
+    const orderBlock = items.length
+      ? `
+      <h3 style="margin:22px 0 6px;font-size:15px;">Your order</h3>
+      <table style="width:100%;font-size:14px;border-collapse:collapse;">${itemRows}</table>
+      ${hasBreakdown ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:10px 0 0;">Subtotal: ${money(subtotal)}</p>` : ''}
+      ${discount > 0 ? `<p style="text-align:right;font-size:13px;color:#6f7d53;margin:2px 0 0;">Discount${order.referral_code ? ` (${esc(order.referral_code)})` : ''}: −${money(discount)}</p>` : ''}
+      ${shipping > 0 ? `<p style="text-align:right;font-size:13px;color:#5c5f58;margin:2px 0 0;">Shipping: ${money(shipping)}</p>` : ''}
+      <p style="text-align:right;font-size:16px;font-weight:600;margin:8px 0 0;">Total: ${money(Number(order.total) || 0)}</p>`
+      : ''
     const html = emailShell(`
       <h2 style="font-weight:600;font-size:20px;margin:0 0 10px;">Your order was delivered, ${esc(firstName)}!</h2>
       <p style="color:#5c5f58;line-height:1.6;margin:0 0 14px;">
@@ -101,7 +124,8 @@ export async function handler(event) {
         ${photoUrl ? 'Here’s a photo confirmation from our courier:' : ''}
       </p>
       ${photoBlock}
-      <p style="color:#8b8d87;line-height:1.6;margin:10px 0 0;font-size:13px;">
+      ${orderBlock}
+      <p style="color:#8b8d87;line-height:1.6;margin:16px 0 0;font-size:13px;">
         If anything looks off, reply to this email or contact us right away.
       </p>
     `)

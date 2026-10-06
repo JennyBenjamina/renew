@@ -44,6 +44,8 @@ export default function AdminOrders() {
   const [ship, setShip] = useState({ carrier: 'usps', tracking: '' })
   const [shipBusy, setShipBusy] = useState(false)
   const [deliverBusy, setDeliverBusy] = useState(false)
+  // Staged (uploaded but not yet sent) delivery photo for the open order.
+  const [proof, setProof] = useState({ photoUrl: '', uploading: false })
 
   // Prefill the shipment form from the expanded order.
   useEffect(() => {
@@ -52,6 +54,7 @@ export default function AdminOrders() {
       carrier: o ? carrierKey(o.carrier) : 'usps',
       tracking: o?.tracking_number || '',
     })
+    setProof({ photoUrl: '', uploading: false }) // clear any un-sent photo
   }, [openId, orders])
 
   const onShip = async (order) => {
@@ -79,13 +82,25 @@ export default function AdminOrders() {
     }
   }
 
-  // Courier snaps a photo → upload → mark delivered + email the customer.
-  const onDeliver = async (order, file) => {
+  // Step 1: upload the chosen/snapped photo and stage it for review (no email yet).
+  const onPickProof = async (order, file) => {
     if (!file) return
-    setDeliverBusy(true)
+    setProof({ photoUrl: '', uploading: true })
     try {
       const photoUrl = await uploadDeliveryPhoto(file, order.order_number || order.id)
-      const r = await notifyDelivered({ orderId: order.id, photoUrl })
+      setProof({ photoUrl, uploading: false })
+    } catch (e) {
+      setProof({ photoUrl: '', uploading: false })
+      alert(e.message || 'Could not upload the photo.')
+    }
+  }
+
+  // Step 2: confirm — mark delivered + email the customer (and BCC owners).
+  const onConfirmProof = async (order) => {
+    if (!proof.photoUrl) return
+    setDeliverBusy(true)
+    try {
+      const r = await notifyDelivered({ orderId: order.id, photoUrl: proof.photoUrl })
       setOrders((list) =>
         list.map((o) =>
           o.id === order.id
@@ -93,6 +108,7 @@ export default function AdminOrders() {
             : o
         )
       )
+      setProof({ photoUrl: '', uploading: false })
       alert('Delivered — photo confirmation emailed to the customer.')
     } catch (e) {
       alert(e.message || 'Could not send the delivery confirmation.')
@@ -366,37 +382,65 @@ export default function AdminOrders() {
 
                     <div className="orderrow__deliver">
                       <span className="ordercard__label">Delivery confirmation</span>
+
                       {o.delivery_photo_url && (
                         <div className="orderrow__proof">
                           <a href={o.delivery_photo_url} target="_blank" rel="noreferrer">
                             <img src={o.delivery_photo_url} alt="Delivery proof" />
                           </a>
                           <span className="orderrow__proof-meta">
-                            Delivered {o.delivered_at ? formatDate(o.delivered_at) : ''}
+                            Sent {o.delivered_at ? formatDate(o.delivered_at) : ''}
                           </span>
                         </div>
                       )}
-                      <label className={`btn btn--primary orderrow__deliver-btn ${deliverBusy ? 'is-busy' : ''}`}>
-                        {deliverBusy
-                          ? 'Sending…'
-                          : o.delivery_photo_url
-                            ? '📷 Replace photo & re-notify'
-                            : '📷 Take photo & mark delivered'}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          capture="environment"
-                          hidden
-                          disabled={deliverBusy}
-                          onChange={(e) => {
-                            const f = e.target.files?.[0]
-                            e.target.value = ''
-                            onDeliver(o, f)
-                          }}
-                        />
-                      </label>
+
+                      {/* Staged photo preview — review before sending */}
+                      {proof.photoUrl && (
+                        <div className="orderrow__proof">
+                          <a href={proof.photoUrl} target="_blank" rel="noreferrer">
+                            <img src={proof.photoUrl} alt="New delivery photo" />
+                          </a>
+                          <span className="orderrow__proof-meta">
+                            Ready to send — not emailed yet
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="orderrow__deliver-actions">
+                        <label className={`btn btn--outline orderrow__deliver-btn ${proof.uploading ? 'is-busy' : ''}`}>
+                          {proof.uploading
+                            ? 'Uploading…'
+                            : proof.photoUrl
+                              ? 'Choose a different photo'
+                              : o.delivery_photo_url
+                                ? '📷 Take a new photo'
+                                : '📷 Take / choose photo'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            hidden
+                            disabled={proof.uploading || deliverBusy}
+                            onChange={(e) => {
+                              const f = e.target.files?.[0]
+                              e.target.value = ''
+                              onPickProof(o, f)
+                            }}
+                          />
+                        </label>
+
+                        <button
+                          className="btn btn--primary"
+                          disabled={!proof.photoUrl || proof.uploading || deliverBusy}
+                          onClick={() => onConfirmProof(o)}
+                        >
+                          {deliverBusy ? 'Sending…' : 'Confirm delivery & email customer'}
+                        </button>
+                      </div>
+
                       <p className="orderrow__deliver-hint">
-                        Snaps a photo on your phone, marks the order delivered, and emails the customer the confirmation.
+                        Take or choose a photo, review it, then click “Confirm delivery” to mark the
+                        order delivered and email the customer (owners are BCC’d).
                       </p>
                     </div>
                   </div>
