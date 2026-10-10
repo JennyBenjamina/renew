@@ -122,6 +122,19 @@ export async function updateOrderStatus(id, status) {
   return data
 }
 
+/** Admin: mark an order's affiliate commission as paid / unpaid (tracking). */
+export async function updateOrderCommissionPaid(id, commission_paid) {
+  if (!isSupabaseConfigured) throw new Error('Supabase is not configured.')
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ commission_paid })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
 /** Admin: change an order's payment status (unpaid → paid, etc.). */
 export async function updateOrderPaymentStatus(id, payment_status) {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured.')

@@ -6,7 +6,7 @@ import {
   referralLink,
   commissionForOrder,
 } from '../../lib/affiliates.js'
-import { adminListOrders } from '../../lib/orders.js'
+import { adminListOrders, updateOrderCommissionPaid } from '../../lib/orders.js'
 import { isSupabaseConfigured } from '../../lib/supabaseClient.js'
 import { money } from '../../lib/format.js'
 import './admin.css'
@@ -59,18 +59,39 @@ export default function AdminAffiliates() {
     else setLoading(false)
   }, [])
 
-  // Tally orders + sales per affiliate id.
+  // Tally orders + sales + commission (paid vs outstanding) per affiliate id.
   const totals = useMemo(() => {
     const m = {}
     for (const o of orders) {
       if (!o.affiliate_id) continue
-      const t = (m[o.affiliate_id] ||= { count: 0, sales: 0, commission: 0 })
+      const t = (m[o.affiliate_id] ||= {
+        count: 0, sales: 0, commission: 0, commissionPaid: 0, commissionDue: 0,
+      })
+      const c = commissionForOrder(o)
       t.count += 1
       t.sales += Number(o.total || 0)
-      t.commission += commissionForOrder(o)
+      t.commission += c
+      if (o.commission_paid) t.commissionPaid += c
+      else t.commissionDue += c
     }
     return m
   }, [orders])
+
+  const onToggleCommission = async (order) => {
+    const next = !order.commission_paid
+    // Optimistic update.
+    setOrders((list) =>
+      list.map((o) => (o.id === order.id ? { ...o, commission_paid: next } : o))
+    )
+    try {
+      await updateOrderCommissionPaid(order.id, next)
+    } catch (err) {
+      setOrders((list) =>
+        list.map((o) => (o.id === order.id ? { ...o, commission_paid: !next } : o))
+      )
+      alert(err.message || 'Could not update commission status.')
+    }
+  }
 
   const set = (f) => (e) => setForm((s) => ({ ...s, [f]: e.target.value }))
 
@@ -223,6 +244,11 @@ export default function AdminAffiliates() {
                       <strong style={{ color: 'var(--color-accent)' }}>
                         {money(t.commission)} commission
                       </strong>
+                      {t.commissionDue > 0 && (
+                        <> · <strong style={{ color: 'var(--color-outstock)' }}>
+                          {money(t.commissionDue)} unpaid
+                        </strong></>
+                      )}
                     </span>
                     <span className="blogadmin__sub" style={{ wordBreak: 'break-all' }}>
                       {referralLink(r.code)}
@@ -267,8 +293,8 @@ export default function AdminAffiliates() {
                           <span>Customer</span>
                           <span>Payment</span>
                           <span>Delivery</span>
-                          <span>Total</span>
                           <span className="affdrill__total">Commission</span>
+                          <span className="affdrill__total">Payout</span>
                         </div>
                         {repOrders.map((o) => (
                           <div className="affdrill__row" key={o.id}>
@@ -279,8 +305,18 @@ export default function AdminAffiliates() {
                               {payLabel(o.payment_status)}
                             </span>
                             <span className={`ordercard__badge status--${o.status}`}>{o.status}</span>
-                            <span className="affdrill__total">{money(o.total)}</span>
                             <span className="affdrill__total affdrill__earn">{money(commissionForOrder(o))}</span>
+                            <span className="affdrill__total">
+                              <button
+                                type="button"
+                                className={`admin__toggle ${o.commission_paid ? 'is-on' : ''}`}
+                                onClick={() => onToggleCommission(o)}
+                                aria-pressed={o.commission_paid}
+                                title="Toggle whether this commission has been paid out"
+                              >
+                                {o.commission_paid ? 'Paid' : 'Mark paid'}
+                              </button>
+                            </span>
                           </div>
                         ))}
                       </div>
