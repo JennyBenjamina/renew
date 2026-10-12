@@ -122,16 +122,25 @@ export async function updateOrderStatus(id, status) {
   return data
 }
 
-/** Admin: mark an order's affiliate commission as paid / unpaid (tracking). */
-export async function updateOrderCommissionPaid(id, commission_paid) {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured.')
-  const { data, error } = await supabase
-    .from('orders')
-    .update({ commission_paid })
-    .eq('id', id)
-    .select()
-    .single()
-  if (error) throw error
+/** Admin: mark an order's affiliate commission paid/unpaid. Goes through an
+ *  admin-verified function that updates the flag and — when marking paid —
+ *  emails the sales rep that they've been paid. */
+export async function markCommissionPaid({ orderId, paid }) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  const res = await fetch('/.netlify/functions/notify-commission-paid', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ access_token: session?.access_token, order_id: orderId, paid }),
+  })
+  let data = null
+  try {
+    data = await res.json()
+  } catch {
+    /* ignore */
+  }
+  if (!res.ok) throw new Error(data?.error || 'Could not update commission status.')
   return data
 }
 

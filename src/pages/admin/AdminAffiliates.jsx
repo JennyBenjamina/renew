@@ -6,7 +6,7 @@ import {
   referralLink,
   commissionForOrder,
 } from '../../lib/affiliates.js'
-import { adminListOrders, updateOrderCommissionPaid } from '../../lib/orders.js'
+import { adminListOrders, markCommissionPaid } from '../../lib/orders.js'
 import { isSupabaseConfigured } from '../../lib/supabaseClient.js'
 import { money } from '../../lib/format.js'
 import './admin.css'
@@ -84,7 +84,7 @@ export default function AdminAffiliates() {
       list.map((o) => (o.id === order.id ? { ...o, commission_paid: next } : o))
     )
     try {
-      await updateOrderCommissionPaid(order.id, next)
+      await markCommissionPaid({ orderId: order.id, paid: next })
     } catch (err) {
       setOrders((list) =>
         list.map((o) => (o.id === order.id ? { ...o, commission_paid: !next } : o))

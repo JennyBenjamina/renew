@@ -44,7 +44,11 @@ export default function AffiliateDashboard() {
   const stats = useMemo(() => {
     const sales = orders.reduce((s, o) => s + Number(o.total || 0), 0)
     const earned = orders.reduce((s, o) => s + commissionFor(o), 0)
-    return { count: orders.length, sales, earned }
+    const paidOut = orders.reduce(
+      (s, o) => s + (o.commission_paid ? commissionFor(o) : 0),
+      0
+    )
+    return { count: orders.length, sales, earned, paidOut, pending: earned - paidOut }
   }, [orders])
 
   const copyLink = async () => {
@@ -122,6 +126,14 @@ export default function AffiliateDashboard() {
               <span className="aff__stat-num">{money(stats.earned)}</span>
               <span className="aff__label">Commission earned · 30%</span>
             </div>
+            <div className="aff__stat">
+              <span className="aff__stat-num">{money(stats.paidOut)}</span>
+              <span className="aff__label">Paid out</span>
+            </div>
+            <div className="aff__stat">
+              <span className="aff__stat-num">{money(stats.pending)}</span>
+              <span className="aff__label">Pending payout</span>
+            </div>
           </div>
         </div>
 
@@ -134,8 +146,8 @@ export default function AffiliateDashboard() {
               <span>Order</span>
               <span>Date</span>
               <span>Payment</span>
-              <span>Total</span>
               <span className="aff__total">Commission</span>
+              <span>Payout</span>
             </div>
             {orders.map((o) => (
               <div className="aff__row" key={o.id}>
@@ -148,8 +160,10 @@ export default function AffiliateDashboard() {
                       ? 'Cancelled'
                       : 'Unpaid'}
                 </span>
-                <span>{money(o.total)}</span>
                 <span className="aff__total aff__earn">{money(commissionFor(o))}</span>
+                <span className={`aff__badge ${o.commission_paid ? 'aff__pay--paid' : 'aff__pay--unpaid'}`}>
+                  {o.commission_paid ? 'Paid out' : 'Pending'}
+                </span>
               </div>
             ))}
           </div>
