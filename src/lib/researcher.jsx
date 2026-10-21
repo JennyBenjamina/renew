@@ -1,8 +1,21 @@
-/* Researcher registration rules (compliance gate). Any email address may
- * register (personal ones included). The institution and attestations are
- * enforced again in the database by supabase/researcher_approval.sql. */
+/* Researcher registration rules (compliance gate). Only institutional or
+ * business emails may register. The same personal-domain list, institution and
+ * attestations are enforced again in the database by
+ * supabase/researcher_approval.sql, so the form can't be bypassed. */
+
+export const PERSONAL_EMAIL_DOMAINS = new Set([
+  'gmail.com','googlemail.com','yahoo.com','ymail.com','rocketmail.com',
+  'outlook.com','hotmail.com','live.com','msn.com','icloud.com','me.com',
+  'mac.com','aol.com','proton.me','protonmail.com','pm.me','gmx.com','gmx.net',
+  'mail.com','zoho.com','zohomail.com','yandex.com','yandex.ru','tutanota.com',
+  'tuta.io','hey.com','fastmail.com','inbox.com','att.net','sbcglobal.net',
+  'comcast.net','verizon.net','cox.net','charter.net','earthlink.net',
+  'duck.com','mailinator.com','qq.com','163.com',
+])
 
 export const emailDomain = (email = '') => email.trim().toLowerCase().split('@')[1] || ''
+
+export const isPersonalEmail = (email) => PERSONAL_EMAIL_DOMAINS.has(emailDomain(email))
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -18,8 +31,11 @@ export const ATTESTATIONS = [
 export function validateRegistration(form) {
   const errors = {}
   const email = form.email.trim()
-  if (!email) errors.email = 'Enter your email address.'
+  if (!email) errors.email = 'Enter your institutional email.'
   else if (!EMAIL_RE.test(email)) errors.email = 'Enter a valid email address.'
+  else if (isPersonalEmail(email)) {
+    errors.email = 'Personal email providers (Gmail, Yahoo, Outlook, etc.) aren’t accepted. Use your institutional or business email.'
+  }
   const inst = form.institution.trim()
   if (!inst) errors.institution = 'Enter your registered business or institution.'
   else if (inst.length < 3) errors.institution = 'Enter the full name of your business or institution.'

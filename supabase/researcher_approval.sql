@@ -6,9 +6,9 @@
 --   1. Adds approval status + researcher registration fields to profiles.
 --   2. Marks every EXISTING account approved (current customers/affiliates keep
 --      access). Every account created after this runs starts as 'pending'.
---   3. Validates new signups server-side (institution + all four
---      attestations) so the form can't be bypassed via the API. Any email
---      address may register, personal ones included.
+--   3. Validates new signups server-side (institutional email, institution,
+--      all four attestations) so the form can't be bypassed via the API.
+--      Personal email providers (Gmail, Yahoo, Outlook…) are refused.
 --   4. Stops non-admins from approving themselves.
 --   5. Locks the products table: only approved accounts and admins can read it.
 
@@ -58,6 +58,23 @@ as $$
   );
 $$;
 
+-- Personal email providers that may not register.
+create or replace function public.is_personal_email(addr text)
+returns boolean
+language sql
+immutable
+as $$
+  select lower(split_part(coalesce(addr, ''), '@', 2)) = any (array[
+    'gmail.com','googlemail.com','yahoo.com','ymail.com','rocketmail.com',
+    'outlook.com','hotmail.com','live.com','msn.com','icloud.com','me.com',
+    'mac.com','aol.com','proton.me','protonmail.com','pm.me','gmx.com','gmx.net',
+    'mail.com','zoho.com','zohomail.com','yandex.com','yandex.ru','tutanota.com',
+    'tuta.io','hey.com','fastmail.com','inbox.com','att.net','sbcglobal.net',
+    'comcast.net','verizon.net','cox.net','charter.net','earthlink.net',
+    'duck.com','mailinator.com','qq.com','163.com'
+  ]);
+$$;
+
 -- ---------------------------------------------------------------------------
 -- 4. New-signup profile creation + validation
 --    Signups from the site send metadata (institution + attestations); those
@@ -75,6 +92,9 @@ declare
   from_site boolean := meta <> '{}'::jsonb;
 begin
   if from_site then
+    if public.is_personal_email(new.email) then
+      raise exception 'Please register with your institutional or business email. Personal email providers are not accepted.';
+    end if;
     if length(trim(coalesce(meta->>'institution', ''))) < 3 then
       raise exception 'Registered business or institution is required.';
     end if;
@@ -162,7 +182,3 @@ drop policy if exists "Approved accounts read products" on public.products;
 create policy "Approved accounts read products"
   on public.products for select
   using (public.is_approved());
-
--- Personal emails (Gmail, Yahoo…) are allowed. Removes the helper an earlier
--- draft of this file created, if it exists.
-drop function if exists public.is_personal_email(text);

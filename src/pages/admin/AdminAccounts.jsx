@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { adminListAccounts, reviewAccount, APPROVAL_STATUSES } from '../../lib/accounts.js'
-import { emailDomain } from '../../lib/researcher.jsx'
+import { emailDomain, isPersonalEmail } from '../../lib/researcher.jsx'
 import './admin.css'
 
 function formatDate(d) {
@@ -120,6 +120,7 @@ export default function AdminAccounts() {
         <div className="orders-admin">
           {visible.map((a) => {
             const busy = busyId === a.id
+            const personal = isPersonalEmail(a.email)
             return (
               <article className="ordercard" key={a.id}>
                 <header className="ordercard__head">
@@ -136,6 +137,7 @@ export default function AdminAccounts() {
                     <div>
                       <span className="ordercard__label">Email</span>
                       <a href={`mailto:${a.email}`}>{a.email}</a>
+                      {personal && <span className="acct__flag">Personal email domain</span>}
                     </div>
                     <div>
                       <span className="ordercard__label">Domain</span>

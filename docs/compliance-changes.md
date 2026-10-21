@@ -73,7 +73,7 @@ product reads to approved accounts and admins.
   terms. Agreeing sends the visitor to `/login`. Terms version is `2026-10-20`.
 - Everything except the legal pages, login, signup, password reset and
   `/account/pending` needs an approved account. Direct links redirect.
-- Signup: email (any provider, Gmail/Yahoo included), registered business /
+- Signup: institutional email (Gmail, Yahoo, Outlook etc. refused), registered business /
   institution (checked against ror.org at review), password, four attestations.
 - New accounts land on the pending notice. Review them at **Admin → Accounts**;
   approving or rejecting emails the person.

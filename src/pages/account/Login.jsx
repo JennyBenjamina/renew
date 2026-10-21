@@ -53,7 +53,7 @@ export default function Login() {
         <label htmlFor="login-email" className="bench__label">Email</label>
         <input id="login-email" className="bench__input" type="email" value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com" autoComplete="email" required />
+          placeholder="lab@university.edu" autoComplete="email" required />
       </div>
       <div className="bench__field">
         <label htmlFor="login-password" className="bench__label">Password</label>

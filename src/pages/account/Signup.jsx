@@ -84,8 +84,9 @@ export default function Signup() {
     <BenchCard as="form" pill="21+ · Lab use" onSubmit={onSubmit} noValidate>
       <h1 className="bench__title">Create your researcher account.</h1>
       <p className="bench__lede">
-        An account is required to browse the catalog. Every registration is
-        reviewed by our team before access is granted.
+        An account is required to browse the catalog. Register with your
+        institutional or business email. Personal email domains (Gmail, Yahoo,
+        Outlook, etc.) are not accepted.
       </p>
 
       {!isSupabaseConfigured && (
@@ -96,10 +97,10 @@ export default function Signup() {
       {error && <div className="auth__alert auth__alert--error" role="alert">{error}</div>}
 
       <div className="bench__field">
-        <label htmlFor="signup-email" className="bench__label">Email</label>
+        <label htmlFor="signup-email" className="bench__label">Institutional email</label>
         <input id="signup-email" className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
           type="email" value={form.email} onChange={setText('email')} onBlur={blur('email')}
-          placeholder="you@example.com" autoComplete="email" required
+          placeholder="name@university.edu" autoComplete="email" required
           aria-invalid={Boolean(show('email'))} aria-describedby="signup-email-help" />
         {show('email') && <span className="bench__error">{errors.email}</span>}
         <span id="signup-email-help" className="bench__help">
