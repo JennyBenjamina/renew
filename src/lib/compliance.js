@@ -2,7 +2,7 @@ import { supabase, isSupabaseConfigured } from './supabaseClient'
 
 /* Bump this whenever the wording of the compliance terms changes, so the log
  * reflects exactly which version each visitor agreed to. */
-export const TERMS_VERSION = '2026-09-10'
+export const TERMS_VERSION = '2026-10-20'
 
 /** Records a compliance-gate acceptance in Supabase — the authoritative,
  *  server-side record of who agreed to which terms version and when. Ties the

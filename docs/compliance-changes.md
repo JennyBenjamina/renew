@@ -58,3 +58,27 @@ and keep the business description matching the site.
 - Watch FDA rulemaking on BPC-157, TB-500, and MOTS-c — legal today, status can change.
 - COA page verified: `coa-rt15.pdf` is present and published for GLP3-RT 15mg;
   other products honestly show "In Testing".
+
+---
+
+# Compliance gate + researcher approval (Oct 20, 2026)
+
+**Run first:** `supabase/researcher_approval.sql` in the Supabase SQL editor,
+*before* deploying this code. It approves every existing account, makes new
+accounts start as pending, validates signups in the database, and limits
+product reads to approved accounts and admins.
+
+- Compliance agreement: date of birth (21+) plus one required checkbox covering
+  age, qualified researcher, research-only/not for human or animal use, and the
+  terms. Agreeing sends the visitor to `/login`. Terms version is `2026-10-20`.
+- Everything except the legal pages, login, signup, password reset and
+  `/account/pending` needs an approved account. Direct links redirect.
+- Signup: email (any provider, Gmail/Yahoo included), registered business /
+  institution (checked against ror.org at review), password, four attestations.
+- New accounts land on the pending notice. Review them at **Admin → Accounts**;
+  approving or rejecting emails the person.
+- Checkout functions (`create-payment-intent`, `create-checkout-session`,
+  `process-payment`, `submit-order`) refuse anyone not approved.
+- The bundled sample catalog is no longer shipped in the site code.
+- Sitemap lists only the public pages; blog posts are behind the gate.
+- Still public as static files: COA PDFs in `public/coas` and product photos.

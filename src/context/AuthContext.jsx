@@ -8,11 +8,15 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  // Which user the loaded profile belongs to, so access checks wait for the
+  // profile after a sign-in instead of briefly treating the user as unapproved.
+  const [profileFor, setProfileFor] = useState(null)
   const [loading, setLoading] = useState(true)
 
   async function loadProfile(sessionUser) {
     if (!sessionUser) {
       setProfile(null)
+      setProfileFor(null)
       return
     }
     const { data } = await supabase
@@ -21,6 +25,7 @@ export function AuthProvider({ children }) {
       .eq('id', sessionUser.id)
       .maybeSingle()
     setProfile(data ?? null)
+    setProfileFor(sessionUser.id)
   }
 
   useEffect(() => {
@@ -50,9 +55,9 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
-  /** Register a customer. Profile fields are passed as auth metadata; a DB
-   *  trigger creates the profiles row (role 'customer') from them. Returns
-   *  { needsConfirmation } so the UI can prompt for email confirmation. */
+  /** Register a researcher account. Registration fields and attestations are
+   *  passed as auth metadata; a DB trigger validates them and creates the
+   *  profiles row with approval_status 'pending'. Returns { needsConfirmation }. */
   const signUp = async ({ email, password, ...meta }) => {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase is not configured. Add your keys to .env.')
@@ -60,9 +65,20 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: meta },
+      options: {
+        data: meta,
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
     })
-    if (error) throw error
+    if (error) {
+      // Errors raised by the signup validation trigger arrive wrapped.
+      if (/database error saving new user/i.test(error.message)) {
+        throw new Error(
+          'We couldn’t create this account. Enter your institution and confirm every statement.'
+        )
+      }
+      throw error
+    }
     // Notify the store owners of the new account (fire-and-forget; the function
     // verifies the account exists before emailing, so it can't be abused).
     fetch('/.netlify/functions/notify-signup', {
@@ -99,14 +115,20 @@ export function AuthProvider({ children }) {
 
   const refreshProfile = () => loadProfile(user)
 
+  const isAdmin = profile?.role === 'admin'
+  const approvalStatus = isAdmin ? 'approved' : profile?.approval_status || 'pending'
+
   return (
     <AuthContext.Provider
       value={{
         user,
         profile,
-        isAdmin: profile?.role === 'admin',
+        isAdmin,
         isAffiliate: profile?.role === 'affiliate',
-        loading,
+        // Compliance gate: only admins and accounts an admin approved get in.
+        isApproved: approvalStatus === 'approved',
+        approvalStatus,
+        loading: loading || Boolean(user && profileFor !== user.id),
         signIn,
         signUp,
         signOut,

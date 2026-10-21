@@ -17,6 +17,7 @@ import BlogPostForm from './pages/admin/BlogPostForm.jsx'
 import AdminSubscribers from './pages/admin/AdminSubscribers.jsx'
 import AdminAffiliates from './pages/admin/AdminAffiliates.jsx'
 import AdminCampaigns from './pages/admin/AdminCampaigns.jsx'
+import AdminAccounts from './pages/admin/AdminAccounts.jsx'
 import AffiliateDashboard from './pages/affiliate/AffiliateDashboard.jsx'
 import ResearchUseTerms from './pages/legal/ResearchUseTerms.jsx'
 import CertificatesOfAnalysis from './pages/legal/CertificatesOfAnalysis.jsx'
@@ -25,6 +26,7 @@ import TermsOfService from './pages/legal/TermsOfService.jsx'
 import RefundPolicy from './pages/legal/RefundPolicy.jsx'
 import Login from './pages/account/Login.jsx'
 import Signup from './pages/account/Signup.jsx'
+import Pending from './pages/account/Pending.jsx'
 import Account from './pages/account/Account.jsx'
 import OrderHistory from './pages/account/OrderHistory.jsx'
 import ForgotPassword from './pages/account/ForgotPassword.jsx'
@@ -43,8 +45,8 @@ export default function App() {
         {/* Storefront (public) */}
         <Route element={<StorefrontLayout />}>
           <Route path="/" element={<Home />} />
-          {/* Storefront gated behind login (required by our payment processor):
-              catalog, prices, and checkout require an account. */}
+          {/* Compliance gate (StorefrontLayout): every page except the legal
+              pages and login/signup needs an admin-approved account. */}
           <Route path="/products" element={<Catalog />} />
           {/* Old slug → redirect so existing /catalog links still work */}
           <Route path="/catalog" element={<Navigate to="/products" replace />} />
@@ -71,6 +73,7 @@ export default function App() {
           {/* Customer accounts */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/account/pending" element={<Pending />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
@@ -119,6 +122,7 @@ export default function App() {
           <Route path="subscribers" element={<AdminSubscribers />} />
           <Route path="affiliates" element={<AdminAffiliates />} />
           <Route path="campaigns" element={<AdminCampaigns />} />
+          <Route path="accounts" element={<AdminAccounts />} />
         </Route>
       </Routes>
     </>

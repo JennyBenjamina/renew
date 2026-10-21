@@ -323,3 +323,43 @@ export async function metaCapiPurchase(env, { orderNumber, customer, items, tota
     console.error('Meta CAPI error:', err)
   }
 }
+
+/**
+ * Compliance gate: only signed-in accounts that an admin has approved (or
+ * admins) may start a checkout. Reads the caller's Supabase access token from
+ * the `Authorization: Bearer …` header. Returns { ok: true, userId } or
+ * { ok: false, status, error } to send straight back to the client.
+ */
+export async function requireApprovedAccount(env, event) {
+  const { SUPABASE_URL, SERVICE_KEY } = env
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    return { ok: false, status: 503, error: 'Checkout is not available right now.' }
+  }
+  const header = event.headers?.authorization || event.headers?.Authorization || ''
+  const token = header.replace(/^Bearer\s+/i, '').trim()
+  if (!token) {
+    return { ok: false, status: 401, error: 'Please log in to your approved researcher account to check out.' }
+  }
+  try {
+    const uRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${token}` },
+    })
+    if (!uRes.ok) return { ok: false, status: 401, error: 'Your session expired. Please log in again.' }
+    const userId = (await uRes.json())?.id
+    if (!userId) return { ok: false, status: 401, error: 'Your session expired. Please log in again.' }
+    const pRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/profiles?select=role,approval_status&id=eq.${encodeURIComponent(userId)}&limit=1`,
+      { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
+    )
+    const p = pRes.ok ? (await pRes.json())[0] : null
+    if (p && (p.role === 'admin' || p.approval_status === 'approved')) return { ok: true, userId }
+    return {
+      ok: false,
+      status: 403,
+      error: 'Your account is awaiting approval. Checkout opens once our team approves it.',
+    }
+  } catch (err) {
+    console.error('requireApprovedAccount error:', err)
+    return { ok: false, status: 500, error: 'Could not verify your account.' }
+  }
+}

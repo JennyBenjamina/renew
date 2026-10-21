@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { categories } from '../../data/products.js'
+import { categories } from '../../lib/products.js'
 import { uploadProductImage, IMAGE_RULES } from '../../lib/products.js'
 
 const CATEGORY_OPTIONS = categories.filter((c) => c !== 'All')

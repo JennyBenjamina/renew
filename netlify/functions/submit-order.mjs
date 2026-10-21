@@ -11,6 +11,7 @@
 //   ORDER_NOTIFY_EMAILS          comma-separated; default: the two owner emails
 // Optional Meta Conversions API (server-side Purchase tracking):
 //   META_PIXEL_ID, META_CAPI_TOKEN
+import { readEnv, requireApprovedAccount } from './_order.mjs'
 
 import crypto from 'node:crypto'
 import { shippingEstimate } from './_shipping.mjs'
@@ -50,6 +51,11 @@ export async function handler(event) {
   } catch {
     return json(400, { error: 'Invalid JSON.' })
   }
+
+  // Compliance gate: approved researcher accounts (and admins) only.
+  const access = await requireApprovedAccount(readEnv(), event)
+  if (!access.ok) return json(access.status, { error: access.error })
+  payload.user_id = access.userId
 
   const customer = payload.customer || {}
   const items = Array.isArray(payload.items) ? payload.items : []

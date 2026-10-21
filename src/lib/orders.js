@@ -192,7 +192,7 @@ export async function createPaymentIntent({
 }) {
   const res = await fetch('/.netlify/functions/create-payment-intent', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await checkoutHeaders(),
     body: JSON.stringify({
       customer,
       items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
@@ -236,7 +236,7 @@ export async function processPayment({
 }) {
   const res = await fetch('/.netlify/functions/process-payment', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await checkoutHeaders(),
     body: JSON.stringify({
       customer,
       items: items.map((i) => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
@@ -268,7 +268,7 @@ export async function processPayment({
 export async function submitOrder({ customer, items, userId, referralCode, smsConsent }) {
   const res = await fetch('/.netlify/functions/submit-order', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await checkoutHeaders(),
     body: JSON.stringify({
       customer,
       items: items.map((i) => ({
@@ -293,4 +293,18 @@ export async function submitOrder({ customer, items, userId, referralCode, smsCo
     throw new Error(data?.error || 'Could not submit your order. Please try again.')
   }
   return data
+}
+
+/** Checkout requests carry the signed-in user's access token so the server can
+ *  confirm the account has been approved (compliance gate). */
+async function checkoutHeaders() {
+  const headers = { 'Content-Type': 'application/json' }
+  try {
+    const { data } = await supabase.auth.getSession()
+    const token = data?.session?.access_token
+    if (token) headers.Authorization = `Bearer ${token}`
+  } catch {
+    /* not signed in — the server will refuse the checkout */
+  }
+  return headers
 }

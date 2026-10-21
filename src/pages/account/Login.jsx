@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
+import BenchCard from './BenchCard.jsx'
 import './account.css'
 
 export default function Login() {
@@ -12,7 +13,8 @@ export default function Login() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const dest = location.state?.from || '/account'
+  // Restricted pages send unapproved accounts on to the pending notice.
+  const dest = location.state?.from || '/products'
   if (!loading && user) return <Navigate to={dest} replace />
 
   const onSubmit = async (e) => {
@@ -23,62 +25,55 @@ export default function Login() {
       await signIn(email.trim(), password)
       navigate(dest, { replace: true })
     } catch (err) {
-      setError(err.message || 'Sign-in failed.')
+      setError(
+        /email not confirmed/i.test(err.message || '')
+          ? 'Confirm your email first: click the link we sent when you registered.'
+          : err.message || 'Sign-in failed.'
+      )
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <div className="auth">
-      <form className="auth__card auth__card--narrow" onSubmit={onSubmit}>
-        <header className="auth__head">
-          <span className="auth__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
-              stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-              strokeLinejoin="round">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-              <path d="M10 17l5-5-5-5M15 12H3" />
-            </svg>
-          </span>
-          <h1>Welcome back</h1>
-          <p>Log in to your Renew account.</p>
-        </header>
+    <BenchCard as="form" pill="Members only" onSubmit={onSubmit} noValidate>
+      <h1 className="bench__title">Log in to Renew.</h1>
+      <p className="bench__lede">
+        The catalog is available to approved researcher accounts only.
+      </p>
 
-        {!isSupabaseConfigured && (
-          <div className="auth__alert auth__alert--warn">
-            Supabase isn’t configured. Add your keys to <code>.env</code> to
-            enable login.
-          </div>
-        )}
-        {error && <div className="auth__alert auth__alert--error">{error}</div>}
-
-        <label>
-          Email Address
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="your.email@example.com" autoComplete="email" required />
-        </label>
-        <label>
-          Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password" autoComplete="current-password" required />
-        </label>
-
-        <div className="auth__row-end">
-          <Link to="/forgot-password" className="auth__link-sm">
-            Forgot your password?
-          </Link>
+      {!isSupabaseConfigured && (
+        <div className="auth__alert auth__alert--warn">
+          Supabase isn’t configured. Add your keys to <code>.env</code> to enable login.
         </div>
+      )}
+      {error && <div className="auth__alert auth__alert--error" role="alert">{error}</div>}
 
-        <button type="submit" className="btn btn--primary btn--block auth__submit"
-          disabled={busy || !isSupabaseConfigured}>
-          {busy ? 'Signing in…' : 'Log in'}
-        </button>
+      <div className="bench__field">
+        <label htmlFor="login-email" className="bench__label">Email</label>
+        <input id="login-email" className="bench__input" type="email" value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com" autoComplete="email" required />
+      </div>
+      <div className="bench__field">
+        <label htmlFor="login-password" className="bench__label">Password</label>
+        <input id="login-password" className="bench__input" type="password" value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••" autoComplete="current-password" required />
+        <Link to="/forgot-password" className="bench__help bench__help--link">
+          Forgot your password?
+        </Link>
+      </div>
 
-        <p className="auth__foot">
-          Don’t have an account? <Link to="/signup">Sign up here</Link>
-        </p>
-      </form>
-    </div>
+      <button type="submit" className="bench__submit"
+        disabled={busy || !isSupabaseConfigured || !email || !password}>
+        {busy ? 'Logging in…' : 'Log in'}
+        <span aria-hidden="true">→</span>
+      </button>
+
+      <p className="bench__foot">
+        New to Renew? <Link to="/signup">Create a researcher account</Link>
+      </p>
+    </BenchCard>
   )
 }

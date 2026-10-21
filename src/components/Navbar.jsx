@@ -14,7 +14,9 @@ const links = [
   { to: '/blog', label: 'Research' },
 ]
 
-export default function Navbar() {
+/** `restricted`: the visitor isn't an approved account yet, so only the logo
+ *  and account control show (no store links, cart, or Shop button). */
+export default function Navbar({ restricted = false }) {
   const { count, openCart } = useCart()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -25,6 +27,7 @@ export default function Navbar() {
           <Logo />
         </Link>
 
+        {!restricted && (
         <nav className={`nav__links ${menuOpen ? 'is-open' : ''}`}>
           {links.map((l) => (
             <NavLink
@@ -40,8 +43,10 @@ export default function Navbar() {
             </NavLink>
           ))}
         </nav>
+        )}
 
         <div className="nav__actions">
+          {!restricted && (
           <button
             className="nav__icon"
             aria-label="Open cart"
@@ -56,13 +61,17 @@ export default function Navbar() {
             </svg>
             {count > 0 && <span className="nav__badge">{count}</span>}
           </button>
+          )}
 
           <AccountMenu onNavigate={() => setMenuOpen(false)} />
 
+          {!restricted && (
           <Link to="/products" className="btn btn--primary nav__shop">
             Shop
           </Link>
+          )}
 
+          {!restricted && (
           <button
             className={`nav__burger ${menuOpen ? 'is-open' : ''}`}
             aria-label="Toggle menu"
@@ -73,6 +82,7 @@ export default function Navbar() {
             <span />
             <span />
           </button>
+          )}
         </div>
       </div>
     </header>

@@ -16,6 +16,7 @@
 import Stripe from 'stripe'
 import {
   readEnv,
+  requireApprovedAccount,
   round2,
   makeOrderNumber,
   verifyItems,
@@ -54,6 +55,11 @@ export async function handler(event) {
   if (items.length === 0) return json(400, { error: 'Your cart is empty.' })
 
   const env = readEnv()
+
+  // Compliance gate: approved researcher accounts (and admins) only.
+  const access = await requireApprovedAccount(env, event)
+  if (!access.ok) return json(access.status, { error: access.error })
+  payload.user_id = access.userId
 
   // 1. Authoritative re-pricing.
   const { items: priced, subtotal, error: priceError } = await verifyItems(env, items)

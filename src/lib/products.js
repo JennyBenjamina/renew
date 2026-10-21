@@ -1,11 +1,13 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient'
-import { products as localProducts } from '../data/products'
 
 /* Single data-access layer for products.
- * - If Supabase is configured, it queries the `products` table.
- * - Otherwise it returns the bundled local catalog.
- * Components never talk to Supabase directly — they call these functions,
- * so swapping the backend never touches the UI. */
+ * The catalog lives only in Supabase, where row-level security returns it to
+ * approved researcher accounts and admins (compliance gate). There is no
+ * bundled fallback catalog: product names and prices must never ship in the
+ * public site code. Components call these functions rather than Supabase. */
+
+/** Storefront category filter options. */
+export const categories = ['All', 'GLP', 'Peptides', 'Compounds']
 
 export async function fetchProducts() {
   if (isSupabaseConfigured) {
@@ -15,12 +17,12 @@ export async function fetchProducts() {
       .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
     if (error) {
-      console.warn('Supabase fetch failed, using local catalog:', error.message)
-      return localProducts
+      console.warn('Could not load the catalog:', error.message)
+      return []
     }
-    return data
+    return data || []
   }
-  return localProducts
+  return []
 }
 
 export async function fetchFeaturedProducts() {

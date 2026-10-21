@@ -8,20 +8,21 @@
 
 const SITE = 'https://renewlabslv.com'
 
+// Compliance gate: everything except these pages requires an approved
+// researcher account, so only the publicly reachable pages are listed.
 const STATIC_ROUTES = [
-  { path: '/', priority: '1.0', changefreq: 'weekly' },
-  { path: '/products', priority: '0.9', changefreq: 'weekly' },
-  { path: '/blog', priority: '0.8', changefreq: 'weekly' },
-  { path: '/coas', priority: '0.7', changefreq: 'weekly' },
-  { path: '/delivery', priority: '0.6', changefreq: 'monthly' },
-  { path: '/partner', priority: '0.6', changefreq: 'monthly' },
-  { path: '/faq', priority: '0.6', changefreq: 'monthly' },
+  { path: '/login', priority: '0.6', changefreq: 'monthly' },
+  { path: '/signup', priority: '0.6', changefreq: 'monthly' },
   { path: '/certificates-of-analysis', priority: '0.5', changefreq: 'monthly' },
   { path: '/research-use-terms', priority: '0.4', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
   { path: '/refund-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
 ]
+
+// Blog posts sit behind the gate too. Set to true if the blog is ever made
+// public again so posts return to the sitemap.
+const BLOG_IS_PUBLIC = false
 
 const xmlEscape = (s) =>
   String(s).replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]))
@@ -43,7 +44,7 @@ async function fetchPosts() {
 }
 
 export async function handler() {
-  const posts = await fetchPosts()
+  const posts = BLOG_IS_PUBLIC ? await fetchPosts() : []
   const today = new Date().toISOString().slice(0, 10)
 
   const urls = [

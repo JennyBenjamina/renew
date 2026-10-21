@@ -1,194 +1,165 @@
 import { useState } from 'react'
-import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { TERMS_VERSION } from '../../lib/compliance.js'
+import { ATTESTATIONS, validateRegistration } from '../../lib/researcher.jsx'
+import BenchCard, { PendingNotice } from './BenchCard.jsx'
 import './account.css'
 
 const empty = {
-  full_name: '',
   email: '',
-  phone: '',
+  institution: '',
   password: '',
-  confirm: '',
+  attest_age_21: false,
+  attest_researcher: false,
+  attest_research_only: false,
+  attest_terms: false,
 }
+
+const termsLabel = (
+  <>
+    I agree to the Renew <Link to="/terms-of-service">Terms of Service</Link>,{' '}
+    <Link to="/research-use-terms">Research Use Terms</Link>,{' '}
+    <Link to="/privacy-policy">Privacy Policy</Link>, and applicable compliance
+    requirements.
+  </>
+)
 
 export default function Signup() {
   const { user, loading, signUp, isSupabaseConfigured } = useAuth()
-  const navigate = useNavigate()
   const [form, setForm] = useState(empty)
+  const [touched, setTouched] = useState({})
+  const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [done, setDone] = useState(null) // null | 'confirm'
+  const [doneEmail, setDoneEmail] = useState(null)
 
-  if (!loading && user) return <Navigate to="/account" replace />
+  // Step 5: straight after registering, show the pending notice.
+  if (doneEmail) {
+    return (
+      <BenchCard pill="Under review">
+        <PendingNotice email={doneEmail} />
+        <p className="bench__foot">
+          Already approved? <Link to="/login">Log in</Link>
+        </p>
+      </BenchCard>
+    )
+  }
+  if (!loading && user) return <Navigate to="/account/pending" replace />
 
-  const set = (f) => (e) => setForm((s) => ({ ...s, [f]: e.target.value }))
-
-  // Live, per-field validation (only shown once the user has typed something).
-  const passwordError =
-    form.password.length > 0 && form.password.length < 8
-      ? 'Password must be at least 8 characters.'
-      : ''
-  const confirmError =
-    form.confirm.length > 0 && form.confirm !== form.password
-      ? 'Passwords do not match.'
-      : ''
-  const canSubmit =
-    form.password.length >= 8 && form.password === form.confirm
+  const errors = validateRegistration(form)
+  const show = (f) => (submitted || touched[f]) && errors[f]
+  const setText = (f) => (e) => setForm((s) => ({ ...s, [f]: e.target.value }))
+  const blur = (f) => () => setTouched((t) => ({ ...t, [f]: true }))
+  const toggle = (f) => (e) => setForm((s) => ({ ...s, [f]: e.target.checked }))
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!canSubmit) return // inline messages already explain what's wrong
+    setSubmitted(true)
+    if (Object.keys(errors).length) return
 
     setBusy(true)
     try {
-      const { needsConfirmation } = await signUp({
-        email: form.email.trim(),
+      const email = form.email.trim().toLowerCase()
+      await signUp({
+        email,
         password: form.password,
-        full_name: form.full_name.trim(),
-        phone: form.phone.trim(),
+        institution: form.institution.trim(),
+        attest_age_21: true,
+        attest_researcher: true,
+        attest_research_only: true,
+        attest_terms: true,
+        terms_version: TERMS_VERSION,
       })
-      if (needsConfirmation) setDone('confirm')
-      else navigate('/account', { replace: true })
+      setDoneEmail(email)
     } catch (err) {
-      setError(err.message || 'Sign-up failed.')
+      setError(err.message || 'Registration failed.')
     } finally {
       setBusy(false)
     }
   }
 
-  if (done === 'confirm') {
-    return (
-      <div className="auth">
-        <div className="auth__card auth__card--narrow auth__confirm">
-          <span className="auth__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="none"
-              stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-              strokeLinejoin="round">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <path d="M4 7l8 6 8-6" />
-            </svg>
-          </span>
-          <h1>Check your email</h1>
-          <p>
-            We sent a confirmation link to <strong>{form.email}</strong>. Click it
-            to activate your account, then log in.
-          </p>
-          <Link to="/login" className="btn btn--primary btn--block">
-            Go to login
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="auth">
-      <form className="auth__card" onSubmit={onSubmit}>
-        <header className="auth__head">
-          <span className="auth__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
-              stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-              strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M19 8v6M22 11h-6" />
-            </svg>
-          </span>
-          <h1>Create Account</h1>
-          <p>Join Renew to access premium research compounds.</p>
-        </header>
+    <BenchCard as="form" pill="21+ · Lab use" onSubmit={onSubmit} noValidate>
+      <h1 className="bench__title">Create your researcher account.</h1>
+      <p className="bench__lede">
+        An account is required to browse the catalog. Every registration is
+        reviewed by our team before access is granted.
+      </p>
 
-        {!isSupabaseConfigured && (
-          <div className="auth__alert auth__alert--warn">
-            Supabase isn’t configured. Add your keys to <code>.env</code> to
-            enable sign-up.
-          </div>
-        )}
-        {error && <div className="auth__alert auth__alert--error">{error}</div>}
-
-        <section className="auth__section">
-          <h2 className="auth__section-title">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-              stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-              strokeLinejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M19 8v6M22 11h-6" />
-            </svg>
-            Account Details
-          </h2>
-          <div className="auth__grid">
-            <label>
-              Full Name
-              <input value={form.full_name} onChange={set('full_name')}
-                placeholder="Enter your full name" required />
-            </label>
-            <label>
-              Email Address
-              <input type="email" value={form.email} onChange={set('email')}
-                placeholder="your.email@example.com" autoComplete="email" required />
-            </label>
-            <label>
-              Phone Number <span className="auth__optional">Optional</span>
-              <input value={form.phone} onChange={set('phone')}
-                placeholder="(555) 123-4567" autoComplete="tel" />
-            </label>
-            <span className="auth__spacer" aria-hidden="true" />
-            <label>
-              Password
-              <input type="password" value={form.password} onChange={set('password')}
-                className={passwordError ? 'is-invalid' : ''}
-                aria-invalid={Boolean(passwordError)}
-                placeholder="At least 8 characters" autoComplete="new-password" required />
-              {passwordError && (
-                <span className="auth__field-error">{passwordError}</span>
-              )}
-            </label>
-            <label>
-              Confirm Password
-              <input type="password" value={form.confirm} onChange={set('confirm')}
-                className={confirmError ? 'is-invalid' : ''}
-                aria-invalid={Boolean(confirmError)}
-                placeholder="Re-enter your password" autoComplete="new-password" required />
-              {confirmError && (
-                <span className="auth__field-error">{confirmError}</span>
-              )}
-            </label>
-          </div>
-        </section>
-
-        <div className="auth__consent">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-            stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-            strokeLinejoin="round">
-            <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
-            <path d="M9 12l2 2 4-4" />
-          </svg>
-          <span>
-            By creating an account, you verify that you will use products strictly
-            for research purposes and agree to our{' '}
-            <Link to="/terms-of-service">Terms of Service</Link>.
-          </span>
+      {!isSupabaseConfigured && (
+        <div className="auth__alert auth__alert--warn">
+          Supabase isn’t configured. Add your keys to <code>.env</code> to enable sign-up.
         </div>
+      )}
+      {error && <div className="auth__alert auth__alert--error" role="alert">{error}</div>}
 
-        <button
-          type="submit"
-          className="btn btn--primary btn--block auth__submit"
-          disabled={busy || !isSupabaseConfigured || !canSubmit}
-        >
-          {busy ? 'Creating account…' : 'Create Account'}
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
-            stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
-            strokeLinejoin="round">
-            <path d="M5 12h14M13 6l6 6-6 6" />
-          </svg>
-        </button>
+      <div className="bench__field">
+        <label htmlFor="signup-email" className="bench__label">Email</label>
+        <input id="signup-email" className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
+          type="email" value={form.email} onChange={setText('email')} onBlur={blur('email')}
+          placeholder="you@example.com" autoComplete="email" required
+          aria-invalid={Boolean(show('email'))} aria-describedby="signup-email-help" />
+        {show('email') && <span className="bench__error">{errors.email}</span>}
+        <span id="signup-email-help" className="bench__help">
+          A confirmation link will be sent to this address. The account can’t be
+          used until it’s verified.
+        </span>
+      </div>
 
-        <p className="auth__foot">
-          Already have an account? <Link to="/login">Log in here</Link>
-        </p>
-      </form>
-    </div>
+      <div className="bench__field">
+        <label htmlFor="signup-institution" className="bench__label">
+          Registered business / institution
+        </label>
+        <input id="signup-institution"
+          className={`bench__input ${show('institution') ? 'is-invalid' : ''}`}
+          value={form.institution} onChange={setText('institution')} onBlur={blur('institution')}
+          placeholder="e.g. University of Nevada, Las Vegas — School of Life Sciences"
+          autoComplete="organization" required
+          aria-invalid={Boolean(show('institution'))} aria-describedby="signup-inst-help" />
+        {show('institution') && <span className="bench__error">{errors.institution}</span>}
+        <span id="signup-inst-help" className="bench__help">
+          Accounts must be part of an organization listed in the Research
+          Organization Registry (<a href="https://ror.org" target="_blank" rel="noreferrer">ror.org</a>).
+          We check every registration against the registry during account review.
+        </span>
+      </div>
+
+      <div className="bench__field">
+        <label htmlFor="signup-password" className="bench__label">Password</label>
+        <input id="signup-password" className={`bench__input ${show('password') ? 'is-invalid' : ''}`}
+          type="password" value={form.password} onChange={setText('password')} onBlur={blur('password')}
+          placeholder="At least 8 characters" autoComplete="new-password" required
+          aria-invalid={Boolean(show('password'))} />
+        {show('password') && <span className="bench__error">{errors.password}</span>}
+      </div>
+
+      <fieldset className="bench__checks">
+        <legend className="visually-hidden">Compliance statements</legend>
+        {ATTESTATIONS.map((a) => (
+          <label key={a.key} className={`bench__check ${form[a.key] ? 'is-checked' : ''}`}>
+            <input id={`signup-${a.key}`} type="checkbox" checked={form[a.key]}
+              onChange={toggle(a.key)} />
+            <span>{a.label || termsLabel}</span>
+          </label>
+        ))}
+        {submitted && errors.attestations && (
+          <span className="bench__error">{errors.attestations}</span>
+        )}
+      </fieldset>
+
+      <button type="submit" className="bench__submit" disabled={busy || !isSupabaseConfigured}>
+        {busy ? 'Submitting…' : 'Submit for review'}
+        <span aria-hidden="true">→</span>
+      </button>
+
+      <p className="bench__note">
+        New accounts are reviewed by our team before the catalog unlocks.
+      </p>
+      <p className="bench__foot">
+        Already have an account? <Link to="/login">Log in</Link>
+      </p>
+    </BenchCard>
   )
 }
