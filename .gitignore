@@ -38,3 +38,6 @@ pnpm-debug.log*
 # Supabase (local CLI artifacts, if you use it)
 supabase/.branches
 supabase/.temp
+
+# Vite temp files written during builds
+vite.config.js.timestamp-*
