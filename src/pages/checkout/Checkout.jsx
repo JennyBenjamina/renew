@@ -6,8 +6,6 @@ import {
   submitOrder,
   processPayment,
   createPaymentIntent,
-  PICKUP_PHONE,
-  PICKUP_PHONE_HREF,
 } from '../../lib/orders.js'
 import { money } from '../../lib/format.js'
 import { trackInitiateCheckout, trackPurchase } from '../../lib/tracking.js'
@@ -386,7 +384,7 @@ export default function Checkout() {
               : 'We’ll reach out to arrange your delivery. No payment is taken online — you’ll pay on delivery.'}
           </p>
           <p className="checkout__confirm-contact">
-            Questions? Call or text us at <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
+            Questions? Reply to your order confirmation email.
           </p>
           <Link to="/products" className="btn btn--primary">
             Continue browsing

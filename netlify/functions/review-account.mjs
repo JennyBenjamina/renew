@@ -109,6 +109,7 @@ export async function handler(event) {
         body: JSON.stringify({
           from: FROM,
           to: [profile.email],
+          reply_to: env.REPLY_TO,
           subject: approved
             ? 'Your Renew researcher account is approved'
             : 'Your Renew account registration',

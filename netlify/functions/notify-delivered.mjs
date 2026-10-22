@@ -136,6 +136,7 @@ export async function handler(event) {
         body: JSON.stringify({
           from: FROM,
           to: [order.customer_email],
+          reply_to: env.REPLY_TO,
           bcc: NOTIFY && NOTIFY.length ? NOTIFY : undefined,
           subject: `Your Renew order ${order.order_number} was delivered`,
           html,

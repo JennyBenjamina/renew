@@ -1,9 +1,5 @@
 import { useState } from "react";
-import {
-  PICKUP_PHONE,
-  PICKUP_PHONE_HREF,
-  submitDeliveryInquiry,
-} from "../lib/orders.js";
+import { submitDeliveryInquiry } from "../lib/orders.js";
 import "./LocalPickup.css";
 
 const steps = [
@@ -92,26 +88,13 @@ export default function LocalPickup() {
                 <dd>Mon–Sun, 10:00 AM – 5:00 PM</dd>
               </div>
               <div>
-                <dt>What to have ready</dt>
-                <dd>Payment and a valid government-issued ID.</dd>
-              </div>
-              <div>
                 <dt>Scheduling</dt>
                 <dd>We reach out within 24 hours to arrange your delivery.</dd>
               </div>
-              <div>
-                <dt>Contact</dt>
-                <dd>
-                  <a href={PICKUP_PHONE_HREF} className="pickup__phone">
-                    {PICKUP_PHONE}
-                  </a>
-                </dd>
-              </div>
             </dl>
             <p className="pickup__note">
-              Delivery details are confirmed by phone or email for verified
-              orders only. Questions? Call us at{" "}
-              <a href={PICKUP_PHONE_HREF}>{PICKUP_PHONE}</a>.
+              Delivery details are confirmed by email for verified orders
+              only.
             </p>
           </div>
 

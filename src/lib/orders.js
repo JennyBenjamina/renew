@@ -4,9 +4,6 @@
 
 import { supabase, isSupabaseConfigured } from './supabaseClient'
 
-export const PICKUP_PHONE = '(424) 877-5528'
-export const PICKUP_PHONE_HREF = 'tel:+14248775528'
-
 export const ORDER_STATUSES = ['pending', 'ready', 'shipped', 'delivered', 'cancelled']
 export const PAYMENT_STATUSES = ['unpaid', 'paid', 'cancelled']
 

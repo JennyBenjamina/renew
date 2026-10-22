@@ -109,6 +109,7 @@ export async function handler(event) {
             body: JSON.stringify({
               from: FROM,
               to: [rep.email],
+              reply_to: env.REPLY_TO,
               subject: `You've been paid ${amount} — order ${order.order_number}`,
               html,
             }),

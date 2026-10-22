@@ -150,12 +150,12 @@ are server-side, do NOT prefix with `VITE_`):
 | `RESEND_API_KEY` | Your Resend API key (`re_…`) |
 | `ORDER_FROM_EMAIL` (optional) | `Renew Orders <orders@renewlabslv.com>` (must be on your Resend-verified domain) |
 | `ORDER_NOTIFY_EMAILS` (optional) | defaults to `abrahamleencoln@gmail.com,jennylee1989@gmail.com` |
+| `REPLY_TO_EMAILS` (optional) | where customer replies go; defaults to `jenny@renewlabslv.com,abe@renewlabslv.com` |
 
 The `service_role` key is powerful — it only lives in Netlify's function
 environment, never in the frontend or the repo.
 
-Pickup contact phone `(424) 877-5528` is shown on the Local Pickup page and at
-checkout. Logged-in customers' orders also appear in their order history.
+Logged-in customers' orders appear in their order history.
 
 Local note: the checkout submit calls `/.netlify/functions/submit-order`, which
 only runs on Netlify (or via `netlify dev`), not plain `npm run dev`.

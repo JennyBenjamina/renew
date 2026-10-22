@@ -133,6 +133,7 @@ export async function handler(event) {
         body: JSON.stringify({
           from: FROM,
           to: [order.customer_email],
+          reply_to: env.REPLY_TO,
           subject: `Your Renew order ${order.order_number} has shipped`,
           html,
         }),

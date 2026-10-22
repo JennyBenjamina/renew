@@ -11,7 +11,7 @@
 //   ORDER_NOTIFY_EMAILS          comma-separated; default: the two owner emails
 // Optional Meta Conversions API (server-side Purchase tracking):
 //   META_PIXEL_ID, META_CAPI_TOKEN
-import { readEnv, requireApprovedAccount } from './_order.mjs'
+import { readEnv, requireApprovedAccount, customerReplyTo } from './_order.mjs'
 
 import crypto from 'node:crypto'
 import { shippingEstimate } from './_shipping.mjs'
@@ -161,7 +161,6 @@ export async function handler(event) {
   }
 
   // 2. Emails via Resend — branded shell with the Renew logo.
-  const PICKUP_PHONE = '(424) 877-5528'
   const firstName = (customer.name || '').trim().split(/\s+/)[0] || 'there'
 
   const itemRows = orderRow.items
@@ -226,8 +225,7 @@ export async function handler(event) {
       No payment was taken online — you’ll pay on delivery.
     </p>
     <p style="color:#5c5f58;line-height:1.6;margin:0;">
-      Questions in the meantime? Call or text us at
-      <a href="tel:+14248775528" style="color:#a4605a;font-weight:600;">${PICKUP_PHONE}</a>.
+      Questions in the meantime? Just reply to this email.
     </p>
   `)
 
@@ -263,7 +261,7 @@ export async function handler(event) {
       [customer.email],
       `Your Renew order ${orderNumber} — we’ll be in touch`,
       customerHtml,
-      NOTIFY[0]
+      customerReplyTo()
     ),
   ])
 

@@ -5,6 +5,7 @@
 // Uses the same env vars as the order function:
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
 //   ORDER_FROM_EMAIL (from), ORDER_NOTIFY_EMAILS (recipients)
+import { customerReplyTo } from './_order.mjs'
 
 const json = (status, body) => ({
   statusCode: status,
@@ -154,7 +155,7 @@ export async function handler(event) {
       [email],
       'Thanks for applying to partner with Renew',
       applicantHtml,
-      NOTIFY[0]
+      customerReplyTo()
     ),
   ])
 

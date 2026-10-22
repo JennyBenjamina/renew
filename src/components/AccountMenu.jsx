@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
+// Temporarily hidden while the affiliate dashboard is being fixed.
+// Set back to true to show the menu item again.
+const SHOW_AFFILIATE_DASHBOARD = false
+
 function initials(name, email) {
   if (name?.trim()) {
     const parts = name.trim().split(/\s+/)
@@ -99,7 +103,7 @@ export default function AccountMenu({ onNavigate }) {
             </Link>
           )}
 
-          {isAffiliate && (
+          {SHOW_AFFILIATE_DASHBOARD && isAffiliate && (
             <Link to="/affiliate/dashboard" className="acct__item" role="menuitem" onClick={go}>
               <svg viewBox="0 0 24 24" width="17" height="17" fill="none"
                 stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"

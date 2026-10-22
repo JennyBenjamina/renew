@@ -24,6 +24,15 @@ export function makeOrderNumber() {
   )
 }
 
+/** Where customer replies go: every email a customer, applicant or rep
+ *  receives sets this as its Reply-To. Override with REPLY_TO_EMAILS. */
+export function customerReplyTo() {
+  return (process.env.REPLY_TO_EMAILS || 'jenny@renewlabslv.com,abe@renewlabslv.com')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
 /** Env bundle used across helpers. */
 export function readEnv() {
   return {
@@ -38,6 +47,7 @@ export function readEnv() {
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean),
+    REPLY_TO: customerReplyTo(),
     META_PIXEL_ID: process.env.META_PIXEL_ID,
     META_CAPI_TOKEN: process.env.META_CAPI_TOKEN,
   }
@@ -228,7 +238,6 @@ export async function sendOrderEmails(env, o) {
     console.warn('RESEND_API_KEY not set — order emails not sent.')
     return
   }
-  const PICKUP_PHONE = '(424) 877-5528'
   const firstName = (o.customer.name || '').trim().split(/\s+/)[0] || 'there'
   const table = itemsTableHtml(o)
   const paid = o.paymentStatus === 'paid'
@@ -263,7 +272,7 @@ export async function sendOrderEmails(env, o) {
     ${table}
     <p style="color:#5c5f58;line-height:1.6;margin:16px 0 6px;">${payLine}</p>
     <p style="color:#5c5f58;line-height:1.6;margin:0;">
-      Questions? Call or text us at <a href="tel:+14248775528" style="color:#a4605a;font-weight:600;">${PICKUP_PHONE}</a>.
+      Questions? Just reply to this email.
     </p>
   `)
 
@@ -282,7 +291,7 @@ export async function sendOrderEmails(env, o) {
 
   await Promise.all([
     send(NOTIFY, `New order ${o.orderNumber} — ${o.customer.name}`, ownerHtml, o.customer.email),
-    send([o.customer.email], `Your Renew order ${o.orderNumber}`, customerHtml, NOTIFY[0]),
+    send([o.customer.email], `Your Renew order ${o.orderNumber}`, customerHtml, env.REPLY_TO),
   ])
 }
 
