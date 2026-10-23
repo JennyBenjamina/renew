@@ -31,14 +31,8 @@ export const ATTESTATIONS = [
 export function validateRegistration(form) {
   const errors = {}
   const email = form.email.trim()
-  if (!email) errors.email = 'Enter your institutional email.'
+  if (!email) errors.email = 'Enter your email.'
   else if (!EMAIL_RE.test(email)) errors.email = 'Enter a valid email address.'
-  else if (isPersonalEmail(email)) {
-    errors.email = 'Personal email providers (Gmail, Yahoo, Outlook, etc.) aren’t accepted. Use your institutional or business email.'
-  }
-  const inst = form.institution.trim()
-  if (!inst) errors.institution = 'Enter your registered business or institution.'
-  else if (inst.length < 3) errors.institution = 'Enter the full name of your business or institution.'
   if (form.password.length < 8) errors.password = 'Password must be at least 8 characters.'
   if (ATTESTATIONS.some((a) => !form[a.key])) {
     errors.attestations = 'Confirm every statement to create an account.'

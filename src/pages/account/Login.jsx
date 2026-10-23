@@ -36,10 +36,11 @@ export default function Login() {
   }
 
   return (
-    <BenchCard as="form" pill="Members only" onSubmit={onSubmit} noValidate>
+    <BenchCard as="form" pill="Account" onSubmit={onSubmit} noValidate>
       <h1 className="bench__title">Log in to Renew.</h1>
       <p className="bench__lede">
-        The catalog is available to approved researcher accounts only.
+        Log in to see your orders and check out faster. No account? You can
+        still shop and check out as a guest.
       </p>
 
       {!isSupabaseConfigured && (
@@ -72,7 +73,7 @@ export default function Login() {
       </button>
 
       <p className="bench__foot">
-        New to Renew? <Link to="/signup">Create a researcher account</Link>
+        New to Renew? <Link to="/signup">Create an account</Link>
       </p>
     </BenchCard>
   )

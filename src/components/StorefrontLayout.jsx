@@ -1,6 +1,5 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useCompliance } from '../context/ComplianceContext.jsx'
-import { useAuth } from '../context/AuthContext.jsx'
 import ComplianceGate from './ComplianceGate.jsx'
 import Navbar from './Navbar.jsx'
 import Footer from './Footer.jsx'
@@ -8,19 +7,14 @@ import CartDrawer from './CartDrawer.jsx'
 import ErrorBoundary from './ErrorBoundary.jsx'
 import '../App.css'
 
-/* Compliance gate (required by our payment processor).
+/* Storefront layout. The store is open to everyone (no account or approval
+ * needed to browse or buy).
  *
  *   1. Legal pages are readable by anyone, so the agreement's links work.
- *   2. Every other storefront page first requires the compliance agreement.
- *   3. Login, signup, password reset and the pending notice need only the
- *      agreement.
- *   4. Everything else (home, catalog, COAs, blog, cart, checkout, account…)
- *      needs a signed-in account that an admin has approved. Pending, rejected
- *      and logged-out visitors are redirected, including on direct links.
+ *   2. Every other storefront page first requires the 21+ / research-use
+ *      compliance agreement.
  *
- * The catalog itself is also locked in the database (row-level security), and
- * checkout functions re-check approval server-side, so hiding pages here is
- * not the only line of defence. The /admin area doesn't use this layout. */
+ * The /admin area doesn't use this layout. */
 const LEGAL_PATHS = new Set([
   '/terms-of-service',
   '/privacy-policy',
@@ -28,23 +22,12 @@ const LEGAL_PATHS = new Set([
   '/research-use-terms',
   '/certificates-of-analysis',
 ])
-const ACCOUNT_ENTRY_PATHS = new Set([
-  '/login',
-  '/signup',
-  '/forgot-password',
-  '/reset-password',
-  '/account/pending',
-])
-
 export default function StorefrontLayout() {
   const { accepted } = useCompliance()
-  const { user, isApproved, loading } = useAuth()
   const { pathname } = useLocation()
   const path = pathname.replace(/\/+$/, '') || '/'
 
   const isLegal = LEGAL_PATHS.has(path)
-  const isEntry = ACCOUNT_ENTRY_PATHS.has(path)
-  const isRestricted = !isLegal && !isEntry
 
   // Step 1: the compliance agreement, before anything but the legal pages.
   if (!isLegal && !accepted) {
@@ -56,14 +39,7 @@ export default function StorefrontLayout() {
     )
   }
 
-  // Steps 2–4: restricted pages need an approved account.
-  if (isRestricted) {
-    if (loading) return <div className="admin-loading">Checking access…</div>
-    if (!user) return <Navigate to="/login" replace state={{ from: pathname }} />
-    if (!isApproved) return <Navigate to="/account/pending" replace />
-  }
-
-  const showStore = Boolean(user && isApproved)
+  const showStore = true
 
   return (
     <div className="app">

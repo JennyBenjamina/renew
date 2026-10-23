@@ -334,41 +334,25 @@ export async function metaCapiPurchase(env, { orderNumber, customer, items, tota
 }
 
 /**
- * Compliance gate: only signed-in accounts that an admin has approved (or
- * admins) may start a checkout. Reads the caller's Supabase access token from
- * the `Authorization: Bearer …` header. Returns { ok: true, userId } or
- * { ok: false, status, error } to send straight back to the client.
+ * Identify the shopper for checkout. The store is open to everyone, so this
+ * never blocks: guests check out with no account (userId null). If the request
+ * carries a valid Supabase access token (`Authorization: Bearer …`), the order
+ * is linked to that account. The account id always comes from the verified
+ * token, never from the request body. Returns { ok: true, userId }.
  */
 export async function requireApprovedAccount(env, event) {
   const { SUPABASE_URL, SERVICE_KEY } = env
-  if (!SUPABASE_URL || !SERVICE_KEY) {
-    return { ok: false, status: 503, error: 'Checkout is not available right now.' }
-  }
   const header = event.headers?.authorization || event.headers?.Authorization || ''
   const token = header.replace(/^Bearer\s+/i, '').trim()
-  if (!token) {
-    return { ok: false, status: 401, error: 'Please log in to your approved researcher account to check out.' }
-  }
+  if (!token || !SUPABASE_URL || !SERVICE_KEY) return { ok: true, userId: null }
   try {
     const uRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
       headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${token}` },
     })
-    if (!uRes.ok) return { ok: false, status: 401, error: 'Your session expired. Please log in again.' }
-    const userId = (await uRes.json())?.id
-    if (!userId) return { ok: false, status: 401, error: 'Your session expired. Please log in again.' }
-    const pRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?select=role,approval_status&id=eq.${encodeURIComponent(userId)}&limit=1`,
-      { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
-    )
-    const p = pRes.ok ? (await pRes.json())[0] : null
-    if (p && (p.role === 'admin' || p.approval_status === 'approved')) return { ok: true, userId }
-    return {
-      ok: false,
-      status: 403,
-      error: 'Your account is awaiting approval. Checkout opens once our team approves it.',
-    }
+    if (!uRes.ok) return { ok: true, userId: null }
+    return { ok: true, userId: (await uRes.json())?.id || null }
   } catch (err) {
     console.error('requireApprovedAccount error:', err)
-    return { ok: false, status: 500, error: 'Could not verify your account.' }
+    return { ok: true, userId: null }
   }
 }

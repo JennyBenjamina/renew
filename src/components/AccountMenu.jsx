@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 // Temporarily hidden while the affiliate dashboard is being fixed.
 // Set back to true to show the menu item again.
-const SHOW_AFFILIATE_DASHBOARD = false
+const SHOW_AFFILIATE_DASHBOARD = true
 
 function initials(name, email) {
   if (name?.trim()) {

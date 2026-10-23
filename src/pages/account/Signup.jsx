@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { TERMS_VERSION } from '../../lib/compliance.js'
 import { ATTESTATIONS, validateRegistration } from '../../lib/researcher.jsx'
-import BenchCard, { PendingNotice } from './BenchCard.jsx'
+import BenchCard from './BenchCard.jsx'
 import './account.css'
 
 const empty = {
@@ -34,18 +34,24 @@ export default function Signup() {
   const [busy, setBusy] = useState(false)
   const [doneEmail, setDoneEmail] = useState(null)
 
-  // Step 5: straight after registering, show the pending notice.
+  // Straight after registering: ask them to confirm their email.
   if (doneEmail) {
     return (
-      <BenchCard pill="Under review">
-        <PendingNotice email={doneEmail} />
+      <BenchCard pill="Almost done">
+        <div className="bench__notice" role="status">
+          <h1 className="bench__title">Check your email.</h1>
+          <p className="bench__lede">
+            We sent a confirmation link to <strong>{doneEmail}</strong>. Click it,
+            then log in. You can keep shopping in the meantime.
+          </p>
+        </div>
         <p className="bench__foot">
-          Already approved? <Link to="/login">Log in</Link>
+          <Link to="/products">Continue shopping</Link> · <Link to="/login">Log in</Link>
         </p>
       </BenchCard>
     )
   }
-  if (!loading && user) return <Navigate to="/account/pending" replace />
+  if (!loading && user) return <Navigate to="/products" replace />
 
   const errors = validateRegistration(form)
   const show = (f) => (submitted || touched[f]) && errors[f]
@@ -82,11 +88,10 @@ export default function Signup() {
 
   return (
     <BenchCard as="form" pill="21+ · Lab use" onSubmit={onSubmit} noValidate>
-      <h1 className="bench__title">Create your researcher account.</h1>
+      <h1 className="bench__title">Create your account.</h1>
       <p className="bench__lede">
-        An account is required to browse the catalog. Register with your
-        institutional or business email. Personal email domains (Gmail, Yahoo,
-        Outlook, etc.) are not accepted.
+        An account is optional. It saves your address and lets you see your
+        order history. You can also check out as a guest.
       </p>
 
       {!isSupabaseConfigured && (
@@ -97,10 +102,10 @@ export default function Signup() {
       {error && <div className="auth__alert auth__alert--error" role="alert">{error}</div>}
 
       <div className="bench__field">
-        <label htmlFor="signup-email" className="bench__label">Institutional email</label>
+        <label htmlFor="signup-email" className="bench__label">Email</label>
         <input id="signup-email" className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
           type="email" value={form.email} onChange={setText('email')} onBlur={blur('email')}
-          placeholder="name@university.edu" autoComplete="email" required
+          placeholder="you@example.com" autoComplete="email" required
           aria-invalid={Boolean(show('email'))} aria-describedby="signup-email-help" />
         {show('email') && <span className="bench__error">{errors.email}</span>}
         <span id="signup-email-help" className="bench__help">
@@ -111,20 +116,15 @@ export default function Signup() {
 
       <div className="bench__field">
         <label htmlFor="signup-institution" className="bench__label">
-          Registered business / institution
+          Business / institution <span className="bench__help">(optional)</span>
         </label>
         <input id="signup-institution"
           className={`bench__input ${show('institution') ? 'is-invalid' : ''}`}
           value={form.institution} onChange={setText('institution')} onBlur={blur('institution')}
           placeholder="e.g. University of Nevada, Las Vegas — School of Life Sciences"
-          autoComplete="organization" required
-          aria-invalid={Boolean(show('institution'))} aria-describedby="signup-inst-help" />
+          autoComplete="organization"
+          aria-invalid={Boolean(show('institution'))} />
         {show('institution') && <span className="bench__error">{errors.institution}</span>}
-        <span id="signup-inst-help" className="bench__help">
-          Accounts must be part of an organization listed in the Research
-          Organization Registry (<a href="https://ror.org" target="_blank" rel="noreferrer">ror.org</a>).
-          We check every registration against the registry during account review.
-        </span>
       </div>
 
       <div className="bench__field">
