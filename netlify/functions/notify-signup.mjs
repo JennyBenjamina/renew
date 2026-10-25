@@ -67,8 +67,8 @@ export async function handler(event) {
   })()
 
   const html = emailShell(`
-    <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New researcher account to review</h2>
-    <p style="color:#5c5f58;margin:0 0 16px;">Someone registered for a Renew account. It stays blocked from the catalog until you approve it.</p>
+    <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New customer account</h2>
+    <p style="color:#5c5f58;margin:0 0 16px;">Someone created a Renew account. No action needed. They can shop right away.</p>
     <table style="width:100%;font-size:14px;">
       <tr><td style="color:#8b8d87;padding:4px 0;">Name</td><td style="text-align:right;">${esc(profile.full_name || '—')}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Email</td><td style="text-align:right;">${esc(profile.email || email)}</td></tr>
@@ -78,7 +78,7 @@ export async function handler(event) {
       <tr><td style="color:#8b8d87;padding:4px 0;">Role</td><td style="text-align:right;">${esc(profile.role || 'customer')}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Joined</td><td style="text-align:right;">${esc(joined)} PT</td></tr>
     </table>
-    <p style="margin:18px 0 0;"><a href="${(process.env.SITE_URL || 'https://renewlabslv.com').replace(/\/+$/, '')}/admin/accounts">Review in the admin panel →</a></p>
+    <p style="margin:18px 0 0;"><a href="${(process.env.SITE_URL || 'https://renewlabslv.com').replace(/\/+$/, '')}/admin/accounts">View in the admin panel →</a></p>
     <p style="color:#8b8d87;font-size:12px;margin-top:12px;">Reply to reach the new member.</p>
   `)
 
@@ -90,7 +90,7 @@ export async function handler(event) {
         from: FROM,
         to: NOTIFY,
         reply_to: profile.email || email,
-        subject: `Account to review — ${profile.institution || profile.email || email}`,
+        subject: `New account — ${profile.institution || profile.email || email}`,
         html,
       }),
     })
