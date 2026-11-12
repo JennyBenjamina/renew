@@ -3,16 +3,6 @@
  * enforced again in the database by supabase/signup_fields.sql, so the form
  * can't be bypassed through the API. Keep ENTITY_TYPES in step with that file. */
 
-/** Quick-pick email domains for the domain dropdown. '' = type your own. */
-export const EMAIL_DOMAIN_OPTIONS = [
-  { value: '', label: 'Other organization domain' },
-  { value: 'gmail.com', label: 'gmail.com' },
-  { value: 'outlook.com', label: 'outlook.com' },
-  { value: 'yahoo.com', label: 'yahoo.com' },
-  { value: 'icloud.com', label: 'icloud.com' },
-  { value: 'hotmail.com', label: 'hotmail.com' },
-]
-
 /** Business / entity types. Values are stored in profiles.entity_type. */
 export const ENTITY_TYPES = [
   { value: 'university', label: 'University / academic institution' },
@@ -33,7 +23,7 @@ export const normalizeName = (s = '') => s.trim().replace(/\s+/g, ' ').toLowerCa
 /** The full email from the split name @ domain inputs. */
 export function composeEmail(form) {
   const local = form.emailLocal.trim()
-  const domain = (form.emailDomainPick || form.emailDomain).trim().replace(/^@/, '')
+  const domain = form.emailDomain.trim().replace(/^@/, '')
   return local && domain ? `${local}@${domain}`.toLowerCase() : ''
 }
 
@@ -41,7 +31,7 @@ export function composeEmail(form) {
 export function validateRegistration(form) {
   const errors = {}
   const local = form.emailLocal.trim()
-  const domain = (form.emailDomainPick || form.emailDomain).trim().replace(/^@/, '')
+  const domain = form.emailDomain.trim().replace(/^@/, '')
   if (!local || !domain) errors.email = 'Enter your full email address.'
   else if (!LOCAL_RE.test(local) || !DOMAIN_RE.test(domain) || !EMAIL_RE.test(`${local}@${domain}`)) {
     errors.email = 'Enter a valid email address.'

@@ -5,7 +5,6 @@ import { TERMS_VERSION } from '../../lib/compliance.js'
 import { validateReferral } from '../../lib/affiliates.js'
 import { getStoredReferral } from '../../lib/referral.js'
 import {
-  EMAIL_DOMAIN_OPTIONS,
   ENTITY_TYPES,
   composeEmail,
   validateRegistration,
@@ -17,7 +16,6 @@ import './account.css'
 const initialForm = () => ({
   emailLocal: '',
   emailDomain: '',
-  emailDomainPick: '',
   institution: '',
   password: '',
   fullName: '',
@@ -123,7 +121,7 @@ export default function Signup() {
       )}
       {error && <div className="auth__alert auth__alert--error" role="alert">{error}</div>}
 
-      {/* Business email: name @ domain, with quick-pick domains */}
+      {/* Business email: name @ domain */}
       <div className="bench__field">
         <label htmlFor="signup-email-local" className="bench__label">Business email *</label>
         <div className="bench__email">
@@ -136,19 +134,11 @@ export default function Signup() {
           <span className="bench__at" aria-hidden="true">@</span>
           <input id="signup-email-domain"
             className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
-            value={form.emailDomainPick || form.emailDomain}
+            value={form.emailDomain}
             onChange={setText('emailDomain')} onBlur={blur('email')}
-            disabled={Boolean(form.emailDomainPick)}
             placeholder="organization.com" autoCapitalize="none" spellCheck={false}
             aria-label="Email domain" aria-invalid={Boolean(show('email'))} />
         </div>
-        <select id="signup-email-pick" className="bench__input bench__select"
-          value={form.emailDomainPick} onChange={setText('emailDomainPick')}
-          aria-label="Email domain shortcut">
-          {EMAIL_DOMAIN_OPTIONS.map((o) => (
-            <option key={o.value || 'other'} value={o.value}>{o.label}</option>
-          ))}
-        </select>
         {show('email') && <span className="bench__error">{errors.email}</span>}
         <span id="signup-email-help" className="bench__help">
           Email: {email || 'name@organization.com'}. We’ll send a confirmation
