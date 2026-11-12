@@ -6,10 +6,11 @@ import './account.css'
 /** Where pending and rejected accounts land. They can browse, but checkout
  *  stays closed until an admin approves the account. */
 export default function Pending() {
-  const { user, profile, loading, isApproved, approvalStatus, signOut } = useAuth()
+  const { user, profile, loading, isApproved, hasCredentials, approvalStatus, signOut } = useAuth()
 
   if (loading) return <div className="admin-loading">Checking access…</div>
   if (!user) return <Navigate to="/login" replace />
+  if (!hasCredentials) return <Navigate to="/account/credentials" replace />
   if (isApproved) return <Navigate to="/products" replace />
 
   const rejected = approvalStatus === 'rejected'

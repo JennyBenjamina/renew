@@ -27,6 +27,7 @@ import RefundPolicy from './pages/legal/RefundPolicy.jsx'
 import Login from './pages/account/Login.jsx'
 import Signup from './pages/account/Signup.jsx'
 import Pending from './pages/account/Pending.jsx'
+import Credentials from './pages/account/Credentials.jsx'
 import Account from './pages/account/Account.jsx'
 import OrderHistory from './pages/account/OrderHistory.jsx'
 import ForgotPassword from './pages/account/ForgotPassword.jsx'
@@ -84,6 +85,14 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/account/pending" element={<Pending />} />
+          <Route
+            path="/account/credentials"
+            element={
+              <ProtectedRoute>
+                <Credentials />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { hasCredentials as profileHasCredentials } from '../lib/researcher.jsx'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 
 const AuthContext = createContext(null)
@@ -135,6 +136,8 @@ export function AuthProvider({ children }) {
         isAffiliate: profile?.role === 'affiliate',
         // Compliance gate: only admins and accounts an admin approved get in.
         isApproved: approvalStatus === 'approved',
+        // Institutional credentials on file (required, with approval, to check out).
+        hasCredentials: isAdmin || profileHasCredentials(profile),
         approvalStatus,
         loading: loading || Boolean(user && profileFor !== user.id),
         signIn,

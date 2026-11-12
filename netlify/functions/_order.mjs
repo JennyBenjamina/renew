@@ -334,8 +334,8 @@ export async function metaCapiPurchase(env, { orderNumber, customer, items, tota
 }
 
 /**
- * Compliance gate: only signed-in accounts that an admin has approved (or
- * admins) may start a checkout. Reads the caller's Supabase access token from
+ * Compliance gate: only signed-in accounts with institutional credentials on
+ * file that an admin has verified/approved (or admins) may start a checkout. Reads the caller's Supabase access token from
  * the `Authorization: Bearer …` header. Returns { ok: true, userId } or
  * { ok: false, status, error } to send straight back to the client.
  */
@@ -357,11 +357,27 @@ export async function requireApprovedAccount(env, event) {
     const userId = (await uRes.json())?.id
     if (!userId) return { ok: false, status: 401, error: 'Your session expired. Please log in again.' }
     const pRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?select=role,approval_status&id=eq.${encodeURIComponent(userId)}&limit=1`,
+      `${SUPABASE_URL}/rest/v1/profiles?select=role,approval_status,institution,entity_type,signature_name,attest_age_21,attest_researcher,attest_research_only,attest_terms&id=eq.${encodeURIComponent(userId)}&limit=1`,
       { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
     )
     const p = pRes.ok ? (await pRes.json())[0] : null
-    if (p && (p.role === 'admin' || p.approval_status === 'approved')) return { ok: true, userId }
+    if (p && p.role === 'admin') return { ok: true, userId }
+    // Institutional credentials must be on file (same rule as hasCredentials in
+    // src/lib/researcher.jsx) and an admin must have verified the account.
+    const credentialsOnFile =
+      p &&
+      String(p.institution || '').trim().length >= 3 &&
+      Boolean(p.entity_type) &&
+      String(p.signature_name || '').trim().length >= 2 &&
+      p.attest_age_21 && p.attest_researcher && p.attest_research_only && p.attest_terms
+    if (p && !credentialsOnFile) {
+      return {
+        ok: false,
+        status: 403,
+        error: 'Please submit your institutional credentials before checking out.',
+      }
+    }
+    if (p && p.approval_status === 'approved') return { ok: true, userId }
     return {
       ok: false,
       status: 403,

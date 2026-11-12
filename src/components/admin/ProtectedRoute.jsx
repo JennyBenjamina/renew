@@ -11,7 +11,7 @@ export default function ProtectedRoute({
   requireAffiliate = false,
   requireApproved = false,
 }) {
-  const { user, isAdmin, isAffiliate, isApproved, loading } = useAuth()
+  const { user, isAdmin, isAffiliate, isApproved, hasCredentials, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -24,6 +24,10 @@ export default function ProtectedRoute({
   if (requireAdmin && !isAdmin) {
     // Signed in but not an admin — no access to the dashboard.
     return <Navigate to="/" replace />
+  }
+  if (requireApproved && !hasCredentials) {
+    // No institutional credentials on file yet — collect them first.
+    return <Navigate to="/account/credentials" replace state={{ from: location.pathname }} />
   }
   if (requireApproved && !isApproved) {
     // Signed in but not yet approved by an admin (or rejected) — no checkout.

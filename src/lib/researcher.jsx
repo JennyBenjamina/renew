@@ -82,3 +82,29 @@ export const isPersonalEmail = (email) => PERSONAL_EMAIL_DOMAINS.has(emailDomain
 /** Label for a stored entity_type value. */
 export const entityTypeLabel = (value) =>
   ENTITY_TYPES.find((t) => t.value === value)?.label || value || ''
+
+/** True when a profile has complete institutional credentials on file. Keep in
+ *  step with requireApprovedAccount in netlify/functions/_order.mjs. */
+export function hasCredentials(p) {
+  return Boolean(
+    p &&
+      (p.institution || '').trim().length >= 3 &&
+      ENTITY_TYPES.some((t) => t.value === p.entity_type) &&
+      (p.signature_name || '').trim().length >= 2 &&
+      p.attest_age_21 && p.attest_researcher && p.attest_research_only && p.attest_terms
+  )
+}
+
+/** Validation for the credentials form shown to existing accounts at checkout
+ *  (same rules as registration, minus email and password). */
+export function validateCredentials(form) {
+  const errors = validateRegistration({
+    ...form,
+    emailLocal: 'x',
+    emailDomain: 'example.com',
+    password: 'xxxxxxxx',
+  })
+  delete errors.email
+  delete errors.password
+  return errors
+}
