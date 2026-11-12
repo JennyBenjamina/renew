@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { isChunkLoadError, reloadForNewDeploy } from '../lib/lazyWithReload.js'
 
 /** Catches render errors in its subtree and shows a recoverable fallback
  *  instead of a blank white screen. Reset it by changing `resetKey`
@@ -15,6 +16,9 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('Render error caught by ErrorBoundary:', error, info)
+    // Page opened before a new deploy asked for code that no longer exists:
+    // reload once to pick up the new version.
+    if (isChunkLoadError(error)) reloadForNewDeploy()
   }
 
   componentDidUpdate(prevProps) {

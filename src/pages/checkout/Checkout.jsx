@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -15,14 +15,15 @@ import { tagadaEnabled } from '../../lib/tagada.js'
 import { stripeEnabled } from '../../lib/stripe.js'
 import { supabase } from '../../lib/supabaseClient.js'
 import './checkout.css'
+import { lazyWithReload } from '../../lib/lazyWithReload.js'
 
 // Precedence for the card path: Stripe first, then TagadaPay, else pay-on-delivery.
 const onlineCardEnabled = stripeEnabled || tagadaEnabled
 
 // Lazy so the payment SDKs ship in their own chunks — only fetched when online
 // payments are enabled and the shopper reaches the confirm step.
-const CardPayment = lazy(() => import('../../components/CardPayment.jsx'))
-const StripeCard = lazy(() => import('../../components/StripeCard.jsx'))
+const CardPayment = lazyWithReload(() => import('../../components/CardPayment.jsx'))
+const StripeCard = lazyWithReload(() => import('../../components/StripeCard.jsx'))
 
 const STEPS = ['Details', 'Review', 'Confirm']
 const HOLD_SECONDS = 15 * 60
