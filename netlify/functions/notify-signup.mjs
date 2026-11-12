@@ -39,7 +39,10 @@ export async function handler(event) {
 
   const env = readEnv()
   const { SUPABASE_URL, SERVICE_KEY, RESEND_API_KEY, FROM, NOTIFY } = env
-  if (!SUPABASE_URL || !SERVICE_KEY) return json(200, { ok: true, sent: false })
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    console.error('notify-signup: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — no email sent.')
+    return json(200, { ok: true, sent: false })
+  }
 
   // Confirm a real profile exists for this email (created at signup).
   let profile = null
@@ -53,7 +56,10 @@ export async function handler(event) {
   } catch (err) {
     console.error('Signup lookup error:', err)
   }
-  if (!profile) return json(200, { ok: true, sent: false })
+  if (!profile) {
+    console.error(`notify-signup: no profile found for ${email} — no email sent.`)
+    return json(200, { ok: true, sent: false })
+  }
 
   if (!RESEND_API_KEY) {
     console.warn('RESEND_API_KEY not set — signup notification not sent.')
@@ -106,10 +112,15 @@ export async function handler(event) {
         html,
       }),
     })
-    if (!res.ok) console.error('Resend failed:', res.status, await res.text())
+    if (!res.ok) {
+      console.error('notify-signup: Resend failed:', res.status, await res.text())
+      return json(200, { ok: true, sent: false })
+    }
   } catch (err) {
-    console.error('Resend error:', err)
+    console.error('notify-signup: Resend error:', err)
+    return json(200, { ok: true, sent: false })
   }
 
+  console.log(`notify-signup: emailed ${NOTIFY.join?.(', ') || NOTIFY} about ${email}`)
   return json(200, { ok: true, sent: true })
 }

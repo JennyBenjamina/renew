@@ -79,6 +79,14 @@ export function AuthProvider({ children }) {
       }
       throw error
     }
+    // Email already registered: Supabase answers "success" without creating
+    // anything (so emails can't be probed) and returns a user with no
+    // identities. Say so instead of showing a fake "registration received".
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      throw new Error(
+        'An account with this email already exists. Log in instead, or use “Forgot your password?” to reset it.'
+      )
+    }
     // Notify the store owners of the new account (fire-and-forget; the function
     // verifies the account exists before emailing, so it can't be abused).
     fetch('/.netlify/functions/notify-signup', {
