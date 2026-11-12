@@ -747,3 +747,83 @@
 .bench__signature {
   font-style: italic;
 }
+
+/* ---- Verification steps (credentials page) ---- */
+.bench__steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: bstep;
+}
+.bench__steps li {
+  counter-increment: bstep;
+  padding-top: 8px;
+  border-top: 2px solid var(--color-border);
+  font-family: var(--bench-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.bench__steps li::before {
+  content: counter(bstep) ' · ';
+}
+.bench__steps li.is-active {
+  border-top-color: var(--color-text);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* ---- Credential file upload ---- */
+.bench__file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1.5px dashed var(--color-border-strong, var(--color-border));
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.bench__file:hover,
+.bench__file:focus-within {
+  border-color: var(--color-text);
+  background: var(--color-bg);
+}
+.bench__file.has-file {
+  border-style: solid;
+  color: var(--color-text);
+}
+.bench__file.is-invalid {
+  border-color: var(--color-sale);
+}
+.bench__file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.bench__file svg {
+  flex: none;
+}
+.bench__file-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 0.86rem;
+}
+.bench__file-text strong {
+  color: var(--color-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.bench__file-text span {
+  font-size: 0.76rem;
+}

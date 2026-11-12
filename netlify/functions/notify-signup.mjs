@@ -26,6 +26,14 @@ const ENTITY_LABELS = {
   other_business: 'Other registered business',
 }
 
+const DOC_LABELS = {
+  business_license: 'Business license / registration',
+  institution_id: 'Institutional ID or employee badge',
+  institution_letter: 'Letter on institutional letterhead',
+  research_license: 'Research or laboratory license / permit',
+  other: 'Other proof of research employment',
+}
+
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' })
 
@@ -90,6 +98,7 @@ export async function handler(event) {
       <tr><td style="color:#8b8d87;padding:4px 0;">Institution</td><td style="text-align:right;">${esc(profile.institution || '—')}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Entity type</td><td style="text-align:right;">${esc(ENTITY_LABELS[profile.entity_type] || profile.entity_type || '—')}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Signed as</td><td style="text-align:right;">${esc(profile.signature_name || '—')}</td></tr>
+      <tr><td style="color:#8b8d87;padding:4px 0;">Credential document</td><td style="text-align:right;">${esc(profile.credential_doc_path ? (DOC_LABELS[profile.credential_doc_type] || 'Uploaded') : 'Not uploaded yet')}</td></tr>
       ${profile.referral_code ? `<tr><td style="color:#8b8d87;padding:4px 0;">Referral code</td><td style="text-align:right;">${esc(profile.referral_code)}</td></tr>` : ''}
       <tr><td style="color:#8b8d87;padding:4px 0;">Status</td><td style="text-align:right;">${esc(profile.approval_status || 'pending')}</td></tr>
       ${profile.phone ? `<tr><td style="color:#8b8d87;padding:4px 0;">Phone</td><td style="text-align:right;">${esc(profile.phone)}</td></tr>` : ''}

@@ -83,9 +83,37 @@ export const isPersonalEmail = (email) => PERSONAL_EMAIL_DOMAINS.has(emailDomain
 export const entityTypeLabel = (value) =>
   ENTITY_TYPES.find((t) => t.value === value)?.label || value || ''
 
-/** True when a profile has complete institutional credentials on file. Keep in
- *  step with requireApprovedAccount in netlify/functions/_order.mjs. */
-export function hasCredentials(p) {
+/** Credential document types a customer can upload. Values are stored in
+ *  profiles.credential_doc_type; keep in step with credential_documents.sql. */
+export const CREDENTIAL_DOC_TYPES = [
+  { value: 'business_license', label: 'Business license / registration' },
+  { value: 'institution_id', label: 'Institutional ID or employee badge' },
+  { value: 'institution_letter', label: 'Letter on institutional letterhead' },
+  { value: 'research_license', label: 'Research or laboratory license / permit' },
+  { value: 'other', label: 'Other proof of research employment' },
+]
+
+export const credentialDocTypeLabel = (value) =>
+  CREDENTIAL_DOC_TYPES.find((t) => t.value === value)?.label || value || ''
+
+export const CREDENTIAL_DOC_MAX_BYTES = 10 * 1024 * 1024
+export const CREDENTIAL_DOC_ACCEPT = '.pdf,.jpg,.jpeg,.png,.webp,.heic,.heif'
+const DOC_MIME = /^(application\/pdf|image\/(jpeg|png|webp|heic|heif))$/i
+const DOC_EXT = /\.(pdf|jpe?g|png|webp|heic|heif)$/i
+
+/** Problem with a chosen credential file, or '' if it's fine. */
+export function credentialFileError(file) {
+  if (!file) return 'Upload a document that shows you work in the industry.'
+  if (!(DOC_MIME.test(file.type || '') || DOC_EXT.test(file.name || ''))) {
+    return 'Upload a PDF or a photo (JPG, PNG, WEBP or HEIC).'
+  }
+  if (file.size > CREDENTIAL_DOC_MAX_BYTES) return 'The file must be 10 MB or smaller.'
+  return ''
+}
+
+/** True when the written credentials (institution, entity type, statements,
+ *  e-signature) are on file. */
+export function hasCredentialDetails(p) {
   return Boolean(
     p &&
       (p.institution || '').trim().length >= 3 &&
@@ -93,6 +121,13 @@ export function hasCredentials(p) {
       (p.signature_name || '').trim().length >= 2 &&
       p.attest_age_21 && p.attest_researcher && p.attest_research_only && p.attest_terms
   )
+}
+
+/** True when everything needed to check out is on file: the written
+ *  credentials AND an uploaded credential document. Approval is separate.
+ *  Keep in step with requireApprovedAccount in netlify/functions/_order.mjs. */
+export function hasCredentials(p) {
+  return hasCredentialDetails(p) && Boolean(p.credential_doc_path)
 }
 
 /** Validation for the credentials form shown to existing accounts at checkout

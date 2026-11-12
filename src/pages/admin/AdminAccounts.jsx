@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { adminListAccounts, reviewAccount, APPROVAL_STATUSES } from '../../lib/accounts.js'
-import { emailDomain, isPersonalEmail, entityTypeLabel } from '../../lib/researcher.jsx'
+import { emailDomain, isPersonalEmail, entityTypeLabel, credentialDocTypeLabel } from '../../lib/researcher.jsx'
+import { supabase } from '../../lib/supabaseClient'
 import './admin.css'
 
 function formatDate(d) {
@@ -55,6 +56,23 @@ export default function AdminAccounts() {
   }, [reviewable])
   const visible = filter === 'all' ? reviewable : reviewable.filter((a) => a.approval_status === filter)
   const migrationMissing = !loading && accounts.length > 0 && accounts.every((a) => a.approval_status === undefined)
+
+  // Credential documents are in a private bucket: open a 5-minute signed link.
+  const openDocument = async (a) => {
+    const win = window.open('', '_blank') // open now so it isn't blocked as a pop-up
+    setError('')
+    try {
+      const { data, error: urlError } = await supabase.storage
+        .from('credential-docs')
+        .createSignedUrl(a.credential_doc_path, 300)
+      if (urlError) throw urlError
+      if (win) win.location.href = data.signedUrl
+      else window.location.href = data.signedUrl
+    } catch (err) {
+      if (win) win.close()
+      setError(`Couldn’t open the document: ${err.message}`)
+    }
+  }
 
   const decide = async (a, decision) => {
     setBusyId(a.id)
@@ -181,6 +199,21 @@ export default function AdminAccounts() {
                         <span>{a.referral_code}</span>
                       </div>
                     )}
+                    <div>
+                      <span className="ordercard__label">Credential document</span>
+                      {a.credential_doc_path ? (
+                        <span>
+                          {credentialDocTypeLabel(a.credential_doc_type)}
+                          {a.credential_doc_uploaded_at ? ` · ${formatDate(a.credential_doc_uploaded_at)}` : ''}
+                          {' · '}
+                          <button type="button" className="acct__doclink" onClick={() => openDocument(a)}>
+                            View document ↗
+                          </button>
+                        </span>
+                      ) : (
+                        <span className="acct__flag">Not uploaded yet: they can’t check out until they upload one</span>
+                      )}
+                    </div>
                     {a.role && a.role !== 'customer' && (
                       <div>
                         <span className="ordercard__label">Role</span>
