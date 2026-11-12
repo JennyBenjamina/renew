@@ -17,6 +17,15 @@ const json = (status, body) => ({
 const esc = (s = '') =>
   String(s).replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]))
 
+const ENTITY_LABELS = {
+  university: 'University / academic institution',
+  research_lab: 'Research laboratory',
+  biotech_pharma: 'Biotechnology / pharmaceutical company',
+  cro: 'Contract research organization (CRO)',
+  government_nonprofit: 'Government or non-profit research organization',
+  other_business: 'Other registered business',
+}
+
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' })
 
@@ -36,7 +45,7 @@ export async function handler(event) {
   let profile = null
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?select=email,full_name,phone,role,institution,approval_status,created_at` +
+      `${SUPABASE_URL}/rest/v1/profiles?select=*` +
         `&email=ilike.${encodeURIComponent(email)}&limit=1`,
       { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
     )
@@ -67,18 +76,21 @@ export async function handler(event) {
   })()
 
   const html = emailShell(`
-    <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New customer account</h2>
-    <p style="color:#5c5f58;margin:0 0 16px;">Someone created a Renew account. No action needed. They can shop right away.</p>
+    <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">New researcher account to review</h2>
+    <p style="color:#5c5f58;margin:0 0 16px;">Someone registered for a Renew account. They can’t check out until you approve it.</p>
     <table style="width:100%;font-size:14px;">
       <tr><td style="color:#8b8d87;padding:4px 0;">Name</td><td style="text-align:right;">${esc(profile.full_name || '—')}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Email</td><td style="text-align:right;">${esc(profile.email || email)}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Institution</td><td style="text-align:right;">${esc(profile.institution || '—')}</td></tr>
+      <tr><td style="color:#8b8d87;padding:4px 0;">Entity type</td><td style="text-align:right;">${esc(ENTITY_LABELS[profile.entity_type] || profile.entity_type || '—')}</td></tr>
+      <tr><td style="color:#8b8d87;padding:4px 0;">Signed as</td><td style="text-align:right;">${esc(profile.signature_name || '—')}</td></tr>
+      ${profile.referral_code ? `<tr><td style="color:#8b8d87;padding:4px 0;">Referral code</td><td style="text-align:right;">${esc(profile.referral_code)}</td></tr>` : ''}
       <tr><td style="color:#8b8d87;padding:4px 0;">Status</td><td style="text-align:right;">${esc(profile.approval_status || 'pending')}</td></tr>
       ${profile.phone ? `<tr><td style="color:#8b8d87;padding:4px 0;">Phone</td><td style="text-align:right;">${esc(profile.phone)}</td></tr>` : ''}
       <tr><td style="color:#8b8d87;padding:4px 0;">Role</td><td style="text-align:right;">${esc(profile.role || 'customer')}</td></tr>
       <tr><td style="color:#8b8d87;padding:4px 0;">Joined</td><td style="text-align:right;">${esc(joined)} PT</td></tr>
     </table>
-    <p style="margin:18px 0 0;"><a href="${(process.env.SITE_URL || 'https://renewlabslv.com').replace(/\/+$/, '')}/admin/accounts">View in the admin panel →</a></p>
+    <p style="margin:18px 0 0;"><a href="${(process.env.SITE_URL || 'https://renewlabslv.com').replace(/\/+$/, '')}/admin/accounts">Review in the admin panel →</a></p>
     <p style="color:#8b8d87;font-size:12px;margin-top:12px;">Reply to reach the new member.</p>
   `)
 
@@ -90,7 +102,7 @@ export async function handler(event) {
         from: FROM,
         to: NOTIFY,
         reply_to: profile.email || email,
-        subject: `New account — ${profile.institution || profile.email || email}`,
+        subject: `Account to review — ${profile.institution || profile.email || email}`,
         html,
       }),
     })

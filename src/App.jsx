@@ -68,7 +68,17 @@ export default function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/coas" element={<COAs />} />
-          <Route path="/checkout" element={<Checkout />} />
+          {/* Checkout needs a signed-in account that an admin has approved.
+              Logged-out shoppers go to /login (with a link to create an
+              account); pending or rejected accounts go to /account/pending. */}
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute requireApproved>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Customer accounts */}
           <Route path="/login" element={<Login />} />

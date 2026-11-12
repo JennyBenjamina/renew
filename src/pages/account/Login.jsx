@@ -1,29 +1,34 @@
 import { useState } from 'react'
-import { Link, useNavigate, Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import BenchCard from './BenchCard.jsx'
+import AuthTabs from './AuthTabs.jsx'
 import './account.css'
 
 export default function Login() {
-  const { user, loading, signIn, isSupabaseConfigured } = useAuth()
-  const navigate = useNavigate()
+  const { user, loading, isApproved, signIn, isSupabaseConfigured } = useAuth()
   const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  // Restricted pages send unapproved accounts on to the pending notice.
-  const dest = location.state?.from || '/products'
-  if (!loading && user) return <Navigate to={dest} replace />
+  // Pages that need an account (checkout, account pages) send the shopper here
+  // with state.from, so they land back there after signing in.
+  const from = location.state?.from || null
+  const dest = from || '/products'
+  if (!loading && user) {
+    return <Navigate to={isApproved ? dest : '/account/pending'} replace />
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setBusy(true)
     try {
+      // The redirect above sends them on once their profile has loaded
+      // (approved → where they were going; pending → the review notice).
       await signIn(email.trim(), password)
-      navigate(dest, { replace: true })
     } catch (err) {
       setError(
         /email not confirmed/i.test(err.message || '')
@@ -37,10 +42,12 @@ export default function Login() {
 
   return (
     <BenchCard as="form" pill="Account" onSubmit={onSubmit} noValidate>
+      <AuthTabs active="login" from={from} />
       <h1 className="bench__title">Log in to Renew.</h1>
       <p className="bench__lede">
-        Log in to see your orders and check out faster. No account? You can
-        still shop and check out as a guest.
+        {from === '/checkout'
+          ? 'Sign in or create an account to check out. Your cart is saved.'
+          : 'An account is required to check out. Log in to see your orders and check out faster.'}
       </p>
 
       {!isSupabaseConfigured && (
@@ -73,7 +80,8 @@ export default function Login() {
       </button>
 
       <p className="bench__foot">
-        New to Renew? <Link to="/signup">Create an account</Link>
+        New to Renew?{' '}
+        <Link to="/signup" state={from ? { from } : undefined}>Create an account</Link>
       </p>
     </BenchCard>
   )

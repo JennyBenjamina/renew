@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
       // Errors raised by the signup validation trigger arrive wrapped.
       if (/database error saving new user/i.test(error.message)) {
         throw new Error(
-          'We couldn’t create this account. Use your institutional or business email, enter your institution, and confirm every statement.'
+          'We couldn’t create this account. Fill in every required field, confirm both statements, and sign with your legal name exactly as entered.'
         )
       }
       throw error

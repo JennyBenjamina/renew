@@ -41,3 +41,4 @@ supabase/.temp
 
 # Vite temp files written during builds
 vite.config.js.timestamp-*
+.buildcheck.tgz

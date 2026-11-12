@@ -93,12 +93,12 @@ export async function handler(event) {
       approved
         ? `
       <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">Your researcher account is approved</h2>
-      <p style="color:#5c5f58;margin:0 0 16px;">Your Renew account${profile.institution ? ` for <strong>${esc(profile.institution)}</strong>` : ''} has been reviewed and approved. You now have access to the research product catalog.</p>
+      <p style="color:#5c5f58;margin:0 0 16px;">Your Renew account${profile.institution ? ` for <strong>${esc(profile.institution)}</strong>` : ''} has been reviewed and approved. You can now log in and check out.</p>
       <p style="margin:0 0 16px;"><a href="${site}/login" style="display:inline-block;background:#1c1d1a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:600;">Log in to Renew</a></p>
       <p style="color:#8b8d87;font-size:12px;margin:0;">All products are for in-vitro laboratory research only and are not for human or animal consumption.</p>`
         : `
       <h2 style="font-weight:600;font-size:20px;margin:0 0 6px;">Your registration wasn’t approved</h2>
-      <p style="color:#5c5f58;margin:0 0 16px;">After review, we weren’t able to approve your Renew account for access to the research product catalog.</p>
+      <p style="color:#5c5f58;margin:0 0 16px;">After review, we weren’t able to approve your Renew account for checkout.</p>
       ${note ? `<p style="margin:0 0 16px;"><strong>Reviewer note:</strong> ${esc(note)}</p>` : ''}
       <p style="color:#5c5f58;margin:0;">If you believe this is a mistake, reply to this email with details of your research institution.</p>`
     )

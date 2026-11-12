@@ -9,8 +9,9 @@ export default function ProtectedRoute({
   children,
   requireAdmin = false,
   requireAffiliate = false,
+  requireApproved = false,
 }) {
-  const { user, isAdmin, isAffiliate, loading } = useAuth()
+  const { user, isAdmin, isAffiliate, isApproved, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -23,6 +24,10 @@ export default function ProtectedRoute({
   if (requireAdmin && !isAdmin) {
     // Signed in but not an admin — no access to the dashboard.
     return <Navigate to="/" replace />
+  }
+  if (requireApproved && !isApproved) {
+    // Signed in but not yet approved by an admin (or rejected) — no checkout.
+    return <Navigate to="/account/pending" replace />
   }
   if (requireAffiliate && !isAffiliate && !isAdmin) {
     // Signed in but not a sales rep — no access to the affiliate dashboard.

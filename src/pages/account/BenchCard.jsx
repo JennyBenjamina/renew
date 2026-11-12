@@ -23,9 +23,9 @@ export function PendingNotice({ email }) {
       <h1 className="bench__title">Registration received.</h1>
       <p className="bench__lede">
         Your account registration has been successfully submitted for review.
-        Access to our research product catalog will remain restricted until your
-        account has been reviewed and approved by our administration team. You
-        will be notified once a decision has been made.
+        Checkout will remain unavailable until your account has been reviewed
+        and approved by our administration team. You will be notified by email
+        once a decision has been made.
       </p>
       {email && (
         <p className="bench__help">

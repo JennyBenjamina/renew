@@ -643,3 +643,107 @@
     font-size: 1.35rem;
   }
 }
+
+/* ---- Sign in / Create account tabs ---- */
+.bench__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-subtle);
+}
+.bench__tab {
+  padding: 10px 12px;
+  border-radius: var(--radius-pill);
+  text-align: center;
+  font-family: var(--bench-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition);
+}
+.bench__tab:hover {
+  color: var(--color-text);
+}
+.bench__tab.is-active {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-weight: 600;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-text) 12%, transparent);
+}
+
+/* ---- Split business email: name @ domain ---- */
+.bench__email {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.3fr);
+  align-items: center;
+  gap: 8px;
+}
+.bench__at {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+.bench__input:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* ---- Selects share the input look ---- */
+.bench__select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-5 5 5M7 14l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+}
+
+/* ---- Password with show/hide ---- */
+.bench__password {
+  position: relative;
+}
+.bench__password .bench__input {
+  padding-right: 48px;
+}
+.bench__reveal {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.bench__reveal:hover,
+.bench__reveal:focus-visible {
+  color: var(--color-text);
+  outline: none;
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+
+/* ---- Electronic signature block ---- */
+.bench__sign {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.bench__sign .bench__help a {
+  color: var(--color-text);
+}
+.bench__signature {
+  font-style: italic;
+}

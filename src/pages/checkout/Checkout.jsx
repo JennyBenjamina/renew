@@ -250,10 +250,11 @@ export default function Checkout() {
 
   const applyCoupon = () => applyCode(coupon)
 
-  // On mount, re-apply a saved coupon (from a restored session) or a referral
-  // code carried in from a rep's link (?ref=CODE).
+  // On mount, re-apply a saved coupon (from a restored session), a referral
+  // code carried in from a rep's link (?ref=CODE), or the referral code the
+  // shopper entered when creating their account.
   useEffect(() => {
-    const code = saved?.coupon || getStoredReferral()
+    const code = saved?.coupon || getStoredReferral() || profile?.referral_code
     if (code) applyCode(code)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

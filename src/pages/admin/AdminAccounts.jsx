@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { adminListAccounts, reviewAccount, APPROVAL_STATUSES } from '../../lib/accounts.js'
-import { emailDomain, isPersonalEmail } from '../../lib/researcher.jsx'
+import { emailDomain, isPersonalEmail, entityTypeLabel } from '../../lib/researcher.jsx'
 import './admin.css'
 
 function formatDate(d) {
@@ -158,6 +158,27 @@ export default function AdminAccounts() {
                       <div>
                         <span className="ordercard__label">Name</span>
                         <span>{a.full_name}</span>
+                      </div>
+                    )}
+                    {a.entity_type && (
+                      <div>
+                        <span className="ordercard__label">Entity type</span>
+                        <span>{entityTypeLabel(a.entity_type)}</span>
+                      </div>
+                    )}
+                    {a.signature_name && (
+                      <div>
+                        <span className="ordercard__label">E-signature</span>
+                        <span>
+                          {a.signature_name}
+                          {a.signed_at ? ` · ${formatDate(a.signed_at)}` : ''}
+                        </span>
+                      </div>
+                    )}
+                    {a.referral_code && (
+                      <div>
+                        <span className="ordercard__label">Referral code</span>
+                        <span>{a.referral_code}</span>
                       </div>
                     )}
                     {a.role && a.role !== 'customer' && (

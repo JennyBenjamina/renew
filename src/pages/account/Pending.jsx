@@ -3,7 +3,8 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import BenchCard, { PendingNotice } from './BenchCard.jsx'
 import './account.css'
 
-/** Where pending and rejected accounts land. Never shows the catalog. */
+/** Where pending and rejected accounts land. They can browse, but checkout
+ *  stays closed until an admin approves the account. */
 export default function Pending() {
   const { user, profile, loading, isApproved, approvalStatus, signOut } = useAuth()
 
@@ -19,8 +20,8 @@ export default function Pending() {
         <div className="bench__notice" role="status">
           <h1 className="bench__title">Registration not approved.</h1>
           <p className="bench__lede">
-            After review, we weren’t able to approve this account for access to
-            the research product catalog.
+            After review, we weren’t able to approve this account for
+            checkout.
           </p>
           {profile?.review_note && (
             <p className="bench__help"><strong>Reviewer note:</strong> {profile.review_note}</p>
