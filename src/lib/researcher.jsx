@@ -143,3 +143,72 @@ export function validateCredentials(form) {
   delete errors.password
   return errors
 }
+
+/* ---- Registration email allowlist (TEMPORARY, website only) ----
+ * While EMAIL_ALLOWLIST_ENABLED is true, the signup form only accepts these
+ * email providers plus school addresses ending in .edu, and refuses addresses
+ * that break the provider's username rules (they would bounce). Pure logic and
+ * regex in the browser; nothing is enforced in Supabase or Netlify functions.
+ * TO LIFT IT: set EMAIL_ALLOWLIST_ENABLED to false and redeploy. */
+export const EMAIL_ALLOWLIST_ENABLED = true
+
+/* ---- Registration closed (TEMPORARY, website only) ----
+ * While true, EVERY email is refused at signup with the "ACCOUNT CREATION
+ * DENIED" message, whatever its domain. Existing accounts can still log in.
+ * TO REOPEN REGISTRATION: set REGISTRATION_CLOSED to false and redeploy (the
+ * email allowlist above then applies, if it's still on). */
+export const REGISTRATION_CLOSED = true
+
+export const ALLOWED_SIGNUP_DOMAINS = ['gmail.com', 'yahoo.com', 'aol.com', 'hotmail.com']
+
+/** True when an email's domain may register. */
+export function isAllowedSignupEmail(email) {
+  const domain = emailDomain(email)
+  if (!domain) return false
+  return ALLOWED_SIGNUP_DOMAINS.includes(domain) || /^[a-z0-9-]+(\.[a-z0-9-]+)*\.edu$/.test(domain)
+}
+
+/* Username rules for each allowed provider. An address that breaks its
+ * provider's rules can't exist, so mail to it would bounce. (A "+tag" is
+ * allowed on Gmail and Hotmail and is ignored when checking the username.) */
+const PROVIDER_USERNAME_RULES = {
+  // Gmail: 6–30 letters, numbers and periods; no leading, trailing or double periods.
+  'gmail.com': /^(?=.{6,30}$)[a-z0-9](?:[a-z0-9]|\.(?!\.))*[a-z0-9]$/,
+  // Yahoo: 4–32 characters, starts with a letter; letters, numbers, underscores
+  // and at most one period; can't end with a period or underscore.
+  'yahoo.com': /^(?=.{4,32}$)(?!(?:[^.]*\.){2})[a-z][a-z0-9_.]*[a-z0-9]$/,
+  // AOL: 3–32 characters, starts with a letter; letters, numbers, underscores
+  // and periods; can't end with a period or underscore.
+  'aol.com': /^(?=.{3,32}$)[a-z][a-z0-9_.]*[a-z0-9]$/,
+  // Hotmail: up to 64 characters, starts with a letter; letters, numbers,
+  // periods, underscores and hyphens; no double periods; can't end with a period.
+  'hotmail.com': /^(?=.{1,64}$)[a-z](?:[a-z0-9_-]|\.(?!\.))*[a-z0-9_-]$|^[a-z]$/,
+}
+
+// School (.edu) addresses: standard address rules for the username, and a
+// well-formed domain such as unlv.edu or g.ucla.edu.
+const GENERIC_USERNAME = /^(?=.{1,64}$)[a-z0-9_%+-](?:[a-z0-9_%+-]|\.(?!\.))*[a-z0-9_%+-]$|^[a-z0-9_%+-]$/
+const EDU_DOMAIN = /^(?=.{5,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+edu$/
+
+/** True when the address follows the rules for its provider (Gmail, Yahoo,
+ *  AOL, Hotmail) or for a .edu school address, i.e. it isn't an address that
+ *  would obviously bounce. Pure logic and regex; no network lookups. */
+export function isLikelyDeliverable(email) {
+  const addr = String(email || '').trim().toLowerCase()
+  const at = addr.lastIndexOf('@')
+  if (at <= 0 || addr.indexOf('@') !== at) return false
+  const local = addr.slice(0, at)
+  const domain = addr.slice(at + 1)
+
+  const rule = PROVIDER_USERNAME_RULES[domain]
+  if (rule) {
+    const allowsTag = domain === 'gmail.com' || domain === 'hotmail.com'
+    const username = allowsTag ? local.split('+')[0] : local
+    if (!allowsTag && local.includes('+')) return false
+    return rule.test(username)
+  }
+  if (domain.endsWith('.edu')) {
+    return EDU_DOMAIN.test(domain) && GENERIC_USERNAME.test(local)
+  }
+  return false
+}

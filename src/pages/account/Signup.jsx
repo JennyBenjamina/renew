@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { TERMS_VERSION } from '../../lib/compliance.js'
@@ -7,6 +7,10 @@ import { getStoredReferral } from '../../lib/referral.js'
 import {
   ENTITY_TYPES,
   composeEmail,
+  EMAIL_ALLOWLIST_ENABLED,
+  REGISTRATION_CLOSED,
+  isAllowedSignupEmail,
+  isLikelyDeliverable,
   validateRegistration,
 } from '../../lib/researcher.jsx'
 import BenchCard, { PendingNotice } from './BenchCard.jsx'
@@ -38,6 +42,13 @@ export default function Signup() {
   const [referralError, setReferralError] = useState('')
   const [busy, setBusy] = useState(false)
   const [doneEmail, setDoneEmail] = useState(null)
+  // Email domain not on the approved list (or it can't receive mail).
+  const [denied, setDenied] = useState(false)
+  const deniedRef = useRef(null)
+  useEffect(() => {
+    if (denied) deniedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [denied])
+  const allowlistOn = EMAIL_ALLOWLIST_ENABLED && !REGISTRATION_CLOSED
 
   // Straight after registering: ask them to confirm their email.
   if (doneEmail) {
@@ -64,11 +75,26 @@ export default function Signup() {
     e.preventDefault()
     setError('')
     setReferralError('')
+    setDenied(false)
+    // Registration temporarily closed: refuse every email straight away
+    // (see REGISTRATION_CLOSED in src/lib/researcher.jsx).
+    if (REGISTRATION_CLOSED) {
+      setDenied(true)
+      return
+    }
     setSubmitted(true)
     if (Object.keys(errors).length) return
 
     setBusy(true)
     try {
+      // Temporary email restriction (website only; see EMAIL_ALLOWLIST_ENABLED):
+      // only approved domains, and only addresses that follow that provider's
+      // username rules (anything else would bounce).
+      if (allowlistOn && (!isAllowedSignupEmail(email) || !isLikelyDeliverable(email))) {
+        setDenied(true)
+        return
+      }
+
       // An optional referral code must belong to an active sales rep.
       let referral = form.referralCode.trim()
       if (referral) {
@@ -120,14 +146,26 @@ export default function Signup() {
         </div>
       )}
       {error && <div className="auth__alert auth__alert--error" role="alert">{error}</div>}
+      {denied && (
+        <div ref={deniedRef} className="auth__alert auth__alert--error auth__alert--denied" role="alert">
+          <strong>ACCOUNT CREATION DENIED</strong>
+          <p>
+            Your email domain is not on our approved list, so we cannot create an
+            account for you. Registration is limited to approved institutions under
+            our institutional policies. If you believe this is a mistake,{' '}
+            <a href="mailto:support@renewlabslv.com">contact us</a>.
+          </p>
+        </div>
+      )}
 
-      {/* Business email: name @ domain */}
+      {/* Email: name @ domain */}
       <div className="bench__field">
-        <label htmlFor="signup-email-local" className="bench__label">Business email *</label>
+        <label htmlFor="signup-email-local" className="bench__label">Email *</label>
         <div className="bench__email">
           <input id="signup-email-local"
             className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
-            value={form.emailLocal} onChange={setText('emailLocal')} onBlur={blur('email')}
+            value={form.emailLocal}
+            onChange={(e) => { setDenied(false); setText('emailLocal')(e) }} onBlur={blur('email')}
             placeholder="name" autoComplete="username" autoCapitalize="none"
             spellCheck={false} aria-label="Email name"
             aria-invalid={Boolean(show('email'))} aria-describedby="signup-email-help" />
@@ -135,14 +173,16 @@ export default function Signup() {
           <input id="signup-email-domain"
             className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
             value={form.emailDomain}
-            onChange={setText('emailDomain')} onBlur={blur('email')}
-            placeholder="organization.com" autoCapitalize="none" spellCheck={false}
+            onChange={(e) => { setDenied(false); setText('emailDomain')(e) }} onBlur={blur('email')}
+            placeholder={allowlistOn ? 'gmail.com or school.edu' : 'organization.com'}
+            autoCapitalize="none" spellCheck={false}
             aria-label="Email domain" aria-invalid={Boolean(show('email'))} />
         </div>
         {show('email') && <span className="bench__error">{errors.email}</span>}
         <span id="signup-email-help" className="bench__help">
-          Email: {email || 'name@organization.com'}. We’ll send a confirmation
-          link to this address.
+          Email: {email || 'name@example.com'}.{' '}
+          {allowlistOn && 'Accepted: Gmail, Yahoo, AOL, Hotmail, or a school address ending in .edu. '}
+          We’ll send a confirmation link to this address.
         </span>
       </div>
 

@@ -827,3 +827,26 @@
 .bench__file-text span {
   font-size: 0.76rem;
 }
+
+/* ---- Registration denied (email domain not on the approved list) ---- */
+.auth__alert--denied {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-width: 1.5px;
+}
+.auth__alert--denied strong {
+  font-family: var(--bench-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+}
+.auth__alert--denied p {
+  margin: 0;
+  line-height: 1.5;
+}
+.auth__alert--denied a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
