@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { ACCOUNT_REQUIRED } from '../../lib/researcher.jsx'
 
 /** Guards routes by auth state.
  *  - requireAdmin: also requires the user's profile role to be 'admin'.
@@ -18,6 +19,8 @@ export default function ProtectedRoute({
     return <div className="admin-loading">Checking access…</div>
   }
   if (!user) {
+    // Guest checkout: with ACCOUNT_REQUIRED off, logged-out shoppers may check out.
+    if (requireApproved && !requireAdmin && !ACCOUNT_REQUIRED) return children
     const to = requireAdmin ? '/admin/login' : '/login'
     return <Navigate to={to} replace state={{ from: location.pathname }} />
   }

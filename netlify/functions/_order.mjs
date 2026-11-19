@@ -333,6 +333,18 @@ export async function metaCapiPurchase(env, { orderNumber, customer, items, tota
   }
 }
 
+/* Credential verification toggle: keep in step with CREDENTIALS_REQUIRED in
+ * src/lib/researcher.jsx. While false, checkout needs admin approval only. */
+const CREDENTIALS_REQUIRED = false
+/* Admin approval toggle: keep in step with APPROVAL_REQUIRED in
+ * src/lib/researcher.jsx. While false, any signed-in account can check out
+ * unless an admin has rejected it. */
+const APPROVAL_REQUIRED = false
+/* Guest checkout toggle: keep in step with ACCOUNT_REQUIRED in
+ * src/lib/researcher.jsx. While false, a request with no login checks out as a
+ * guest (userId null); the confirmation goes to the email entered at checkout. */
+const ACCOUNT_REQUIRED = false
+
 /**
  * Compliance gate: only signed-in accounts with institutional credentials on
  * file that an admin has verified/approved (or admins) may start a checkout. Reads the caller's Supabase access token from
@@ -347,6 +359,7 @@ export async function requireApprovedAccount(env, event) {
   const header = event.headers?.authorization || event.headers?.Authorization || ''
   const token = header.replace(/^Bearer\s+/i, '').trim()
   if (!token) {
+    if (!ACCOUNT_REQUIRED) return { ok: true, userId: null }
     return { ok: false, status: 401, error: 'Please log in to your approved researcher account to check out.' }
   }
   try {
@@ -371,7 +384,7 @@ export async function requireApprovedAccount(env, event) {
       String(p.signature_name || '').trim().length >= 2 &&
       p.attest_age_21 && p.attest_researcher && p.attest_research_only && p.attest_terms &&
       Boolean(p.credential_doc_path)
-    if (p && !credentialsOnFile) {
+    if (CREDENTIALS_REQUIRED && p && !credentialsOnFile) {
       return {
         ok: false,
         status: 403,
@@ -379,6 +392,10 @@ export async function requireApprovedAccount(env, event) {
       }
     }
     if (p && p.approval_status === 'approved') return { ok: true, userId }
+    if (!APPROVAL_REQUIRED && p && p.approval_status !== 'rejected') return { ok: true, userId }
+    if (p && p.approval_status === 'rejected') {
+      return { ok: false, status: 403, error: 'Your account isn’t able to check out. Please contact us.' }
+    }
     return {
       ok: false,
       status: 403,

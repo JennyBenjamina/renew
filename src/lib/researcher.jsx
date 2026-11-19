@@ -123,6 +123,33 @@ export function hasCredentialDetails(p) {
   )
 }
 
+/* ---- Account required to check out (TOGGLE) ----
+ * While true, shoppers must log in to check out.
+ * While false, guests can check out without an account; their order
+ * confirmation goes to the email they enter at checkout. Signed-in shoppers
+ * still have the order linked to their account (and the other toggles below
+ * still apply to them).
+ * TO TURN IT BACK ON: set this to true AND ACCOUNT_REQUIRED in
+ * netlify/functions/_order.mjs to true, then redeploy. */
+export const ACCOUNT_REQUIRED = false
+
+/* ---- Admin approval before checkout (TOGGLE) ----
+ * While true, a new account waits in "Under review" until an admin approves it
+ * in Admin → Accounts, and can't check out before then.
+ * While false, every signed-in account can check out straight away, except
+ * one an admin has explicitly rejected.
+ * TO TURN IT BACK ON: set this to true AND APPROVAL_REQUIRED in
+ * netlify/functions/_order.mjs to true, then redeploy. */
+export const APPROVAL_REQUIRED = false
+
+/* ---- Credential verification before checkout (TOGGLE) ----
+ * While true, an account must upload institutional credentials (the "Verify
+ * your credentials" step at /account/credentials) before it can check out.
+ * While false, that step is skipped entirely; admin approval still applies.
+ * TO TURN IT BACK ON: set this to true AND CREDENTIALS_REQUIRED in
+ * netlify/functions/_order.mjs to true, then redeploy. */
+export const CREDENTIALS_REQUIRED = false
+
 /** True when everything needed to check out is on file: the written
  *  credentials AND an uploaded credential document. Approval is separate.
  *  Keep in step with requireApprovedAccount in netlify/functions/_order.mjs. */

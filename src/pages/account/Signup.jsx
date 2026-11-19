@@ -7,6 +7,7 @@ import { getStoredReferral } from '../../lib/referral.js'
 import {
   ENTITY_TYPES,
   composeEmail,
+  APPROVAL_REQUIRED,
   EMAIL_ALLOWLIST_ENABLED,
   REGISTRATION_CLOSED,
   isAllowedSignupEmail,
@@ -51,6 +52,23 @@ export default function Signup() {
   const allowlistOn = EMAIL_ALLOWLIST_ENABLED && !REGISTRATION_CLOSED
 
   // Straight after registering: ask them to confirm their email.
+  if (doneEmail && !APPROVAL_REQUIRED) {
+    return (
+      <BenchCard pill="Account created">
+        <div className="bench__notice" role="status">
+          <h1 className="bench__title">Account created.</h1>
+          <p className="bench__lede">
+            Check <strong>{doneEmail}</strong> for a confirmation link. Once
+            you’ve clicked it, log in to start shopping.
+          </p>
+        </div>
+        <p className="bench__foot">
+          <Link to="/products">Continue browsing</Link> ·{' '}
+          <Link to="/login">Log in</Link>
+        </p>
+      </BenchCard>
+    )
+  }
   if (doneEmail) {
     return (
       <BenchCard pill="Under review">
@@ -138,8 +156,8 @@ export default function Signup() {
       <h1 className="bench__title">Create qualified researcher account.</h1>
       <p className="bench__lede">
         All fields are required unless marked optional. Account creation is
-        restricted to qualified research professionals age 21+. Accounts are
-        reviewed before checkout access is granted.
+        restricted to qualified research professionals age 21+.
+        {APPROVAL_REQUIRED && ' Accounts are reviewed before checkout access is granted.'}
       </p>
 
       {!isSupabaseConfigured && (
