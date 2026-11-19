@@ -82,19 +82,21 @@ export default function Signup() {
       setDenied(true)
       return
     }
+    // Email allowlist (website only; see EMAIL_ALLOWLIST_ENABLED): any address
+    // whose domain isn't Gmail, Yahoo, AOL or Hotmail, or whose username breaks
+    // that provider's rules (it would bounce), is denied instantly, before any
+    // other field is checked or anything is sent.
+    const typedDomain = form.emailDomain.trim().replace(/^@/, '').toLowerCase()
+    if (allowlistOn && typedDomain &&
+        (!isAllowedSignupEmail(`x@${typedDomain}`) || (email && !isLikelyDeliverable(email)))) {
+      setDenied(true)
+      return
+    }
     setSubmitted(true)
     if (Object.keys(errors).length) return
 
     setBusy(true)
     try {
-      // Temporary email restriction (website only; see EMAIL_ALLOWLIST_ENABLED):
-      // only approved domains, and only addresses that follow that provider's
-      // username rules (anything else would bounce).
-      if (allowlistOn && (!isAllowedSignupEmail(email) || !isLikelyDeliverable(email))) {
-        setDenied(true)
-        return
-      }
-
       // An optional referral code must belong to an active sales rep.
       let referral = form.referralCode.trim()
       if (referral) {
@@ -174,14 +176,13 @@ export default function Signup() {
             className={`bench__input ${show('email') ? 'is-invalid' : ''}`}
             value={form.emailDomain}
             onChange={(e) => { setDenied(false); setText('emailDomain')(e) }} onBlur={blur('email')}
-            placeholder={allowlistOn ? 'gmail.com or school.edu' : 'organization.com'}
             autoCapitalize="none" spellCheck={false}
             aria-label="Email domain" aria-invalid={Boolean(show('email'))} />
         </div>
         {show('email') && <span className="bench__error">{errors.email}</span>}
         <span id="signup-email-help" className="bench__help">
           Email: {email || 'name@example.com'}.{' '}
-          {allowlistOn && 'Accepted: Gmail, Yahoo, AOL, Hotmail, or a school address ending in .edu. '}
+          {allowlistOn && 'Accepted: @gmail.com, @yahoo.com, @aol.com or @hotmail.com only. '}
           We’ll send a confirmation link to this address.
         </span>
       </div>

@@ -146,7 +146,7 @@ export function validateCredentials(form) {
 
 /* ---- Registration email allowlist (TEMPORARY, website only) ----
  * While EMAIL_ALLOWLIST_ENABLED is true, the signup form only accepts these
- * email providers plus school addresses ending in .edu, and refuses addresses
+ * four email providers (no other domain, .edu included), and refuses addresses
  * that break the provider's username rules (they would bounce). Pure logic and
  * regex in the browser; nothing is enforced in Supabase or Netlify functions.
  * TO LIFT IT: set EMAIL_ALLOWLIST_ENABLED to false and redeploy. */
@@ -157,7 +157,7 @@ export const EMAIL_ALLOWLIST_ENABLED = true
  * DENIED" message, whatever its domain. Existing accounts can still log in.
  * TO REOPEN REGISTRATION: set REGISTRATION_CLOSED to false and redeploy (the
  * email allowlist above then applies, if it's still on). */
-export const REGISTRATION_CLOSED = true
+export const REGISTRATION_CLOSED = false
 
 export const ALLOWED_SIGNUP_DOMAINS = ['gmail.com', 'yahoo.com', 'aol.com', 'hotmail.com']
 
@@ -165,7 +165,7 @@ export const ALLOWED_SIGNUP_DOMAINS = ['gmail.com', 'yahoo.com', 'aol.com', 'hot
 export function isAllowedSignupEmail(email) {
   const domain = emailDomain(email)
   if (!domain) return false
-  return ALLOWED_SIGNUP_DOMAINS.includes(domain) || /^[a-z0-9-]+(\.[a-z0-9-]+)*\.edu$/.test(domain)
+  return ALLOWED_SIGNUP_DOMAINS.includes(domain)
 }
 
 /* Username rules for each allowed provider. An address that breaks its
@@ -185,13 +185,8 @@ const PROVIDER_USERNAME_RULES = {
   'hotmail.com': /^(?=.{1,64}$)[a-z](?:[a-z0-9_-]|\.(?!\.))*[a-z0-9_-]$|^[a-z]$/,
 }
 
-// School (.edu) addresses: standard address rules for the username, and a
-// well-formed domain such as unlv.edu or g.ucla.edu.
-const GENERIC_USERNAME = /^(?=.{1,64}$)[a-z0-9_%+-](?:[a-z0-9_%+-]|\.(?!\.))*[a-z0-9_%+-]$|^[a-z0-9_%+-]$/
-const EDU_DOMAIN = /^(?=.{5,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+edu$/
-
 /** True when the address follows the rules for its provider (Gmail, Yahoo,
- *  AOL, Hotmail) or for a .edu school address, i.e. it isn't an address that
+ *  AOL, Hotmail), i.e. it isn't an address that
  *  would obviously bounce. Pure logic and regex; no network lookups. */
 export function isLikelyDeliverable(email) {
   const addr = String(email || '').trim().toLowerCase()
@@ -206,9 +201,6 @@ export function isLikelyDeliverable(email) {
     const username = allowsTag ? local.split('+')[0] : local
     if (!allowsTag && local.includes('+')) return false
     return rule.test(username)
-  }
-  if (domain.endsWith('.edu')) {
-    return EDU_DOMAIN.test(domain) && GENERIC_USERNAME.test(local)
   }
   return false
 }
